@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  color: #fff;
+  background: #202229;
+  font-family: "Nunito Sans", sans-serif;
+
+  & > .content {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+
+    & > .image {
+      aspect-ratio: 2 / 1;
+      object-fit: contain;
+      width: 80%;
+      height: 100%;
+    }
+  }
+}

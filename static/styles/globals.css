@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+
+* {
+  user-select: none;
+  font-family: "Nunito Sans";
+  font-style: normal;
+  max-width: -webkit-fill-available;
+}
+
+:root {
+  --tr: all 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+body {
+  display: flex;
+  background: #202229;
+  color: white;
+  padding: 0;
+  margin: 0;
+  flex-direction: column;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
