@@ -1,0 +1,79 @@
+:local(.searchForm) {
+  position: relative;
+  max-width: 600px;
+  margin: 20px auto;
+  display: flex;
+}
+
+:local(.inputWrapper) {
+  position: relative;
+  width: 100%;
+}
+
+:local(.searchInput) {
+  width: 100%;
+  padding: 10px 16px;
+  border: 1px solid #ddd;
+  border-radius: 24px;
+  outline: none;
+  font-size: 16px;
+  transition: box-shadow 0.2s;
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: #4285f4;
+  }
+}
+
+:local(.searchButton) {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  outline: none;
+  &:hover {
+    color: #000;
+  }
+}
+
+:local(.suggestionsList) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+:local(.suggestionItem) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  &:hover,
+  &.highlighted {
+    background: #f1f1f1;
+  }
+}
+
+:local(.tagText) {
+  font-size: 14px;
+  color: #333;
+}
+
+:local(.tagCount) {
+  font-size: 12px;
+  color: #999;
+}

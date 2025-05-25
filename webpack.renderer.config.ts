@@ -1,7 +1,9 @@
-import type { Configuration } from "webpack";
+import type { Configuration as WebpackConfiguration } from 'webpack';
+import type { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 
 import { rules } from "./webpack.rules";
 import { plugins } from "./webpack.plugins";
+
 
 rules.push({
   test: /\.css$/,
@@ -50,9 +52,15 @@ rules.push({
   ],
 });
 
-export const rendererConfig: Configuration = {
+export const rendererConfig: WebpackConfiguration = {
   module: {
     rules,
+  },
+  devServer: {
+    headers: {
+      "Content-Security-Policy":
+        "default-src 'self' 'unsafe-inline' data:; connect-src 'self' ws://localhost:8080",
+    },
   },
   plugins,
   resolve: {

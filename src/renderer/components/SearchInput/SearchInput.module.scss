@@ -1,0 +1,112 @@
+.searchForm {
+  position: relative;
+  flex: 1;
+  max-width: 500px;
+}
+
+.searchContainer {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  z-index: 1;
+}
+
+.searchInput {
+  width: 360px;
+  padding: 10px 15px 10px 40px;
+  border-radius: 6px;
+  border: 1px solid #3a3a4a;
+  background-color: #2a2a3a;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #6e45e2;
+    box-shadow: 0 0 0 2px rgba(110, 69, 226, 0.2);
+  }
+
+  &::placeholder {
+    color: #888;
+  }
+}
+
+.historyDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2a2a3a;
+  border-radius: 6px;
+  margin-top: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background: #3a3a4a;
+  color: #b0b0c0;
+  font-size: 0.85rem;
+}
+
+.historyIcon {
+  margin-right: 8px;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #3a3a4a;
+  }
+}
+
+.historyText {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.removeHistoryButton {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.1);
+  }
+}

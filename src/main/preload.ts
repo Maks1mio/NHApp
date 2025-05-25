@@ -12,6 +12,12 @@ contextBridge.exposeInMainWorld("electron", {
     showOpenDialog: (options: Electron.OpenDialogOptions) =>
       ipcRenderer.invoke("dialog:showOpenDialog", options),
   },
+  booru: {
+    search: (tags: string, page: number = 1) =>
+      ipcRenderer.invoke("booru:search", tags, page),
+    suggest: (query: string) => ipcRenderer.invoke("booru:suggest", query),
+    proxy: (url: string) => ipcRenderer.invoke("booru:proxy", url),
+  },
 });
 
 export {};

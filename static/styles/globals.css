@@ -24,3 +24,8 @@ body {
   top: 0;
   bottom: 0;
 }
+
+::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+}

@@ -1,8 +1,7 @@
-import type { ForgeConfig } from "@electron-forge/shared-types";
-import { WebpackPlugin } from "@electron-forge/plugin-webpack";
-import { mainConfig } from "./webpack.main.config";
-import { rendererConfig } from "./webpack.renderer.config";
-
+import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+import { mainConfig } from './webpack.main.config';
+import { rendererConfig } from './webpack.renderer.config';
+import type { ForgeConfig } from '@electron-forge/shared-types';
 
 const forgeConfig: ForgeConfig = {
   packagerConfig: {
@@ -28,7 +27,7 @@ const forgeConfig: ForgeConfig = {
           {
             name: "main_window",
             html: "./src/renderer/index.html",
-            js: './src/main/renderer.ts',
+            js: "./src/main/renderer.ts",
             preload: {
               js: "./src/main/preload.ts",
             },

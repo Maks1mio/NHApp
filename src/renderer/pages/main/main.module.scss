@@ -2,20 +2,49 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  color: #fff;
-  background: #202229;
-  font-family: "Nunito Sans", sans-serif;
+  background: #1e1e2f;
+}
 
-  & > .content {
-    display: flex;
-    flex-grow: 1;
-    justify-content: center;
+.containerFix {
+  flex: 1;
+  width: -webkit-fill-available;
+  height: -webkit-fill-available;
+}
 
-    & > .image {
-      aspect-ratio: 2 / 1;
-      object-fit: contain;
-      width: 80%;
-      height: 100%;
-    }
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: -webkit-fill-available;
+  width: -webkit-fill-available;
+}
+
+.tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #393b46;
+  padding-bottom: 8px;
+}
+
+.tab {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: #b0b0c0;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &.active {
+    color: #6e45e2;
+    font-weight: 600;
+    background: rgba(110, 69, 226, 0.1);
   }
 }

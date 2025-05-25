@@ -1,0 +1,50 @@
+.container {
+  padding: 16px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+  color: #b0b0c0;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #3d3d4d;
+  border-top-color: #6e45e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #b0b0c0;
+  text-align: center;
+}
+
+.error {
+  color: #ff4444;
+  padding: 24px;
+  background: rgba(255, 68, 68, 0.1);
+  border-radius: 8px;
+  text-align: center;
+}

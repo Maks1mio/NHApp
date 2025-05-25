@@ -1,67 +1,107 @@
+// header.module.scss
 .nav {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 0px 0px 15px;
-  gap: 25px;
-  background: #292b36;
+  padding: 0 0 0 16px;
+  height: 60px;
+  background-color: #2d2d3a;
+  color: white;
+  border-bottom: 1px solid #40404d;
   -webkit-app-region: drag;
+}
 
-  & > .leftSide {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 0px;
-    gap: 8px;
+.appIcon {
+  width: 60px;
+  height: 60px;
+  background-size: contain;
+}
 
-    font-weight: 700;
-    font-size: 14px;
-    line-height: 140%;
+.leftSide {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  height: -webkit-fill-available;
+  padding: 5px;
+}
 
-    color: #dfe1ea;
+.favButtons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: -webkit-fill-available;
+}
 
-    & > .info {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      padding: 0px;
-      gap: 8px;
-    }
+.info {
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+  -webkit-app-region: no-drag;
+
+  &:hover {
+    color: #6e45e2;
+  }
+}
+
+.searchInputWrapper {
+  flex: 1;
+  max-width: 500px;
+  position: absolute !important;
+  -webkit-app-region: no-drag;
+  justify-self: anchor-center;
+}
+
+.rightSide {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: -webkit-fill-available;
+  padding: 5px;
+}
+
+.favButton {
+  background: none;
+  border: none;
+  display: flex;
+  color: white;
+  height: 100%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 14px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  -webkit-app-region: no-drag;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    color: #ff5e78;
+    background: rgba(255, 94, 120, 0.1);
+  }
+}
+
+.buttonsContainer {
+  display: flex;
+  gap: 2px;
+  height: 100%;
+}
+
+.buttons {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 14px;
+  display: flex;
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+
+  &:hover {
+    background-color: #40404d;
   }
 
-  & > .rightSide {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 0px;
-    gap: 11px;
-
-    & > .buttonsContainer {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0px;
-
-      & > .buttons {
-        transition: var(--tr);
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        padding: 8px;
-        gap: 10px;
-        background: transparent;
-        -webkit-app-region: no-drag;
-
-        &:hover {
-          background: #393b46;
-        }
-      }
-    }
+  &:last-child:hover {
+    background-color: #ff4444;
   }
 }

@@ -28,6 +28,7 @@ export const mainConfig: Configuration = {
             '.md',
             '.svg',
             '.png',
+            '.mp4',
         ],
     },
     externals: {
