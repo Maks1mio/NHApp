@@ -3,6 +3,7 @@ import * as styles from "../pages.module.scss";
 import BookCard from "../BookCard";
 import { Book } from "../BookCard";
 import { FiClock, FiRefreshCw } from "react-icons/fi";
+import { wsClient } from "../../../wsClient";
 
 interface NewUploadsResponse {
   type: string;
@@ -21,26 +22,25 @@ const NewUploads: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const ws = new WebSocket("ws://localhost:8080");
-      
-      ws.onmessage = (event) => {
-        const response = JSON.parse(event.data);
+      // Используем общий wsClient
+      // Замените старый код с ws на wsClient
+      // Пример:
+      // wsClient.send({ type: 'get-new-uploads' });
+      // const unsubscribe = wsClient.subscribe((response) => { ... });
+
+      wsClient.send({ type: 'get-new-uploads' });
+      const unsubscribe = wsClient.subscribe((response: NewUploadsResponse) => {
         if (response.type === 'new-uploads-reply') {
-          setBooks(response.books);
+          setBooks(response.books || []);
+          setLoading(false);
+          unsubscribe();
         } else if (response.type === 'error') {
-          throw new Error(response.message);
+          setError(response.message || 'Unknown error');
+          setLoading(false);
+          unsubscribe();
         }
-        ws.close();
-      };
-
-      ws.onerror = () => {
-        throw new Error('Connection error');
-      };
-
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ type: 'get-new-uploads' }));
-      };
-    } catch (error) {
+      });
+    } catch (error: any) {
       setError(error.message);
     } finally {
       setLoading(false);
@@ -48,8 +48,6 @@ const NewUploads: React.FC = () => {
   };
 
   useEffect(() => {
-    const favs = localStorage.getItem("bookFavorites");
-    if (favs) setFavorites(JSON.parse(favs));
     fetchData();
   }, []);
 

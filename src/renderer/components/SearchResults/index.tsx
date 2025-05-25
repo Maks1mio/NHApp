@@ -5,7 +5,7 @@ import { Book } from "../BookCard";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import * as styles from "../pages.module.scss";
 
-const WS_URL = "ws://localhost:8080";
+import { wsClient } from "../../../wsClient";
 const PAGE_NUMBER = 1;
 const SORT_STORAGE_KEY = "searchSortType";
 
@@ -35,42 +35,32 @@ const SearchResults: React.FC = () => {
     setError(null);
     setBooks([]);
 
-    const ws = new WebSocket(WS_URL);
-    ws.onopen = () =>
-      ws.send(
-        JSON.stringify({
-          type: "search-books",
-          query,
-          sort: type,
-          page: PAGE_NUMBER,
-        })
-      );
-
-    ws.onmessage = (event) => {
+    // Используем общий wsClient
+    // Отправляем запрос и подписываемся на ответ
+    const unsubscribe = wsClient.subscribe((response: any) => {
       try {
-        const res = JSON.parse(event.data) as {
-          type: string;
-          books?: Book[];
-          message?: string;
-        };
-        if (res.type === "search-results-reply") {
-          setBooks(res.books || []);
-        } else if (res.type === "error") {
-          setError(res.message || "Unknown error");
+        if (response.type === "search-results-reply") {
+          setBooks(response.books || []);
+          setLoading(false);
+          unsubscribe();
+        } else if (response.type === "error") {
+          setError(response.message || "Unknown error");
+          setLoading(false);
+          unsubscribe();
         }
       } catch {
         setError("Invalid response from server");
-      } finally {
         setLoading(false);
-        ws.close();
+        unsubscribe();
       }
-    };
+    });
 
-    ws.onerror = () => {
-      setError("Connection error");
-      setLoading(false);
-      ws.close();
-    };
+    wsClient.send({
+      type: "search-books",
+      query,
+      sort: type,
+      page: PAGE_NUMBER,
+    });
   };
 
   useEffect(() => {

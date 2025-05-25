@@ -6,9 +6,8 @@ interface SmartImageProps {
   alt: string;
   className?: string;
   blur?: boolean | number;
-  fallbackUrls?: string[];
   loading?: "eager" | "lazy";
-  showLoader?: boolean; // Новый проп для управления видимостью лоадера
+  showLoader?: boolean;
 }
 
 const getFallbackImageUrls = (url: string): string[] => {
@@ -25,60 +24,73 @@ const getFallbackImageUrls = (url: string): string[] => {
   ];
 };
 
-const SmartImage: React.FC<SmartImageProps> = ({ 
-  src, 
-  alt, 
-  className, 
+const SmartImage: React.FC<SmartImageProps> = ({
+  src,
+  alt,
+  className,
   blur = false,
-  fallbackUrls,
   loading = "lazy",
-  showLoader = true
+  showLoader = true,
 }) => {
-  const [fallbacks] = useState(() => fallbackUrls || getFallbackImageUrls(src));
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentSrc, setCurrentSrc] = useState<string>(src);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentSrc, setCurrentSrc] = useState(fallbacks[0]);
 
   useEffect(() => {
-    setCurrentSrc(fallbacks[currentIndex]);
     setIsLoaded(false);
-  }, [currentIndex, fallbacks]);
+    // Формируем список URL для попыток
+    const urls = [src, ...getFallbackImageUrls(src)];
+    let cancelled = false;
 
-  const handleError = () => {
-    if (currentIndex < fallbacks.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
+    // создаём по одному Image для каждого URL
+    const loaders = urls.map((url) => {
+      return new Promise<string | null>((resolve) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(null);
+      });
+    });
 
-  const handleLoad = () => {
-    setIsLoaded(true);
-  };
+    // ждём первой успешной загрузки
+    Promise.all(loaders).then((results) => {
+      if (cancelled) return;
+      const good = results.find((u) => u);
+      if (good) {
+        setCurrentSrc(good);
+        setIsLoaded(true);
+      } else {
+        // если ни одна не загрузилась — оставляем оригинал, но скрываем лоадер
+        setCurrentSrc(src);
+        setIsLoaded(true);
+      }
+    });
 
-  const blurStyle = typeof blur === 'number' 
-    ? `blur(${blur}px)`
-    : blur 
-      ? 'blur(8px)' 
-      : 'none';
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  const blurStyle =
+    typeof blur === "number" ? `blur(${blur}px)` : blur ? "blur(8px)" : "none";
 
   return (
-    <div className={`${styles.imageWrapper} ${className}`}>
-      <img
-        src={currentSrc}
-        alt={alt}
-        onError={handleError}
-        onLoad={handleLoad}
-        loading={loading}
-        className={styles.image}
-        style={{
-          filter: !isLoaded ? blurStyle : 'none',
-          transition: 'filter 0.5s ease-out'
-        }}
-      />
+    <div className={`${styles.imageWrapper} ${className || ""}`}>
       {!isLoaded && showLoader && (
         <div className={styles.loaderContainer}>
           <div className={styles.spinner} />
         </div>
       )}
+      <img
+        src={currentSrc}
+        alt={alt}
+        onLoad={() => setIsLoaded(true)}
+        loading={loading}
+        className={styles.image}
+        style={{
+          filter: !isLoaded ? blurStyle : "none",
+          transition: "filter 0.5s ease-out",
+        }}
+      />
     </div>
   );
 };

@@ -4,8 +4,8 @@ import * as styles from "../pages.module.scss";
 import BookCard from "../../components/BookCard";
 import { FaFire, FaRedo } from "react-icons/fa";
 import { Book } from "../../components/BookCard";
+import { wsClient } from "../../../wsClient";
 
-const WS_URL = "ws://localhost:8080";
 const PAGE_NUMBER = 1;
 const SORT_STORAGE_KEY = "popularBooksSortType";
 
@@ -42,38 +42,19 @@ const PopularBooks: React.FC = () => {
     setError(null);
     setBooks([]);
 
-    const ws = new WebSocket(WS_URL);
-
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type, page: PAGE_NUMBER }));
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const response = JSON.parse(event.data) as {
-          type: string;
-          books?: Book[];
-          message?: string;
-        };
-
-        if (response.type === "popular-books-reply") {
-          setBooks(response.books || []);
-        } else if (response.type === "error") {
-          setError(response.message || "Unknown error");
-        }
-      } catch {
-        setError("Invalid response from server");
-      } finally {
+    const unsubscribe = wsClient.subscribe((response) => {
+      if (response.type === "popular-books-reply") {
+        setBooks(response.books || []);
         setLoading(false);
-        ws.close();
+        unsubscribe();
+      } else if (response.type === "error") {
+        setError(response.message || "Unknown error");
+        setLoading(false);
+        unsubscribe();
       }
-    };
+    });
 
-    ws.onerror = () => {
-      setError("Connection error");
-      setLoading(false);
-      ws.close();
-    };
+    wsClient.send({ type, page: PAGE_NUMBER });
   };
 
   const fetchDataByTags = (tags: string[], type: SortType) => {
@@ -81,43 +62,22 @@ const PopularBooks: React.FC = () => {
     setError(null);
     setBooks([]);
 
-    const ws = new WebSocket(WS_URL);
-
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "get-books-by-tags",
-          tags,
-          page: PAGE_NUMBER,
-        })
-      );
-    };
-
-    ws.onmessage = (event) => {
-      try {
-        const response = JSON.parse(event.data);
-        if (response.type === "tagged-books-reply") {
-          setBooks(response.books || []);
-        } else if (response.type === "error") {
-          setError(response.message || "Unknown error");
-        }
-      } catch {
-        setError("Invalid response from server");
-      } finally {
+    const unsubscribe = wsClient.subscribe((response) => {
+      if (response.type === "tagged-books-reply") {
+        setBooks(response.books || []);
         setLoading(false);
-        ws.close();
+        unsubscribe();
+      } else if (response.type === "error") {
+        setError(response.message || "Unknown error");
+        setLoading(false);
+        unsubscribe();
       }
-    };
+    });
 
-    ws.onerror = () => {
-      setError("Connection error");
-      setLoading(false);
-      ws.close();
-    };
+    wsClient.send({ type: "get-books-by-tags", tags, page: PAGE_NUMBER });
   };
 
   useEffect(() => {
-    // Загружаем избранное и сохраненный тип сортировки
     const favs = localStorage.getItem("bookFavorites");
     const savedSortType = localStorage.getItem(SORT_STORAGE_KEY) as SortType;
 
@@ -147,7 +107,6 @@ const PopularBooks: React.FC = () => {
     if (newType === sortType) return;
     setSortType(newType);
     localStorage.setItem(SORT_STORAGE_KEY, newType);
-    // fetchData(newType); // теперь вызывается через useEffect
   };
 
   const toggleFavorite = (id: number) => {
@@ -163,14 +122,7 @@ const PopularBooks: React.FC = () => {
       <div className={styles.header}>
         <h1 className={styles.mainTitle}>
           <FaFire className={styles.fireIcon} />
-          Популярное за{" "}
-          {sortType === "get-popular-today"
-            ? "день"
-            : sortType === "get-popular-week"
-            ? "неделю"
-            : sortType === "get-popular-month"
-            ? "месяц"
-            : "всё время"}
+          Популярное за {LABEL_MAP[sortType]}
         </h1>
 
         <div className={styles.sortSelector}>

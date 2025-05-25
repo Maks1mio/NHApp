@@ -26,7 +26,12 @@ const TagFilter: React.FC<TagFilterProps> = ({ onTagSelect }) => {
     if (!isOpen || Object.keys(tagCategories).length > 0) return;
 
     setLoading(true);
-    const ws = new WebSocket('ws://localhost:8080');
+    // Используем общий wsClient
+    // Замените старый код с ws на wsClient
+    // Пример:
+    // wsClient.send({ type: 'get-tags' });
+    // const unsubscribe = wsClient.subscribe((response) => { ... });
+    const ws = new WebSocket('ws://localhost:PORT'); // Замените PORT на актуальный порт вашего WS сервера
     wsRef.current = ws;
 
     ws.onopen = () => ws.send(JSON.stringify({ type: 'get-tags' }));

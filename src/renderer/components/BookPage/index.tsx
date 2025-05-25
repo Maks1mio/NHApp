@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { wsClient } from "../../../wsClient";
 import * as styles from "./BookPage.module.scss";
 import {
   FiHeart,
@@ -58,19 +59,7 @@ const BookPage: React.FC = () => {
       setFavorites(JSON.parse(storedFavorites));
     }
 
-    const ws = new WebSocket("ws://localhost:8080");
-
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "get-book",
-          id: parseInt(id || "0"),
-        })
-      );
-    };
-
-    ws.onmessage = (event) => {
-      const response = JSON.parse(event.data);
+    const unsubscribe = wsClient.subscribe((response) => {
       if (response.type === "book-reply") {
         setBook(response.book);
         setLoading(false);
@@ -78,18 +67,15 @@ const BookPage: React.FC = () => {
         setError(response.message || "Не удалось загрузить книгу");
         setLoading(false);
       }
-      ws.close();
-    };
+    });
 
-    ws.onerror = (err) => {
-      console.error("Ошибка WebSocket:", err);
-      setError("Ошибка соединения с сервером");
-      setLoading(false);
-      ws.close();
-    };
+    wsClient.send({
+      type: "get-book",
+      id: parseInt(id || "0"),
+    });
 
     return () => {
-      ws.close();
+      unsubscribe();
     };
   }, [id]);
 

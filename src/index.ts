@@ -21,7 +21,7 @@ let mainWindow: BrowserWindow | null = null;
 const wss = new WebSocketServer({ port: 8080 });
 const api = axios.create({
   baseURL: "https://nhentai.net",
-  timeout: 10000,
+  timeout: 5000,
   headers: {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",

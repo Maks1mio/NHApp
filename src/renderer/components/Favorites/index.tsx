@@ -3,9 +3,8 @@ import BookCard from "../BookCard";
 import { Book } from "../BookCard";
 import { FiHeart, FiRefreshCw } from "react-icons/fi";
 import * as styles from "../pages.module.scss";
+import { wsClient } from "../../../wsClient";
 // import * as f from "./Favorites.module.scss";
-
-const WS_URL = "ws://localhost:8080";
 
 const Favorites: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
@@ -26,43 +25,34 @@ const Favorites: React.FC = () => {
       return;
     }
 
-    const ws = new WebSocket(WS_URL);
+    // Используем общий wsClient
+    // Замените старый код с ws на wsClient
+    // Пример:
+    // wsClient.send({ type: ..., ids: ... });
+    // const unsubscribe = wsClient.subscribe((response) => { ... });
 
-    ws.onopen = () => {
-      ws.send(
-        JSON.stringify({
-          type: "get-favorites",
-          ids: favIds,
-        })
-      );
-    };
+    wsClient.send({
+      type: "get-favorites",
+      ids: favIds,
+    });
 
-    ws.onmessage = (event) => {
+    const unsubscribe = wsClient.subscribe((res: any) => {
       try {
-        const res = JSON.parse(event.data) as {
-          type: string;
-          books?: Book[];
-          message?: string;
-        };
-
         if (res.type === "favorites-reply") {
           setBooks(res.books || []);
+          setLoading(false);
+          unsubscribe();
         } else if (res.type === "error") {
           setError(res.message || "Unknown error");
+          setLoading(false);
+          unsubscribe();
         }
       } catch {
         setError("Invalid response from server");
-      } finally {
         setLoading(false);
-        ws.close();
+        unsubscribe();
       }
-    };
-
-    ws.onerror = () => {
-      setError("Connection error");
-      setLoading(false);
-      ws.close();
-    };
+    });
   };
 
   useEffect(() => {
