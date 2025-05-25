@@ -201,7 +201,7 @@ const BookCard: React.FC<BookCardProps> = ({
           src={book.thumbnail}
           alt={book.title.pretty}
           className={styles.image}
-          showLoader={false}
+          showLoader={true}
         />
         <div className={`${styles.overlay} ${isHovered ? styles.visible : ""}`}>
           <button

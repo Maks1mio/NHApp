@@ -28,7 +28,7 @@ const SmartImage: React.FC<SmartImageProps> = ({
   src,
   alt,
   className,
-  blur = false,
+  blur = true,
   loading = "lazy",
   showLoader = true,
 }) => {
