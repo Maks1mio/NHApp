@@ -4,20 +4,30 @@ import BookCard from "../BookCard";
 import { Book } from "../BookCard";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import * as styles from "../pages.module.scss";
-
 import { wsClient } from "../../../wsClient";
-const PAGE_NUMBER = 1;
+import Pagination from "../Pagination";
+import { FaRedo } from "react-icons/fa";
+
 const SORT_STORAGE_KEY = "searchSortType";
+const PER_PAGE = 25;
 
 type SortType = "" | "popular" | "popular-week" | "popular-today" | "popular-month";
 
-const SORT_OPTIONS: { label: string; value: SortType }[] = [
-  { label: "По релевантности", value: "" },
-  { label: "Популярное (всё время)", value: "popular" },
-  { label: "Популярное за неделю", value: "popular-week" },
-  { label: "Популярное за день", value: "popular-today" },
-  { label: "Популярное за месяц", value: "popular-month" },
+const SORT_OPTIONS: { value: SortType; label: string }[] = [
+  { value: "", label: "По релевантности" },
+  { value: "popular", label: "Популярное (всё время)" },
+  { value: "popular-week", label: "Популярное (неделя)" },
+  { value: "popular-today", label: "Популярное (сегодня)" },
+  { value: "popular-month", label: "Популярное (месяц)" },
 ];
+
+interface SearchResponse {
+  type: string;
+  books?: Book[];
+  totalPages?: number;
+  currentPage?: number;
+  message?: string;
+}
 
 const SearchResults: React.FC = () => {
   const location = useLocation();
@@ -28,28 +38,24 @@ const SearchResults: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [sortType, setSortType] = useState<SortType>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = (type: SortType) => {
+  const fetchData = (page: number = 1, sort: SortType = "") => {
     if (!query) return;
     setLoading(true);
     setError(null);
     setBooks([]);
 
-    // Используем общий wsClient
-    // Отправляем запрос и подписываемся на ответ
-    const unsubscribe = wsClient.subscribe((response: any) => {
-      try {
-        if (response.type === "search-results-reply") {
-          setBooks(response.books || []);
-          setLoading(false);
-          unsubscribe();
-        } else if (response.type === "error") {
-          setError(response.message || "Unknown error");
-          setLoading(false);
-          unsubscribe();
-        }
-      } catch {
-        setError("Invalid response from server");
+    const unsubscribe = wsClient.subscribe((response: SearchResponse) => {
+      if (response.type === "search-results-reply") {
+        setBooks(response.books || []);
+        setTotalPages(response.totalPages ?? 1);
+        setCurrentPage(response.currentPage ?? 1);
+        setLoading(false);
+        unsubscribe();
+      } else if (response.type === "error") {
+        setError(response.message || "Unknown error");
         setLoading(false);
         unsubscribe();
       }
@@ -58,30 +64,33 @@ const SearchResults: React.FC = () => {
     wsClient.send({
       type: "search-books",
       query,
-      sort: type,
-      page: PAGE_NUMBER,
+      sort,
+      page,
+      perPage: PER_PAGE,
     });
   };
 
   useEffect(() => {
-    // загрузим избранное и сохранённый тип сортировки
+    // инициализация фаворитов и сортировки
     const favs = localStorage.getItem("bookFavorites");
     if (favs) setFavorites(JSON.parse(favs));
-
     const saved = localStorage.getItem(SORT_STORAGE_KEY) as SortType;
-    if (saved && SORT_OPTIONS.some((o) => o.value === saved)) {
-      setSortType(saved);
-      fetchData(saved);
-    } else {
-      fetchData(sortType);
-    }
+    if (saved) setSortType(saved);
+
+    // сразу подгружаем первую страницу
+    fetchData(1, saved || sortType);
+    // eslint-disable-next-line
   }, [query]);
 
   const onSortChange = (newType: SortType) => {
     if (newType === sortType) return;
     setSortType(newType);
     localStorage.setItem(SORT_STORAGE_KEY, newType);
-    fetchData(newType);
+    fetchData(1, newType);
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchData(page, sortType);
   };
 
   const toggleFavorite = (id: number) => {
@@ -99,7 +108,6 @@ const SearchResults: React.FC = () => {
           <FiSearch className={styles.searchIcon} />
           Результаты поиска: «{query}»
         </h1>
-
         <div className={styles.sortSelector}>
           {SORT_OPTIONS.map((opt) => (
             <button
@@ -113,12 +121,12 @@ const SearchResults: React.FC = () => {
             </button>
           ))}
           <button
-            onClick={() => fetchData(sortType)}
+            onClick={() => handlePageChange(currentPage)}
             disabled={loading}
             className={styles.reloadBtn}
             aria-label="Обновить"
           >
-            <FiRefreshCw
+            <FaRedo
               className={`${styles.reloadIcon} ${loading ? styles.spin : ""}`}
             />
             Обновить
@@ -127,34 +135,44 @@ const SearchResults: React.FC = () => {
       </div>
 
       <div className={styles.content}>
-        {error ? (
+        {error && (
           <div className={styles.error}>
             Ошибка: {error}
-            <button onClick={() => fetchData(sortType)} className={styles.retryBtn}>
+            <button onClick={() => fetchData(currentPage, sortType)} className={styles.retryBtn}>
               Повторить
             </button>
           </div>
-        ) : loading ? (
+        )}
+        {loading && (
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner} />
             Загрузка...
           </div>
-        ) : books.length === 0 ? (
+        )}
+        {!loading && books.length === 0 && (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>😕</div>
             Ничего не найдено
           </div>
-        ) : (
-          <div className={styles.grid}>
-            {books.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                isFavorite={favorites.includes(book.id)}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
-          </div>
+        )}
+        {!loading && books.length > 0 && (
+          <>
+            <div className={styles.grid}>
+              {books.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  isFavorite={favorites.includes(book.id)}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
     </div>

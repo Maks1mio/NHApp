@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./BookCard.module.scss";
 import SmartImage from "../SmartImage";
-import { FiHeart, FiEye, FiBookOpen, FiCalendar, FiX } from "react-icons/fi";
+import { FiHeart, FiEye, FiBookOpen, FiCalendar } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
 
 interface Tag {
@@ -14,6 +14,7 @@ interface Tag {
 }
 
 export interface Book {
+  [x: string]: any;
   id: number;
   title: {
     english: string;
@@ -31,6 +32,7 @@ export interface Book {
   pages: {
     page: number;
     url: string;
+    urlThumb: string;
   }[];
 }
 
@@ -41,13 +43,12 @@ interface BookCardProps {
   className?: string;
 }
 
-const formatDate = (iso: string): string => {
-  return new Date(iso).toLocaleDateString("ru-RU", {
+const formatDate = (iso: string): string =>
+  new Date(iso).toLocaleDateString("ru-RU", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
-};
 
 const BookCard: React.FC<BookCardProps> = ({
   book,
@@ -58,8 +59,8 @@ const BookCard: React.FC<BookCardProps> = ({
   const navigate = useNavigate();
 
   const [isHovered, setIsHovered] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [shouldRenderPreview, setShouldRenderPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(false); // открыта ли модалка
+  const [shouldRenderPreview, setShouldRenderPreview] = useState(false); // нужна ли обёртка (для анимации)
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMouseMoving, setIsMouseMoving] = useState(false);
@@ -67,11 +68,10 @@ const BookCard: React.FC<BookCardProps> = ({
   const hoverTimer = useRef<NodeJS.Timeout | null>(null);
   const carouselTimer = useRef<NodeJS.Timeout | null>(null);
   const movementTimer = useRef<NodeJS.Timeout | null>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const truncateText = (text: string, maxLines: number = 2) => {
+  const truncateText = (text: string, maxLines = 2) => {
     const words = text.split(" ");
     let truncated = "";
     let lineCount = 0;
@@ -86,10 +86,11 @@ const BookCard: React.FC<BookCardProps> = ({
       }
       truncated += word + " ";
     }
-
     return truncated.trim();
   };
 
+  // —————————————————————————————————————————————
+  // Очистка таймеров при размонтировании
   useEffect(() => {
     return () => {
       hoverTimer.current && clearTimeout(hoverTimer.current);
@@ -97,8 +98,10 @@ const BookCard: React.FC<BookCardProps> = ({
       movementTimer.current && clearTimeout(movementTimer.current);
     };
   }, []);
+  // —————————————————————————————————————————————
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  // Движение мыши по карточке
+  const handleMouseMove: React.MouseEventHandler = (e) => {
     const newPos = { x: e.clientX, y: e.clientY };
     const moved = mousePosition.x !== newPos.x || mousePosition.y !== newPos.y;
     setMousePosition(newPos);
@@ -108,6 +111,7 @@ const BookCard: React.FC<BookCardProps> = ({
       hoverTimer.current && clearTimeout(hoverTimer.current);
       movementTimer.current && clearTimeout(movementTimer.current);
 
+      // ждём, пока мышь остановится
       movementTimer.current = setTimeout(() => {
         setIsMouseMoving(false);
         if (isHovered && !showPreview) {
@@ -120,6 +124,7 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   };
 
+  // навели мышь на карточку
   const handleMouseEnter = () => {
     setIsHovered(true);
     setShouldRenderPreview(true);
@@ -131,17 +136,21 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   };
 
+  // вывели мышь
   const handleMouseLeave = () => {
     setIsHovered(false);
     setIsMouseMoving(false);
+
     hoverTimer.current && clearTimeout(hoverTimer.current);
     carouselTimer.current && clearTimeout(carouselTimer.current);
     movementTimer.current && clearTimeout(movementTimer.current);
 
     setShowPreview(false);
+    // даём анимации скрытия завершиться
     setTimeout(() => setShouldRenderPreview(false), 300);
   };
 
+  // автопрокрутка мини-карусели
   const startCarouselAutoScroll = () => {
     if (book.pages.length <= 1) return;
     const scroll = () => {
@@ -153,7 +162,8 @@ const BookCard: React.FC<BookCardProps> = ({
     carouselTimer.current = setTimeout(scroll, 3000);
   };
 
-  const handleCarouselHover = (e: React.MouseEvent<HTMLDivElement>) => {
+  // ручной выбор страницы в карусели
+  const handleCarouselHover: React.MouseEventHandler<HTMLDivElement> = (e) => {
     if (!carouselRef.current || book.pages.length <= 1) return;
     const { left, width } = carouselRef.current.getBoundingClientRect();
     const mouseX = e.clientX - left;
@@ -163,13 +173,15 @@ const BookCard: React.FC<BookCardProps> = ({
       Math.min(book.pages.length, 5) - 1
     );
     setActiveImageIndex(idx);
+
     carouselTimer.current && clearTimeout(carouselTimer.current);
     carouselTimer.current = setTimeout(startCarouselAutoScroll, 5000);
   };
 
+  // плавный скролл при смене activeImageIndex
   useEffect(() => {
     if (carouselRef.current) {
-      const imageWidth = 200 + 10;
+      const imageWidth = 200 + 10; // ширина + gap
       carouselRef.current.scrollTo({
         left: activeImageIndex * imageWidth,
         behavior: "smooth",
@@ -182,11 +194,11 @@ const BookCard: React.FC<BookCardProps> = ({
     navigate(`/search?q=${encodeURIComponent(tagName)}`);
   };
 
-  const handleCardClick = () => {
-    console.log("Клик по карточке книги");
-    navigate(`/book/${book.id}`);
-  };
+  const handleCardClick = () => navigate(`/book/${book.id}`);
 
+  // —————————————————————————————————————————————
+  // JSX
+  // —————————————————————————————————————————————
   return (
     <div
       ref={cardRef}
@@ -196,13 +208,16 @@ const BookCard: React.FC<BookCardProps> = ({
       onMouseMove={handleMouseMove}
       onClick={handleCardClick}
     >
+      {/* Обложка */}
       <div className={styles.imageContainer}>
         <SmartImage
-          src={book.thumbnail}
+          src={book.thumbnail} // единственный надёжный URL
           alt={book.title.pretty}
-          className={styles.image}
-          showLoader={true}
+          className={styles.previewImage}
+          loading="lazy"
         />
+
+        {/* Overlay с кнопкой избранного и счётчиками */}
         <div className={`${styles.overlay} ${isHovered ? styles.visible : ""}`}>
           <button
             onClick={(e) => {
@@ -231,6 +246,7 @@ const BookCard: React.FC<BookCardProps> = ({
         </div>
       </div>
 
+      {/* Текстовая часть карточки */}
       <div className={styles.info}>
         <p className={styles.titleText} title={book.title.pretty}>
           {truncateText(book.title.pretty)}
@@ -262,73 +278,80 @@ const BookCard: React.FC<BookCardProps> = ({
         </div>
       </div>
 
+      {/* ────────────────────────────────────────
+          ПРЕВЬЮ-МОДАЛКА
+          ──────────────────────────────────────── */}
       {shouldRenderPreview && (
         <div
           className={`${styles.previewContainer} ${
             showPreview ? styles.visible : ""
           }`}
-          ref={previewRef}
           onMouseLeave={handleMouseLeave}
         >
-          <div className={styles.previewContent}>
-            <div
-              className={styles.previewCarousel}
-              ref={carouselRef}
-              onMouseMove={handleCarouselHover}
-            >
-              {book.pages.slice(0, 5).map((page, idx) => (
-                <div
-                  key={idx}
-                  className={`${styles.previewImageWrapper} ${
-                    idx === activeImageIndex ? styles.active : ""
-                  }`}
-                >
-                  <SmartImage
-                    src={page.url}
-                    alt={`Page ${page.page}`}
-                    className={styles.previewImage}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className={styles.previewInfo}>
-              <h3 className={styles.previewTitle}>
-                {truncateText(book.title.pretty)}
-              </h3>
-
-              <div className={styles.previewMeta}>
-                <span>
-                  <FiCalendar /> {formatDate(book.uploaded)}
-                </span>
-                <span>
-                  <FiBookOpen /> {book.pagesCount} pages
-                </span>
-                <span>
-                  <FiHeart /> {book.favorites} favorites
-                </span>
-              </div>
-
-              <div className={styles.previewTags}>
-                {book.tags.map((tag) => (
-                  <span
-                    key={tag.id}
-                    className={styles.previewTag}
-                    onClick={(e) => onTagClick(tag.name, e)}
-                    style={{ cursor: "pointer" }}
+          {/* Контент подгружаем только при открытии */}
+          {showPreview && (
+            <div className={styles.previewContent}>
+              {/* Карусель страниц */}
+              <div
+                className={styles.previewCarousel}
+                ref={carouselRef}
+                onMouseMove={handleCarouselHover}
+              >
+                {book.pages.slice(0, 5).map((page, idx) => (
+                  <div
+                    key={idx}
+                    className={`${styles.previewImageWrapper} ${
+                      idx === activeImageIndex ? styles.active : ""
+                    }`}
                   >
-                    {tag.name}
-                  </span>
+                    <SmartImage
+                      src={page.urlThumb}
+                      alt={book.title.pretty}
+                      className={styles.previewImage}
+                    />
+                  </div>
                 ))}
               </div>
 
-              {book.scanlator && (
-                <div className={styles.scanlator}>
-                  Scanlator: {book.scanlator}
+              {/* Информация о книге */}
+              <div className={styles.previewInfo}>
+                <h3 className={styles.previewTitle}>
+                  {truncateText(book.title.pretty)}
+                </h3>
+
+                <div className={styles.previewMeta}>
+                  <span>
+                    <FiCalendar /> {formatDate(book.uploaded)}
+                  </span>
+                  <span>
+                    <FiBookOpen /> {book.pagesCount} pages
+                  </span>
+                  <span>
+                    <FiHeart /> {book.favorites} favorites
+                  </span>
                 </div>
-              )}
+
+                <div className={styles.previewTags}>
+                  {book.tags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className={styles.previewTag}
+                      onClick={(e) => onTagClick(tag.name, e)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {tag.name}
+                    </span>
+                  ))}
+                </div>
+
+                {book.scanlator && (
+                  <div className={styles.scanlator}>
+                    Scanlator: {book.scanlator}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>

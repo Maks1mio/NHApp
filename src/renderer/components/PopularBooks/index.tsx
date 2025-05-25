@@ -5,9 +5,10 @@ import BookCard from "../../components/BookCard";
 import { FaFire, FaRedo } from "react-icons/fa";
 import { Book } from "../../components/BookCard";
 import { wsClient } from "../../../wsClient";
+import Pagination from "../../components/Pagination";
 
-const PAGE_NUMBER = 1;
 const SORT_STORAGE_KEY = "popularBooksSortType";
+const PER_PAGE = 25;
 
 type SortType =
   | "get-popular"
@@ -29,6 +30,14 @@ const LABEL_MAP: Record<SortType, string> = {
   "get-popular-month": "Популярное за месяц",
 };
 
+interface PopularResponse {
+  type: string;
+  books?: Book[];
+  totalPages?: number;
+  currentPage?: number;
+  message?: string;
+}
+
 const PopularBooks: React.FC = () => {
   const location = useLocation();
   const [books, setBooks] = useState<Book[]>([]);
@@ -36,15 +45,19 @@ const PopularBooks: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [sortType, setSortType] = useState<SortType>("get-popular-today");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = (type: SortType) => {
+  const fetchData = (type: SortType, page = 1) => {
     setLoading(true);
     setError(null);
     setBooks([]);
 
-    const unsubscribe = wsClient.subscribe((response) => {
+    const unsubscribe = wsClient.subscribe((response: PopularResponse) => {
       if (response.type === "popular-books-reply") {
         setBooks(response.books || []);
+        setTotalPages(response.totalPages ?? 1);
+        setCurrentPage(response.currentPage ?? page);
         setLoading(false);
         unsubscribe();
       } else if (response.type === "error") {
@@ -54,17 +67,19 @@ const PopularBooks: React.FC = () => {
       }
     });
 
-    wsClient.send({ type, page: PAGE_NUMBER });
+    wsClient.send({ type, page, perPage: PER_PAGE });
   };
 
-  const fetchDataByTags = (tags: string[], type: SortType) => {
+  const fetchDataByTags = (tags: string[], type: SortType, page = 1) => {
     setLoading(true);
     setError(null);
     setBooks([]);
 
-    const unsubscribe = wsClient.subscribe((response) => {
+    const unsubscribe = wsClient.subscribe((response: PopularResponse) => {
       if (response.type === "tagged-books-reply") {
         setBooks(response.books || []);
+        setTotalPages(response.totalPages ?? 1);
+        setCurrentPage(response.currentPage ?? page);
         setLoading(false);
         unsubscribe();
       } else if (response.type === "error") {
@@ -74,39 +89,49 @@ const PopularBooks: React.FC = () => {
       }
     });
 
-    wsClient.send({ type: "get-books-by-tags", tags, page: PAGE_NUMBER });
+    wsClient.send({ type: "get-books-by-tags", tags, page, perPage: PER_PAGE });
   };
 
+  // загрузка фаворитов и сохранённого типа
   useEffect(() => {
     const favs = localStorage.getItem("bookFavorites");
     const savedSortType = localStorage.getItem(SORT_STORAGE_KEY) as SortType;
-
     if (favs) setFavorites(JSON.parse(favs));
-    if (
-      savedSortType &&
-      SORT_OPTIONS.some((opt) => opt.value === savedSortType)
-    ) {
+    if (savedSortType && SORT_OPTIONS.some((o) => o.value === savedSortType)) {
       setSortType(savedSortType);
     }
   }, []);
 
+  // при изменении тэгов или сортировки — подгружаем страницу 1
   useEffect(() => {
+    setCurrentPage(1);
     const params = new URLSearchParams(location.search);
     const tagsParam = params.get("tags");
     const tags = tagsParam ? tagsParam.split(",") : [];
 
-    if (tags.length > 0 && tags[0] !== "") {
-      fetchDataByTags(tags, sortType);
+    if (tags.length && tags[0] !== "") {
+      fetchDataByTags(tags, sortType, 1);
     } else {
-      fetchData(sortType);
+      fetchData(sortType, 1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search, sortType]);
 
   const onSortChange = (newType: SortType) => {
     if (newType === sortType) return;
     setSortType(newType);
     localStorage.setItem(SORT_STORAGE_KEY, newType);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    const params = new URLSearchParams(location.search);
+    const tagsParam = params.get("tags");
+    const tags = tagsParam ? tagsParam.split(",") : [];
+    if (tags.length && tags[0] !== "") {
+      fetchDataByTags(tags, sortType, page);
+    } else {
+      fetchData(sortType, page);
+    }
   };
 
   const toggleFavorite = (id: number) => {
@@ -122,9 +147,8 @@ const PopularBooks: React.FC = () => {
       <div className={styles.header}>
         <h1 className={styles.mainTitle}>
           <FaFire className={styles.fireIcon} />
-          Популярное за {LABEL_MAP[sortType]}
+          {LABEL_MAP[sortType]}
         </h1>
-
         <div className={styles.sortSelector}>
           {SORT_OPTIONS.map((opt) => (
             <button
@@ -138,16 +162,7 @@ const PopularBooks: React.FC = () => {
             </button>
           ))}
           <button
-            onClick={() => {
-              const params = new URLSearchParams(location.search);
-              const tagsParam = params.get("tags");
-              const tags = tagsParam ? tagsParam.split(",") : [];
-              if (tags.length > 0 && tags[0] !== "") {
-                fetchDataByTags(tags, sortType);
-              } else {
-                fetchData(sortType);
-              }
-            }}
+            onClick={() => handlePageChange(currentPage)}
             disabled={loading}
             className={styles.reloadBtn}
             aria-label="Обновить"
@@ -164,19 +179,7 @@ const PopularBooks: React.FC = () => {
         {error ? (
           <div className={styles.error}>
             Ошибка: {error}
-            <button
-              onClick={() => {
-                const params = new URLSearchParams(location.search);
-                const tagsParam = params.get("tags");
-                const tags = tagsParam ? tagsParam.split(",") : [];
-                if (tags.length > 0 && tags[0] !== "") {
-                  fetchDataByTags(tags, sortType);
-                } else {
-                  fetchData(sortType);
-                }
-              }}
-              className={styles.retryBtn}
-            >
+            <button onClick={() => handlePageChange(currentPage)} className={styles.retryBtn}>
               Повторить
             </button>
           </div>
@@ -191,16 +194,23 @@ const PopularBooks: React.FC = () => {
             Нет популярных книг
           </div>
         ) : (
-          <div className={styles.grid}>
-            {books.map((book) => (
-              <BookCard
-                key={book.id}
-                book={book}
-                isFavorite={favorites.includes(book.id)}
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
-          </div>
+          <>
+            <div className={styles.grid}>
+              {books.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  isFavorite={favorites.includes(book.id)}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
     </div>

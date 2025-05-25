@@ -4,33 +4,36 @@ import BookCard from "../BookCard";
 import { Book } from "../BookCard";
 import { FiClock, FiRefreshCw } from "react-icons/fi";
 import { wsClient } from "../../../wsClient";
+import Pagination from "../Pagination";
 
 interface NewUploadsResponse {
   type: string;
   books?: Book[];
+  totalPages?: number;
+  currentPage?: number;
   message?: string;
 }
-
-const BOOKS_PER_PAGE = 12;
 
 const NewUploads: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState<number[]>([]);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = async () => {
+  const fetchData = async (page: number = currentPage) => {
     try {
       setLoading(true);
       setError(null);
-
-      wsClient.send({ type: 'get-new-uploads' });
+      
+      wsClient.send({ type: 'get-new-uploads', page });
       const unsubscribe = wsClient.subscribe((response: NewUploadsResponse) => {
         if (response.type === 'new-uploads-reply') {
           setBooks(response.books || []);
+          setTotalPages(response.totalPages || 1);
+          setCurrentPage(response.currentPage || 1);
           setLoading(false);
-          setPage(1); // Сбросить на первую страницу при обновлении
           unsubscribe();
         } else if (response.type === 'error') {
           setError(response.message || 'Unknown error');
@@ -40,7 +43,6 @@ const NewUploads: React.FC = () => {
       });
     } catch (error: any) {
       setError(error.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -48,6 +50,11 @@ const NewUploads: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchData(page);
+  };
 
   const toggleFavorite = (id: number) => {
     const newFavorites = favorites.includes(id)
@@ -57,22 +64,12 @@ const NewUploads: React.FC = () => {
     localStorage.setItem("bookFavorites", JSON.stringify(newFavorites));
   };
 
-  // Пагинация
-  const totalPages = Math.ceil(books.length / BOOKS_PER_PAGE);
-  const paginatedBooks = books.slice(
-    (page - 1) * BOOKS_PER_PAGE,
-    page * BOOKS_PER_PAGE
-  );
-
-  const handlePrev = () => setPage(p => Math.max(1, p - 1));
-  const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2>
           <FiClock /> Новые загрузки
-          <button onClick={fetchData} disabled={loading}>
+          <button onClick={() => fetchData()} disabled={loading}>
             <FiRefreshCw className={loading ? styles.spin : ''} />
           </button>
         </h2>
@@ -81,7 +78,7 @@ const NewUploads: React.FC = () => {
       {error ? (
         <div className={styles.error}>
           Ошибка: {error}
-          <button onClick={fetchData}>Повторить</button>
+          <button onClick={() => fetchData()}>Повторить</button>
         </div>
       ) : loading ? (
         <div className={styles.loading}>Загрузка...</div>
@@ -90,7 +87,7 @@ const NewUploads: React.FC = () => {
       ) : (
         <>
           <div className={styles.grid}>
-            {paginatedBooks.map(book => (
+            {books.map(book => (
               <BookCard
                 key={book.id}
                 book={book}
@@ -99,17 +96,11 @@ const NewUploads: React.FC = () => {
               />
             ))}
           </div>
-          <div className={styles.pagination}>
-            <button onClick={handlePrev} disabled={page === 1}>
-              Назад
-            </button>
-            <span>
-              Страница {page} из {totalPages}
-            </span>
-            <button onClick={handleNext} disabled={page === totalPages}>
-              Вперёд
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </>
       )}
     </div>
