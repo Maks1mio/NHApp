@@ -64,18 +64,38 @@ axios.defaults.httpsAgent = baseAxiosCfg.httpsAgent;
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
 /* -------------------------------------------------------------------------- */
-type OrigExt = "jpg" | "png" | "webp" | "gif";
 
-const extByToken = (t: "j" | "p" | "w" | "g"): OrigExt => {
+type OrigExt =
+  | "jpg.webp"
+  | "jpg"
+  | "png.webp"
+  | "png"
+  | "webp.webp"
+  | "webp"
+  | "gif.webp"
+  | "gif";
+
+const extByToken = (
+  t: "j" | "p" | "w" | "g" | "J" | "P" | "W" | "G"
+): OrigExt => {
   switch (t) {
+    case "J":
+      return "jpg.webp";
     case "j":
       return "jpg";
+    case "P":
+      return "png.webp";
     case "p":
       return "png";
+    case "W":
+      return "webp.webp";
     case "w":
       return "webp";
+    case "G":
+      return "gif.webp";
     case "g":
       return "gif";
+
     default:
       throw new Error(`Unknown image token: ${t}`);
   }
@@ -104,13 +124,31 @@ interface PaginatedResponse {
   currentPage: number;
 }
 
+interface WsRequest {
+  type: string;
+  id?: number;
+  page?: number;
+  query?: string;
+  ids?: number[];
+  sort?: string;
+  perPage?: number;
+}
+
+const imageHosts = ["i1", "i2", "i3"];
+
+function pickHost(media: number, page: number): string {
+  // простой round-robin: меняем хост для каждой страницы
+  const idx = (media + page) % imageHosts.length;
+  return imageHosts[idx];
+}
+
 /* -------------------------------------------------------------------------- */
 /*  СИНХРОННЫЙ парсер книги                                                   */
 /* -------------------------------------------------------------------------- */
 const parseBookData = (item: any): Book => {
   const media = item.media_id;
 
-  // расширения для обложек
+  // … cover и thumbnail оставляем на t-сервисе
   const coverExt = extByToken(item.images.cover?.t || "j");
   const thumbExt = extByToken(item.images.thumbnail?.t || "j");
 
@@ -119,15 +157,18 @@ const parseBookData = (item: any): Book => {
 
   // страницы
   const pages = Array.from({ length: item.num_pages }, (_, i) => {
-    const pageToken = item.images.pages[i]?.t || "j";
-    const pageExt = extByToken(pageToken);
-    const pageBase = `https://i3.nhentai.net/galleries/${media}/${i + 1}`;
+    const pageNum = i + 1;
+    const pageExt = extByToken(item.images.pages[i]?.t || "j");
+    const host = pickHost(media, pageNum);
+
+    // теперь вместо i3–постоянно используем i0..i3
+    const pageBase = `https://${host}.nhentai.net/galleries/${media}/${pageNum}`;
     const pageBaseThumb = `https://t1.nhentai.net/galleries/${media}/${i + 1}t`;
 
     return {
-      page: i + 1,
-      url: `${pageBase}.${pageExt}`, // то же поведение, что у cover/thumbnail
-      urlThumb: `${pageBaseThumb}.${pageExt}`, // то же поведение, что у cover/thumbnail
+      page: pageNum,
+      url: `${pageBase}.${pageExt}`,
+      urlThumb: `${pageBaseThumb}.${pageExt}`,
     };
   });
 
@@ -228,7 +269,7 @@ wss.on("connection", (ws) => {
         ids,
         sort,
         perPage = 25,
-      } = JSON.parse(msg.toString());
+      } = JSON.parse(msg.toString()) as WsRequest;
 
       switch (type) {
         case "get-book": {
@@ -236,22 +277,20 @@ wss.on("connection", (ws) => {
           const book = await getBookById(id);
           return ws.send(JSON.stringify({ type: "book-reply", book }));
         }
-        case "get-new-uploads":
+        case "get-new-uploads": {
+          const data = await fetchBooks("new", page, perPage);
+          return ws.send(
+            JSON.stringify({ type: "new-uploads-reply", ...data })
+          );
+        }
         case "get-popular":
         case "get-popular-today":
         case "get-popular-week":
         case "get-popular-month": {
-          const key = type.replace("get-", "");
-          const kind = key === "new-uploads" ? "new" : key;
+          const kind = type.replace("get-popular-", "") || "popular";
           const data = await fetchBooks(kind, page, perPage);
           return ws.send(
-            JSON.stringify({
-              type:
-                key === "new-uploads"
-                  ? "new-uploads-reply"
-                  : "popular-books-reply",
-              ...data,
-            })
+            JSON.stringify({ type: "popular-books-reply", ...data })
           );
         }
         case "search-books": {
@@ -270,6 +309,7 @@ wss.on("connection", (ws) => {
               books,
               totalPages: 1,
               currentPage: 1,
+              totalItems: books.length,
             })
           );
         }
