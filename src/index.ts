@@ -1,17 +1,33 @@
-/* -------------------------------------------------------------------------- */
-/*  main.ts – Electron + WebSocket gateway for nHentai client                 */
-/*  Обновлено: фикс импорта processOptions + упрощённый вызов + советы по     */
-/*  node‑gyp (см. комментарии ниже).                                          */
-/* -------------------------------------------------------------------------- */
-
 import { app, BrowserWindow, protocol, ipcMain, session } from "electron";
 import { WebSocketServer } from "ws";
-import axios, { AxiosRequestConfig } from "axios";
-// 👉 правильный путь до утилиты — в published‑версии библиотека лежит в dist
+import axios from "axios";
 import { Agent } from "https";
-import { API } from "nhentai-api";
+import { API, Tag } from "nhentai-api";
+import { APITag } from "nhentai-api/types/tag";
+import * as fs from "fs";
+import * as path from "path";
+// import "./utils/parser";
 
-// Создаем экземпляр API
+// Импортируем локальные теги
+const TAGS_PATH = path.resolve(__dirname, "utils", "nhentai-tags.json");
+let tagsDb: any = {};
+try {
+  tagsDb = JSON.parse(fs.readFileSync(TAGS_PATH, "utf8"));
+  console.log("Теги успешно загружены, обновлено:", tagsDb.updated);
+} catch (err) {
+  console.error("Не удалось загрузить nhentai-tags.json:", err);
+  tagsDb = {
+    tags: [],
+    artists: [],
+    characters: [],
+    parodies: [],
+    groups: [],
+    categories: [],
+    languages: [],
+  };
+}
+// import "./utils/parser"
+
 const nh = new API({
   agent: new Agent(),
   hosts: {
@@ -22,13 +38,6 @@ const nh = new API({
   ssl: true,
 });
 
-// Если у тебя есть собственный keep‑alive/прокси‑агент, закинь его сюда:
-// const myAgent = new HttpsAgent({ keepAlive: true, proxy: ... });
-// const { hosts, ssl, agent } = processOptions({ ssl: true, agent: myAgent });
-
-/* -------------------------------------------------------------------------- */
-/*  Electron / scheme setup                                                   */
-/* -------------------------------------------------------------------------- */
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "http",
@@ -43,9 +52,6 @@ protocol.registerSchemesAsPrivileged([
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-/* -------------------------------------------------------------------------- */
-/*  Axios helpers                                                             */
-/* -------------------------------------------------------------------------- */
 const baseAxiosCfg = {
   timeout: 10_000,
   headers: { "User-Agent": "nh-client" },
@@ -60,10 +66,6 @@ const api = axios.create({
 
 axios.defaults.httpAgent = baseAxiosCfg.httpAgent;
 axios.defaults.httpsAgent = baseAxiosCfg.httpsAgent;
-
-/* -------------------------------------------------------------------------- */
-/*  Helpers                                                                   */
-/* -------------------------------------------------------------------------- */
 
 type OrigExt =
   | "jpg.webp"
@@ -95,15 +97,11 @@ const extByToken = (
       return "gif.webp";
     case "g":
       return "gif";
-
     default:
       throw new Error(`Unknown image token: ${t}`);
   }
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Types                                                                     */
-/* -------------------------------------------------------------------------- */
 interface Book {
   id: number;
   title: { english: string; japanese: string; pretty: string };
@@ -137,31 +135,23 @@ interface WsRequest {
 const imageHosts = ["i1", "i2", "i3"];
 
 function pickHost(media: number, page: number): string {
-  // простой round-robin: меняем хост для каждой страницы
   const idx = (media + page) % imageHosts.length;
   return imageHosts[idx];
 }
 
-/* -------------------------------------------------------------------------- */
-/*  СИНХРОННЫЙ парсер книги                                                   */
-/* -------------------------------------------------------------------------- */
 const parseBookData = (item: any): Book => {
   const media = item.media_id;
-
-  // … cover и thumbnail оставляем на t-сервисе
   const coverExt = extByToken(item.images.cover?.t || "j");
   const thumbExt = extByToken(item.images.thumbnail?.t || "j");
 
   const coverBase = `https://t3.nhentai.net/galleries/${media}/cover`;
   const thumbBase = `https://t3.nhentai.net/galleries/${media}/thumb`;
 
-  // страницы
   const pages = Array.from({ length: item.num_pages }, (_, i) => {
     const pageNum = i + 1;
     const pageExt = extByToken(item.images.pages[i]?.t || "j");
     const host = pickHost(media, pageNum);
 
-    // теперь вместо i3–постоянно используем i0..i3
     const pageBase = `https://${host}.nhentai.net/galleries/${media}/${pageNum}`;
     const pageBaseThumb = `https://t1.nhentai.net/galleries/${media}/${i + 1}t`;
 
@@ -193,9 +183,6 @@ const parseBookData = (item: any): Book => {
   };
 };
 
-/* -------------------------------------------------------------------------- */
-/*  API wrappers (search / fetch / get)                                       */
-/* -------------------------------------------------------------------------- */
 const paginate = (total: number, perPage: number) => Math.ceil(total / perPage);
 
 const searchBooks = async (
@@ -208,9 +195,11 @@ const searchBooks = async (
   if (sort) params.sort = sort;
   const { data } = await api.get("/api/galleries/search", { params });
   const books = data.result.map(parseBookData);
+  // Фикс: используем data.num_pages!
+  const totalPages = data.num_pages || 1;
   return {
     books,
-    totalPages: paginate(data.num_pages, perPage),
+    totalPages,
     currentPage: page,
   };
 };
@@ -253,84 +242,119 @@ const getFavorites = async (ids: number[]): Promise<Book[]> => {
   return (await Promise.all(promises)).filter(Boolean) as Book[];
 };
 
-/* -------------------------------------------------------------------------- */
-/*  WebSocket server                                                          */
-/* -------------------------------------------------------------------------- */
+function mapSortType(type: string): string {
+  switch (type) {
+    case "get-popular":
+      return "popular";
+    case "get-popular-week":
+      return "popular-week";
+    case "get-popular-today":
+      return "popular-today";
+    case "get-popular-month":
+      return "popular-month";
+    default:
+      return "popular";
+  }
+}
+
 const wss = new WebSocketServer({ port: 8080 });
 
-wss.on("connection", (ws) => {
-  ws.on("message", async (msg) => {
-    try {
-      const {
-        type,
-        id,
-        page = 1,
-        query,
-        ids,
-        sort,
-        perPage = 25,
-      } = JSON.parse(msg.toString()) as WsRequest;
+wss.on("connection", ws => {
+  ws.on("message", async raw => {
+    const msg = JSON.parse(raw.toString());
 
-      switch (type) {
-        case "get-book": {
-          if (!id) throw new Error("ID missing");
-          const book = await getBookById(id);
-          return ws.send(JSON.stringify({ type: "book-reply", book }));
-        }
-        case "get-new-uploads": {
-          const data = await fetchBooks("new", page, perPage);
-          return ws.send(
-            JSON.stringify({ type: "new-uploads-reply", ...data })
-          );
-        }
-        case "get-popular":
-        case "get-popular-today":
-        case "get-popular-week":
-        case "get-popular-month": {
-          const kind = type.replace("get-popular-", "") || "popular";
-          const data = await fetchBooks(kind, page, perPage);
-          return ws.send(
-            JSON.stringify({ type: "popular-books-reply", ...data })
-          );
-        }
-        case "search-books": {
-          if (!query) throw new Error("Query missing");
-          const data = await searchBooks(query, page, sort, perPage);
-          return ws.send(
-            JSON.stringify({ type: "search-results-reply", ...data })
-          );
-        }
+    try {
+      switch (msg.type) {
+
+        /* ---------- избранное ----------------------------------- */
         case "get-favorites": {
-          if (!ids?.length) throw new Error("Ids array required");
-          const books = await getFavorites(ids);
-          return ws.send(
-            JSON.stringify({
-              type: "favorites-reply",
-              books,
-              totalPages: 1,
-              currentPage: 1,
-              totalItems: books.length,
-            })
-          );
+          const { ids = [], sort = "relevance", page = 1, perPage = 25 } = msg;
+          if (!Array.isArray(ids) || ids.length === 0)
+            throw new Error("Ids array required");
+
+          const all = await getFavorites(ids);
+
+          /* ★ сортировка */
+          let sorted = all;
+          if (sort === "popular") {
+            sorted = [...all].sort((a, b) => b.favorites - a.favorites);
+          } // relevance = порядок в ids
+
+          /* ★ пагинация */
+          const start = (page - 1) * perPage;
+          const paged = sorted.slice(start, start + perPage);
+
+          ws.send(JSON.stringify({
+            type: "favorites-reply",
+            books: paged,
+            totalPages: Math.max(1, Math.ceil(sorted.length / perPage)),
+            currentPage: page,
+            totalItems: sorted.length,           // ★
+          }));
+          break;
         }
+
+        /* ---------- поиск / popular / new ------------------------ */
+        case "search-books": {
+          const { query = "", sort = "", page = 1, perPage = 25, filterTags = [], contentType } = msg;
+
+          /* сборка строки запроса */
+          const tagsPart = Array.isArray(filterTags) && filterTags.length
+            ? filterTags.map((t: any) => `${t.type.replace(/s$/, "")}:"${t.name}"`).join(" ")
+            : "";
+          const nhQuery = `${query.trim()} ${tagsPart}`.trim() || " ";
+
+          /* корректировка sort */
+          const allowed = ["popular","popular-week","popular-today","popular-month"];
+          const realSort =
+            contentType === "new"      ? "date"   :
+            contentType === "popular" && !allowed.includes(sort) ? "popular" :
+            sort;
+
+          const { data } = await api.get("/api/galleries/search", {
+            params: { query: nhQuery, page, per_page: perPage, sort: realSort },
+          });
+
+          const books = data.result.map(parseBookData);
+          const wsType =
+            contentType === "new"     ? "new-uploads-reply"   :
+            contentType === "popular" ? "popular-books-reply" : "search-results-reply";
+
+          ws.send(JSON.stringify({
+            type: wsType,
+            books,
+            totalPages: data.num_pages || 1,
+            currentPage: page,
+          }));
+          break;
+        }
+
+        /* ---------- получение одной книги ----------------------- */
+        case "get-book": {
+          const { id } = msg;
+          if (!id) throw new Error("ID missing");
+          const { data } = await api.get(`/api/gallery/${id}`);
+          ws.send(JSON.stringify({ type: "book-reply", book: parseBookData(data) }));
+          break;
+        }
+
+        /* ---------- список тегов -------------------------------- */
+        case "get-tags":
+          ws.send(JSON.stringify({ type: "tags-reply", tags: tagsDb, updated: tagsDb.updated }));
+          break;
+
+        /* ---------- unknown ------------------------------------- */
         default:
-          throw new Error(`Unknown type: ${type}`);
+          throw new Error(`Unknown type: ${msg.type}`);
       }
+
     } catch (err: any) {
       console.error(err);
-      ws.send(
-        JSON.stringify({
-          type: "error",
-          message: err?.message || "Unknown error",
-        })
-      );
+      ws.send(JSON.stringify({ type: "error", message: err.message || "Unknown error" }));
     }
   });
 });
 
-/* -------------------------------------------------------------------------- */
-/*  Electron window                                                           */
-/* -------------------------------------------------------------------------- */
 let mainWindow: BrowserWindow | null = null;
 
 app.whenReady().then(() => {

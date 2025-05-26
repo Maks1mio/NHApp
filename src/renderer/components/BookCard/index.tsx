@@ -39,7 +39,7 @@ export interface Book {
 interface BookCardProps {
   book: Book;
   isFavorite: boolean;
-  onToggleFavorite: (id: number) => void;
+  onToggleFavorite?: (id: number) => void; // ← optional
   className?: string;
 }
 
@@ -222,7 +222,7 @@ const BookCard: React.FC<BookCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onToggleFavorite(book.id);
+              onToggleFavorite?.(book.id); // ← безопасный вызов
             }}
             className={styles.favoriteButton}
             aria-label={

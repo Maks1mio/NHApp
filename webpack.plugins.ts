@@ -19,6 +19,10 @@ export const plugins = [
     patterns: [
       { from: "static", to: "static" },
       { from: "static", to: "main_window/static" },
+      {
+        from: path.resolve(__dirname, "src/utils/nhentai-tags.json"),
+        to: path.resolve(__dirname, ".webpack/main/utils/nhentai-tags.json"),
+      },
     ],
   }),
   new webpack.ProvidePlugin({

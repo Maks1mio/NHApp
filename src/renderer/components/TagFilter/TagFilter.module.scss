@@ -1,110 +1,122 @@
-.tagFilterContainer {
-  position: relative;
-  margin-right: 15px;
-  -webkit-app-region: no-drag;
-}
-
-.filterButton {
-  background: #3a3a4a;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #b0b0c0;
-  transition: all 0.2s ease;
-  position: relative;
-
-  &:hover {
-    background: #4a4a5a;
-    color: white;
-  }
-
-  &.active {
-    background: #6e45e2;
-    color: white;
-  }
-}
-
-.badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: #ff4444;
-  color: white;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: bold;
-}
-
-.dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #2a2a3a;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  width: 530px;
-  min-width: 500px;
-  min-height: 510px;
-  overflow-y: auto;
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
   z-index: 1000;
-  padding: 15px;
-  //   position: absolute;
-  //   top: 100%;
-  //   right: 0;
-  //   background: #2a2a3a;
-  //   border-radius: 8px;
-  //   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  //   width: 350px;
-  //   max-height: 500px;
-  //   overflow-y: auto;
-  //   z-index: 1000;
-  //   padding: 15px;
-}
-
-.dropdownHeader {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-
-  h3 {
-    margin: 0;
-    color: white;
-    font-size: 1.1rem;
-  }
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.closeButton {
-  background: none;
+.modal {
+  background-color: #1e1e2f;
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modalClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
   border: none;
-  color: #b0b0c0;
+  color: #a0a0c0;
   cursor: pointer;
-  padding: 5px;
+  padding: 8px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 
   &:hover {
-    background: #3a3a4a;
-    color: white;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
-.selectedTags {
-  margin-bottom: 15px;
-  background: #3a3a4a;
-  border-radius: 6px;
-  padding: 10px;
+.modalHeader {
+  margin-bottom: 20px;
+}
+
+.modalTitle {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.searchContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #a0a0c0;
+}
+
+.clearSearch {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #a0a0c0;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.tagSearchInput {
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  border-radius: 8px;
+  border: none;
+  background-color: #2a2a3a;
+  color: #fff;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #6e45e2;
+    background-color: #2a2a4a;
+  }
+
+  &::placeholder {
+    color: #6a6a8a;
+  }
+}
+
+.selectedTagsContainer {
+  margin-bottom: 16px;
+  overflow: hidden;
 }
 
 .selectedTagsHeader {
@@ -112,97 +124,216 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-  font-size: 0.9rem;
-  color: #b0b0c0;
+  color: #a0a0c0;
+  font-size: 14px;
 }
 
-.clearButton {
-  background: none;
+.clearAllButton {
+  background: transparent;
   border: none;
-  color: #ff4444;
+  color: #a0a0c0;
   cursor: pointer;
-  font-size: 0.8rem;
-  padding: 2px 5px;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 4px;
 
   &:hover {
-    text-decoration: underline;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
 .selectedTagsList {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .selectedTag {
-  background: #6e45e2;
-  color: white;
-  border-radius: 12px;
-  padding: 4px 8px;
-  font-size: 0.8rem;
+  background-color: #6e45e2;
+  color: #fff;
+  padding: 6px 12px 6px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #ff4444;
-  }
-}
-
-.loading {
-  padding: 20px;
-  text-align: center;
-  color: #b0b0c0;
-}
-
-.tagCategories {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.category {
-  border-bottom: 1px solid #3a3a4a;
-  padding-bottom: 15px;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.categoryTitle {
-  margin: 0 0 10px 0;
-  color: #6e45e2;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-}
-
-.tagsList {
-  display: flex;
-  flex-wrap: wrap;
   gap: 6px;
-}
-
-.tag {
-  background: #3a3a4a;
-  color: #b0b0c0;
-  border: none;
-  border-radius: 12px;
-  padding: 5px 10px;
-  font-size: 0.8rem;
-  cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #4a4a5a;
-    color: white;
+    background-color: #5a37c8;
+
+    .removeTag {
+      transform: scale(1.2);
+    }
+  }
+}
+
+.removeTag {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.tagTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+  }
+}
+
+.tabBtn {
+  position: relative;
+  background-color: #2a2a3a;
+  color: #a0a0c0;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #3a3a4a;
+    color: #fff;
+  }
+
+  &.active {
+    color: #fff;
+    font-weight: 500;
+  }
+}
+
+.tabIcon {
+  font-size: 16px;
+}
+
+.tabIndicator {
+  position: absolute;
+  bottom: -4px;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background-color: #6e45e2;
+  border-radius: 1px;
+}
+
+.availableTagsContainer {
+  flex: 1;
+  overflow: hidden;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.tagsRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 4px;
+  width: 100%;
+}
+
+.availableTag {
+  cursor: pointer;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 15px;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #3a3a4a;
   }
 
   &.selected {
-    background: #6e45e2;
-    color: white;
+    background-color: #6e45e2;
+    color: #fff;
+    font-weight: 500;
+  }
+}
+
+.tagName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagCount {
+  color: inherit;
+  opacity: 0.7;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.noResults {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #a0a0c0;
+  padding: 40px 0;
+  text-align: center;
+
+  svg {
+    margin-bottom: 16px;
+    color: #6a6a8a;
+  }
+
+  p {
+    margin: 0 0 16px 0;
+  }
+}
+
+.resetSearchButton {
+  background: transparent;
+  border: 1px solid #6a6a8a;
+  color: #a0a0c0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #fff;
+    border-color: #6e45e2;
+    background: rgba(110, 69, 226, 0.1);
+  }
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.applyButton {
+  background-color: #6e45e2;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #5a37c8;
   }
 }

@@ -1,0 +1,5084 @@
+{
+	"version": "1.0.0",
+	"metadata": {
+		"linker": "(unsigned)",
+		"siteRoot": "nhentai-api"
+	},
+	"root": {
+		"id": "root-nYEo_kj5NQUnVr8qGvfEL",
+		"name": "",
+		"type": "RootDoc",
+		"members": [
+			{
+				"id": "pB1xAVEPYELX8Q-n5fo3D",
+				"name": "API",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class used for interaction with nHentai API.</p>",
+				"members": [
+					{
+						"id": "STyYi8odmdnET6eoo3UMW",
+						"name": "APIPath",
+						"brief": "",
+						"access": "private",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>API path class</p>"
+					},
+					{
+						"id": "sAp9AGKeN1R604Het7K5N",
+						"name": "agent",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>HTTP(S) agent.</p>",
+						"members": [
+							{
+								"id": "QIuJj2DFP2aFHxpMnmcZP",
+								"name": "",
+								"brief": "",
+								"access": "public",
+								"scope": "static",
+								"type": "PropertyDoc"
+							}
+						]
+					},
+					{
+						"id": "sp02cEZrQwVCbdRDsS7UK",
+						"name": "hosts",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Hosts</p>"
+					},
+					{
+						"id": "fVSue1HUhV4tc9nTFWMmd",
+						"name": "net",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Get http(s) module depending on <code>options.ssl</code>.</p>"
+					},
+					{
+						"id": "zemIsAVKv0ghe9f3iUyDD",
+						"name": "ssl",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Prefer HTTPS over HTTP.</p>"
+					},
+					{
+						"id": "dhtjAOOYdzVQxYUp2xdrY",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Applies provided options on top of defaults.</p>",
+						"params": [
+							{
+								"identifier": "options",
+								"optional": true,
+								"default": "{}",
+								"description": "<p>Options to apply.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?nHentaiOptions",
+											"kind": "canonical"
+										},
+										{
+											"value": "nHentaiOptions",
+											"kind": "link"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "r25RPcr1PBjqGeGwvmz2Z",
+						"name": "getBook",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get book by id.</p>",
+						"params": [
+							{
+								"identifier": "bookID",
+								"optional": false,
+								"description": "<p>Book ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Book instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<Book>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					},
+					{
+						"id": "Yyx8_U7CIS0v2iClZDmTu",
+						"name": "getImageURL",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get image URL.</p>",
+						"params": [
+							{
+								"identifier": "image",
+								"optional": false,
+								"description": "<p>Image.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Image URL.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "A7zU0onkU-Q-ob8SISPFB",
+						"name": "getRandomBook",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get random book.</p>",
+						"params": [],
+						"returns": [
+							{
+								"description": "<p>Book instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<Book>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					},
+					{
+						"id": "L-HYVHlt7P-JmGockpTVI",
+						"name": "getThumbURL",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get image thumbnail URL.</p>",
+						"params": [
+							{
+								"identifier": "image",
+								"optional": false,
+								"description": "<p>Image.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Image thumbnail URL.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "dvkcTUgfwRF3RalZOJLv0",
+						"name": "request",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>JSON get request.</p>",
+						"params": [
+							{
+								"identifier": "options",
+								"optional": false,
+								"description": "<p>HTTP(S) request options.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object",
+											"kind": "canonical"
+										}
+									],
+									"template": "object"
+								}
+							},
+							{
+								"identifier": "options.host",
+								"description": "<p>Host.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "options.path",
+								"description": "<p>Path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Parsed JSON.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<object>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1<object>"
+								}
+							}
+						],
+						"members": [
+							{
+								"id": "MbXMNZzOqzJ2J615OzBD_",
+								"name": "response",
+								"brief": "",
+								"readonly": true,
+								"type": "PropertyDoc"
+							}
+						]
+					},
+					{
+						"id": "h-NrZ3pVCFWGGVXvv27bh",
+						"name": "search",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Search by query.</p>",
+						"params": [
+							{
+								"identifier": "query",
+								"optional": false,
+								"description": "<p>Query.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "sort",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Search sort mode.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?SearchSortMode",
+											"kind": "canonical"
+										},
+										{
+											"value": "SearchSortMode",
+											"kind": "link"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Search instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<Search>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					},
+					{
+						"id": "VvWTH6nnKvY0Ttfodn6sw",
+						"name": "searchAlike",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Search related books.</p>",
+						"params": [
+							{
+								"identifier": "book",
+								"optional": false,
+								"description": "<p>Book instance or Book ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number | Book",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1 | %2"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Search instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<Search>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					},
+					{
+						"id": "znUxe4AAvCSl1_VH-S81A",
+						"name": "searchGenerator",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Search by query.</p>",
+						"params": [
+							{
+								"identifier": "query",
+								"optional": false,
+								"description": "<p>Query.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Starting page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "sort",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Search sort mode.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?SearchSortMode",
+											"kind": "canonical"
+										},
+										{
+											"value": "SearchSortMode",
+											"kind": "link"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "AsyncGenerator<Search, Search, Search>",
+											"kind": "canonical"
+										},
+										{
+											"value": "AsyncGenerator",
+											"kind": "canonical"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%4, %2, %3>"
+								}
+							}
+						]
+					},
+					{
+						"id": "ClVTVjjc1EBV9pz9A-Jt1",
+						"name": "searchTagged",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Search by tag id.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag or Tag ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1 | %2"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "sort",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Search sort mode.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?SearchSortMode",
+											"kind": "canonical"
+										},
+										{
+											"value": "SearchSortMode",
+											"kind": "link"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Search instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<Search>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					},
+					{
+						"id": "P7__YPujT8x0agOe-39UF",
+						"name": "getAPIArgs",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get API arguments.\nThis is internal method.</p>",
+						"params": [
+							{
+								"identifier": "hostType",
+								"optional": false,
+								"description": "<p>Host type.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "api",
+								"optional": false,
+								"description": "<p>Endpoint type.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>API arguments.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "APIArgs",
+											"kind": "canonical"
+										},
+										{
+											"value": "APIArgs",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "pwzTS7oA7SHzwAkNjNH9q",
+				"name": "APIError",
+				"brief": "",
+				"type": "ClassDoc",
+				"extends": [
+					"Error"
+				],
+				"members": [
+					{
+						"id": "a8Xeh52sT2ZHrVpSvLFPO",
+						"name": "httpResponse",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>HTTP response.</p>"
+					},
+					{
+						"id": "8Fb_xJZYCMjXsuln_8Wrq",
+						"name": "originalError",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Original error.</p>"
+					},
+					{
+						"id": "28bumB7leunwkwpQtve6p",
+						"name": "absorb",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Absorb error.</p>",
+						"params": [
+							{
+								"identifier": "error",
+								"optional": true,
+								"default": "null",
+								"description": "<p>Original error.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Error",
+											"kind": "canonical"
+										},
+										{
+											"value": "Error",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "httpResponse",
+								"optional": true,
+								"default": "null",
+								"description": "<p>HTTP response.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?IncomingMessage",
+											"kind": "canonical"
+										},
+										{
+											"value": "IncomingMessage",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "APIError",
+											"kind": "canonical"
+										},
+										{
+											"value": "APIError",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					},
+					{
+						"id": "UdNhEnJsw7ANOt2WeTFWU",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Error message.</p>",
+						"params": [
+							{
+								"identifier": "message",
+								"optional": false,
+								"default": "'Unknown error'",
+								"description": "<p>Message.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": []
+					}
+				]
+			},
+			{
+				"id": "KhfSzSLwHHapKKE4aAHeD",
+				"name": "APIPath",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class used for building URL paths to nHentai API endpoints.\nThis class is internal and has only static methods.</p>",
+				"members": [
+					{
+						"id": "ury4yxZcMxifl-LvahWvV",
+						"name": "book",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Book content endpoint.</p>",
+						"params": [
+							{
+								"identifier": "bookID",
+								"optional": false,
+								"description": "<p>Book ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "ZSCW9yHtM9WVchDVl2sIz",
+						"name": "bookCover",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Book's cover image endpoint.</p>",
+						"params": [
+							{
+								"identifier": "mediaID",
+								"optional": false,
+								"description": "<p>Media ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "extension",
+								"optional": false,
+								"description": "<p>Image extension.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "5htN50aoUAp7K5jW5dHul",
+						"name": "bookPage",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Book's page image endpoint.</p>",
+						"params": [
+							{
+								"identifier": "mediaID",
+								"optional": false,
+								"description": "<p>Media ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": false,
+								"description": "<p>Page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "extension",
+								"optional": false,
+								"description": "<p>Image extension.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "zjb-u4R35wa9nUUcxJl1v",
+						"name": "bookThumb",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Book's page's thumbnail image endpoint.</p>",
+						"params": [
+							{
+								"identifier": "mediaID",
+								"optional": false,
+								"description": "<p>Media ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": false,
+								"description": "<p>Page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "extension",
+								"optional": false,
+								"description": "<p>Image extension.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "foTH_ErbMYWKOhOSsStBy",
+						"name": "randomBookRedirect",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Redirect to random book at website.</p>",
+						"params": [],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "v1wiHAnHIPWK9Xd1qUjWD",
+						"name": "search",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Search by query endpoint.</p>",
+						"params": [
+							{
+								"identifier": "query",
+								"optional": false,
+								"description": "<p>Search query.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "sort",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Search sort mode.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?SearchSortMode",
+											"kind": "canonical"
+										},
+										{
+											"value": "SearchSortMode",
+											"kind": "link"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "PkfSKN3rApPidijTDFOsM",
+						"name": "searchAlike",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Search alike endpoint.</p>",
+						"params": [
+							{
+								"identifier": "bookID",
+								"optional": false,
+								"description": "<p>Book ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "90nv7397NwXgbRyxvFVoi",
+						"name": "searchTagged",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Search by tag endpoint.</p>",
+						"params": [
+							{
+								"identifier": "tagID",
+								"optional": false,
+								"description": "<p>Tag ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "page",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>URL path.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					},
+					{
+						"id": "KuinzaVvS7ssgo7XZau_M",
+						"name": "constructor",
+						"brief": "",
+						"access": "public",
+						"scope": "instance",
+						"type": "MethodDoc"
+					}
+				]
+			},
+			{
+				"id": "fMdJi9PbufEfeJj4tZh9v",
+				"name": "Book",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing Book.</p>",
+				"members": [
+					{
+						"id": "jmBLiXkPLjuaK54cAkiht",
+						"name": "Unknown",
+						"brief": "",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Unknown book instance.</p>"
+					},
+					{
+						"id": "x7fU2stuREqaj3LP0GnDf",
+						"name": "UnknownBook",
+						"brief": "",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>UnknownBook class.</p>"
+					},
+					{
+						"id": "6xHLnTSQo3Yo001Pqv4ml",
+						"name": "artists",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Artist tags.</p>"
+					},
+					{
+						"id": "Jgab2TfjxKRbZJwVa9ym-",
+						"name": "categories",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Category tags.</p>"
+					},
+					{
+						"id": "_X_o0ITRHBDXtbHdnpe9j",
+						"name": "characters",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Character tags.</p>"
+					},
+					{
+						"id": "7raV7NFREWFj35p39_Rab",
+						"name": "cover",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book cover.</p>"
+					},
+					{
+						"id": "NKkqBEsitq9H_OdG2MCGa",
+						"name": "favorites",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book favours count.</p>"
+					},
+					{
+						"id": "9d0ZMjeczQ7TqE1g9GaIe",
+						"name": "groups",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Group tags.</p>"
+					},
+					{
+						"id": "0BIHBb0kjKBwRF-GhBRAO",
+						"name": "id",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book ID.</p>"
+					},
+					{
+						"id": "CTfg4mInpzDLAB75kH4j-",
+						"name": "isKnown",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Check whatever book is known.</p>"
+					},
+					{
+						"id": "FQ_NwJfws3At1F6WBrFzZ",
+						"name": "languages",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Language tags.</p>"
+					},
+					{
+						"id": "muZXKsu_35okqRzmXs5fF",
+						"name": "media",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book Media ID.</p>"
+					},
+					{
+						"id": "jlbpkFY7EL6ssfo0cFmAE",
+						"name": "pages",
+						"brief": "",
+						"defaultValue": "[]",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book pages.</p>"
+					},
+					{
+						"id": "RRs6igbOBHRrt8eC2RvfV",
+						"name": "parodies",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Parody tags.</p>"
+					},
+					{
+						"id": "BdmwJ4UtNOXoHFaTznXL5",
+						"name": "pureTags",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Pure tags (with type {TagType.Tag}).</p>"
+					},
+					{
+						"id": "mBvsRM92zIZNB1xlupEjF",
+						"name": "scanlator",
+						"brief": "",
+						"defaultValue": "''",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book scanlator.</p>"
+					},
+					{
+						"id": "2zxIj1JOlr5Ee1CrTEifM",
+						"name": "tags",
+						"brief": "",
+						"defaultValue": "[]",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book tags.</p>"
+					},
+					{
+						"id": "ER0oh2oWAG65DyChabW_y",
+						"name": "title",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book title.</p>"
+					},
+					{
+						"id": "5T0E5Ms42FXYwu7nx0rWQ",
+						"name": "uploaded",
+						"brief": "",
+						"defaultValue": "new Date(0)",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book upload date.</p>"
+					},
+					{
+						"id": "JAx7aWA9CPOWJosGbTuZj",
+						"name": "parse",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Parse book object into class instance.</p>",
+						"params": [
+							{
+								"identifier": "book",
+								"optional": false,
+								"description": "<p>Book.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "APIBook",
+											"kind": "canonical"
+										},
+										{
+											"value": "APIBook",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Book instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Book",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					},
+					{
+						"id": "1GVEkWVr-r0kx9Hy_mA8h",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create book.</p>",
+						"params": [
+							{
+								"identifier": "params",
+								"optional": true,
+								"description": "<p>Book parameters.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object",
+											"kind": "canonical"
+										}
+									],
+									"template": "object"
+								}
+							},
+							{
+								"identifier": "params.title",
+								"optional": true,
+								"description": "<p>Book title.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "BookTitle",
+											"kind": "canonical"
+										},
+										{
+											"value": "BookTitle",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.id",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Book ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.media",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Book Media ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.favorites",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Book favours count.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.scanlator",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Book scanlator.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "params.uploaded",
+								"optional": true,
+								"description": "<p>Book upload date.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Date",
+											"kind": "canonical"
+										},
+										{
+											"value": "Date",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.tags",
+								"optional": true,
+								"default": "[]",
+								"description": "<p>Book tags.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Array<Tag> | TagsArray",
+											"kind": "canonical"
+										},
+										{
+											"value": "Array",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										},
+										{
+											"value": "TagsArray",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2> | %3"
+								}
+							},
+							{
+								"identifier": "params.cover",
+								"optional": true,
+								"description": "<p>Book cover.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.pages",
+								"optional": true,
+								"default": "[]",
+								"description": "<p>Book pages.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Array<Image>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Array",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "Bv7wAGsocLFJIzaoQg5rn",
+						"name": "getTagsWith",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get any tags with certain properties.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "object | %1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "TagsArray",
+											"kind": "canonical"
+										},
+										{
+											"value": "TagsArray",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					},
+					{
+						"id": "iinMxixjT3Nf0Ky4b8eOZ",
+						"name": "hasTag",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Check if book has certain tag.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "strict",
+								"optional": true,
+								"default": "false",
+								"description": "<p>Strict comparison.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "awIHVioyUYA_ylVgrU361",
+						"name": "hasTagWith",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Check if book has any tags with certain properties.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "object | %1"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "mpFixNI_1WWJ01FNxLtq8",
+						"name": "pushPage",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Push image to book pages.</p>",
+						"params": [
+							{
+								"identifier": "page",
+								"optional": false,
+								"description": "<p>Image.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever page was added.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					},
+					{
+						"id": "2ZNY17lrS39rycP4wL-51",
+						"name": "pushTag",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Push tag to book tags.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever tag was added.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					},
+					{
+						"id": "dmyxxPJuJQJUsm8b5QnT9",
+						"name": "setCover",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Set book cover image.</p>",
+						"params": [
+							{
+								"identifier": "cover",
+								"optional": false,
+								"description": "<p>Image.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever cover was set.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "YYI1TeOydiO5P6TatHbIj",
+				"name": "Image",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing image.</p>",
+				"members": [
+					{
+						"id": "kYQSpHAMW2YsOyr_McaQS",
+						"name": "types",
+						"brief": "",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Image types.</p>",
+						"members": [
+							{
+								"id": "pKVgH8dyGjkCiRGkePqsH",
+								"name": "known",
+								"brief": "",
+								"scope": "static",
+								"type": "PropertyDoc",
+								"description": "<p>Known image types.</p>"
+							},
+							{
+								"id": "WiBBC0gTOQ-A1yMlAy448",
+								"name": "get",
+								"brief": "",
+								"scope": "instance",
+								"type": "MethodDoc",
+								"description": "<p>Get image type class instance by name.</p>",
+								"params": [
+									{
+										"identifier": "type",
+										"optional": false,
+										"description": "<p>Image type.</p>",
+										"dataType": {
+											"tokens": [
+												{
+													"value": "string",
+													"kind": "canonical"
+												}
+											],
+											"template": "string"
+										}
+									}
+								],
+								"returns": [
+									{
+										"description": "<p>Image type class instance.</p>",
+										"dataType": {
+											"tokens": [
+												{
+													"value": "ImageType | UnknownImageType",
+													"kind": "canonical"
+												},
+												{
+													"value": "ImageType",
+													"kind": "link"
+												},
+												{
+													"value": "UnknownImageType",
+													"kind": "link"
+												}
+											],
+											"template": "%1 | %2"
+										}
+									}
+								]
+							}
+						]
+					},
+					{
+						"id": "I5jjLSWuX7DX4vkYa2gB1",
+						"name": "book",
+						"brief": "",
+						"defaultValue": "Book.Unknown",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image parent book.</p>"
+					},
+					{
+						"id": "YbBWLOsuniXm_JZVQUQ0b",
+						"name": "filename",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image filename.</p>"
+					},
+					{
+						"id": "gKLlmocfZQZIiuGxidFYL",
+						"name": "height",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image height.</p>"
+					},
+					{
+						"id": "Z_BoKCsFJR0b7-abmx0fQ",
+						"name": "id",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image ID.</p>"
+					},
+					{
+						"id": "WBELkUKygji1bi-2sZnBP",
+						"name": "isCover",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Whatever this image is book cover.</p>"
+					},
+					{
+						"id": "ARNcgoCYF3wdfEfnpiVAV",
+						"name": "type",
+						"brief": "",
+						"defaultValue": "ImageTypes.JPEG",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image type.</p>"
+					},
+					{
+						"id": "IPatMNFRMsU1rC_4BA-AJ",
+						"name": "width",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image width.</p>"
+					},
+					{
+						"id": "TozTMyJ2WgSOwHMVFSWfo",
+						"name": "parse",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Parse pure image object from API into class instance.</p>",
+						"params": [
+							{
+								"identifier": "image",
+								"optional": false,
+								"description": "<p>Image object</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "APIImage",
+											"kind": "canonical"
+										},
+										{
+											"value": "APIImage",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "id",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Image id (a.k.a. page number).</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Image instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					},
+					{
+						"id": "QonFHPPrBh-dm-XZ_vC-d",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create image.</p>",
+						"params": [
+							{
+								"identifier": "params",
+								"optional": true,
+								"description": "<p>Image parameters.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object",
+											"kind": "canonical"
+										}
+									],
+									"template": "object"
+								}
+							},
+							{
+								"identifier": "params.id",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Image ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.width",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Image width.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.height",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Image height.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.type",
+								"optional": true,
+								"default": "ImageTypes.JPEG",
+								"description": "<p>Image type.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string | ImageType",
+											"kind": "canonical"
+										},
+										{
+											"value": "ImageType",
+											"kind": "link"
+										}
+									],
+									"template": "string | %1"
+								}
+							},
+							{
+								"identifier": "params.book",
+								"optional": true,
+								"default": "Book.Unknown",
+								"description": "<p>Image's Book.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Book",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": []
+					}
+				]
+			},
+			{
+				"id": "4zI4tAAM1COxrBhFaCImi",
+				"name": "ImageType",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing image type.</p>",
+				"members": [
+					{
+						"id": "rk6T3K1I_ugWIDeGGK5lO",
+						"name": "knownTypes",
+						"brief": "",
+						"defaultValue": "{}",
+						"scope": "static",
+						"type": "PropertyDoc"
+					},
+					{
+						"id": "5fJq1NBvM1RdMjx_9Csaq",
+						"name": "extension",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image type extension.</p>"
+					},
+					{
+						"id": "niyXBqMDP7G7YVa8o_rQO",
+						"name": "isKnown",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Whatever this tag type is unknown.</p>"
+					},
+					{
+						"id": "xYFFkltin4MxIWji2BP5Z",
+						"name": "name",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Alias for type.</p>"
+					},
+					{
+						"id": "BNUR_kDbNNXhmqKsmdxWN",
+						"name": "type",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image type name.</p>"
+					},
+					{
+						"id": "rSnNFvAN1Lwocb0VAa1uq",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create image type.</p>",
+						"params": [
+							{
+								"identifier": "type",
+								"optional": false,
+								"description": "<p>Image type name.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "extension",
+								"optional": false,
+								"description": "<p>Image type extension.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": []
+					}
+				]
+			},
+			{
+				"id": "XVQlCj7pb-I29UNvGNlPX",
+				"name": "Search",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing search request results.</p>",
+				"members": [
+					{
+						"id": "BkB14YDu8YAyI21bUYb_0",
+						"name": "api",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>API instance.</p>"
+					},
+					{
+						"id": "NGQ9ZTW7dUmFMy2s6AsAv",
+						"name": "books",
+						"brief": "",
+						"defaultValue": "[]",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Books array.</p>"
+					},
+					{
+						"id": "6Yd19qBSVBQ7cv_ya_e4o",
+						"name": "page",
+						"brief": "",
+						"defaultValue": "1",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Page ID.</p>"
+					},
+					{
+						"id": "IENnt3JueFdrJpKgn9Cqc",
+						"name": "pages",
+						"brief": "",
+						"defaultValue": "1",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Pages count.</p>"
+					},
+					{
+						"id": "SU6aYPSfdDGbEVtROt7V8",
+						"name": "perPage",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Books per page.</p>"
+					},
+					{
+						"id": "IePk4QtmIvLG973telb1Z",
+						"name": "query",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Query string.</p>"
+					},
+					{
+						"id": "xBrhIgaeQKZR239TnKXBh",
+						"name": "sort",
+						"brief": "",
+						"defaultValue": "''",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Search sort mode.</p>"
+					},
+					{
+						"id": "qgWeN49ZxUjfh16I4UJg7",
+						"name": "parse",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Parse search object into class instance.</p>",
+						"params": [
+							{
+								"identifier": "search",
+								"optional": false,
+								"description": "<p>Search object.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "APISearch",
+											"kind": "canonical"
+										},
+										{
+											"value": "APISearch",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "pBZZ-A0A_Jq7x2VlHR9Uv",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create search.</p>",
+						"params": [
+							{
+								"identifier": "params",
+								"optional": true,
+								"description": "<p>Search parameters.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?object",
+											"kind": "canonical"
+										}
+									],
+									"template": "?object"
+								}
+							},
+							{
+								"identifier": "params.query",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Query string.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?string",
+											"kind": "canonical"
+										}
+									],
+									"template": "?string"
+								}
+							},
+							{
+								"identifier": "params.sort",
+								"optional": true,
+								"default": "''",
+								"description": "<p>Search sort mode.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?SearchSortMode",
+											"kind": "canonical"
+										},
+										{
+											"value": "SearchSortMode",
+											"kind": "link"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "params.page",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Search page ID.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "params.pages",
+								"optional": true,
+								"default": "1",
+								"description": "<p>Search pages count.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "params.perPage",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Search books per page.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "?%1"
+								}
+							},
+							{
+								"identifier": "params.books",
+								"optional": true,
+								"default": "[]",
+								"description": "<p>Books array.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Array<Book>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Array",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "qLUxri1EDSh-8OkeWM6Oh",
+						"name": "getNextPage",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Request next page.</p>",
+						"params": [
+							{
+								"identifier": "api",
+								"optional": true,
+								"default": "this.api",
+								"description": "<p>API instance.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "API",
+											"kind": "canonical"
+										},
+										{
+											"value": "API",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Next page search.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Promise<Search>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Promise",
+											"kind": "canonical"
+										},
+										{
+											"value": "Search",
+											"kind": "link"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					},
+					{
+						"id": "3jiw7Bo0XOIwnpyVaR17M",
+						"name": "pushBook",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Push book to books array.</p>",
+						"params": [
+							{
+								"identifier": "book",
+								"optional": false,
+								"description": "<p>Book.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Book",
+											"kind": "canonical"
+										},
+										{
+											"value": "Book",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever was book added or not.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "j-aeoc4S5Uc-9zcru15th",
+				"name": "Tag",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing tag.</p>",
+				"members": [
+					{
+						"id": "k0pIHODFFC2BTrvryn-Aw",
+						"name": "types",
+						"brief": "",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tag types.</p>",
+						"members": [
+							{
+								"id": "ajdImR6od5HBWWNi_RYwO",
+								"name": "known",
+								"brief": "",
+								"scope": "static",
+								"type": "PropertyDoc",
+								"description": "<p>Known tag types.</p>"
+							},
+							{
+								"id": "ANzzMeEAoOYcwNU7kTuJO",
+								"name": "get",
+								"brief": "",
+								"scope": "instance",
+								"type": "MethodDoc",
+								"description": "<p>Get tag type class instance by name.</p>",
+								"params": [
+									{
+										"identifier": "type",
+										"optional": false,
+										"description": "<p>Tag type.</p>",
+										"dataType": {
+											"tokens": [
+												{
+													"value": "string",
+													"kind": "canonical"
+												}
+											],
+											"template": "string"
+										}
+									}
+								],
+								"returns": [
+									{
+										"description": "<p>Tag type class instance.</p>",
+										"dataType": {
+											"tokens": [
+												{
+													"value": "TagType | UnknownTagType",
+													"kind": "canonical"
+												},
+												{
+													"value": "TagType",
+													"kind": "link"
+												},
+												{
+													"value": "UnknownTagType",
+													"kind": "link"
+												}
+											],
+											"template": "%1 | %2"
+										}
+									}
+								]
+							}
+						]
+					},
+					{
+						"id": "DO-4KyMw5cv6zGLNY-Djb",
+						"name": "count",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Count of books tagged with this tag.</p>"
+					},
+					{
+						"id": "FtoXLyMk6zP8d3Xa3nP2p",
+						"name": "id",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Tag ID.</p>"
+					},
+					{
+						"id": "auLEXjUisp-iLc-czVoaV",
+						"name": "name",
+						"brief": "",
+						"defaultValue": "\"\"",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Tag name.</p>"
+					},
+					{
+						"id": "2s0hKfsmimjmWJij5-FuH",
+						"name": "type",
+						"brief": "",
+						"defaultValue": "TagTypes.Unknown",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Tag type.</p>"
+					},
+					{
+						"id": "T2gPPRZxIbjIi7-BF31cf",
+						"name": "url",
+						"brief": "",
+						"defaultValue": "\"\"",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Tag URL.</p>"
+					},
+					{
+						"id": "CmosEC7ASzqnV2a9vc-QN",
+						"name": "get",
+						"brief": "",
+						"scope": "static",
+						"type": "MethodDoc",
+						"description": "<p>Warp tag object with Tag class instance.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag to wrap.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "APITag | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "APITag",
+											"kind": "link"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1 | %2"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					},
+					{
+						"id": "aLsg7n5ZwP3kOlVcb7btP",
+						"name": "compare",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Compare this to given one.\nBy default tags with different id will return false.\nIf you want to check whatever tag has any ...",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag to compare with.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "string | %1"
+								}
+							},
+							{
+								"identifier": "strict",
+								"optional": true,
+								"default": "false",
+								"description": "<p>Whatever all parameters must be the same.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean | string",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean | string"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever tags are equal.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					},
+					{
+						"id": "rbZan-FHQq56MLn-kjTP-",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create tag.</p>",
+						"params": [
+							{
+								"identifier": "params",
+								"optional": true,
+								"description": "<p>Tag parameters.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object",
+											"kind": "canonical"
+										}
+									],
+									"template": "object"
+								}
+							},
+							{
+								"identifier": "params.id",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Tag id.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.type",
+								"optional": true,
+								"default": "TagTypes.Unknown",
+								"description": "<p>Tag type.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string | TagType",
+											"kind": "canonical"
+										},
+										{
+											"value": "TagType",
+											"kind": "link"
+										}
+									],
+									"template": "string | %1"
+								}
+							},
+							{
+								"identifier": "params.name",
+								"optional": true,
+								"default": "\"\"",
+								"description": "<p>Tag name.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "params.count",
+								"optional": true,
+								"default": "0",
+								"description": "<p>Tagged books count.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "number",
+											"kind": "canonical"
+										},
+										{
+											"value": "number",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "params.url",
+								"optional": true,
+								"default": "\"\"",
+								"description": "<p>Tag URL.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "zI1RiTayGYHNSfgZiFP_X",
+						"name": "toString",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get tag name or tag name with count of tagged books.</p>",
+						"params": [
+							{
+								"identifier": "includeCount",
+								"optional": true,
+								"default": "false",
+								"description": "<p>Include count.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "?boolean"
+								}
+							}
+						],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "Fmz11BKCtbkIYcAACWw6r",
+				"name": "TagsArray",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Array of Tags with helper methods.</p>",
+				"extends": [
+					"Array<Tag>"
+				],
+				"members": [
+					{
+						"id": "LWZ4IoFXutVPxQ49Gz9vj",
+						"name": "toNames",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get array of tags names.</p>",
+						"params": [
+							{
+								"identifier": "includeCount",
+								"optional": true,
+								"default": "false",
+								"description": "<p>Include count.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "?boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "?boolean"
+								}
+							}
+						],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Array<String>",
+											"kind": "canonical"
+										},
+										{
+											"value": "Array",
+											"kind": "canonical"
+										},
+										{
+											"value": "String",
+											"kind": "canonical"
+										}
+									],
+									"template": "%1<%2>"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "Z11M4d6_sTXHzJUxN2aYP",
+				"name": "TagType",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing tag type.</p>",
+				"members": [
+					{
+						"id": "_HDO3m01rEvRv_FzVLSuK",
+						"name": "knownTypes",
+						"brief": "",
+						"defaultValue": "{}",
+						"scope": "static",
+						"type": "PropertyDoc"
+					},
+					{
+						"id": "773Yj5qUra2sEWbSUmOT-",
+						"name": "isKnown",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Check if this tag type is unknown.</p>"
+					},
+					{
+						"id": "tGCdOSQXktY46qU2xSI8-",
+						"name": "type",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Tag type name.</p>"
+					},
+					{
+						"id": "1qP9n_WhldJ5BcHlEiQG9",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create tag type.</p>",
+						"params": [
+							{
+								"identifier": "type",
+								"optional": false,
+								"description": "<p>Tag type.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "JpRd8P3-3iZjSwiHF91V0",
+						"name": "toString",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Tag type name.</p>",
+						"params": [],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "pn9ofRiQdN3EL9rk7gWG9",
+				"name": "UnknownBook",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing unknown book.</p>",
+				"extends": [
+					"Book"
+				],
+				"members": [
+					{
+						"id": "JJaBzcFPIEFPPu-gyH1Vc",
+						"name": "artists",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Artist tags.</p>"
+					},
+					{
+						"id": "SIiCWTcUdf8VzajaZo5SR",
+						"name": "categories",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Category tags.</p>"
+					},
+					{
+						"id": "rZzQVbIpUDE1nzheiGpE0",
+						"name": "characters",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Character tags.</p>"
+					},
+					{
+						"id": "iKUfSL3v-zrO65J3UQvoN",
+						"name": "cover",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book cover.</p>"
+					},
+					{
+						"id": "h1wVIwD99R4kW3aF77odk",
+						"name": "favorites",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book favours count.</p>"
+					},
+					{
+						"id": "I_YR5IWQlL4eWAht3TEst",
+						"name": "groups",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Group tags.</p>"
+					},
+					{
+						"id": "94uEuyFlnHxrdnhzkWikd",
+						"name": "id",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book ID.</p>"
+					},
+					{
+						"id": "wtazsYOljZHZwVeMxx5dk",
+						"name": "isKnown",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Check whatever book is known.</p>"
+					},
+					{
+						"id": "KJlY9ZmxTIM3IRIbB6zKK",
+						"name": "languages",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Language tags.</p>"
+					},
+					{
+						"id": "fzIE1BCq5ZlvW7WeSol2x",
+						"name": "media",
+						"brief": "",
+						"defaultValue": "0",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book Media ID.</p>"
+					},
+					{
+						"id": "royD8UANn4DfDP7KZgR4U",
+						"name": "pages",
+						"brief": "",
+						"defaultValue": "[]",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book pages.</p>"
+					},
+					{
+						"id": "xzH6Lf2dCxOfQ76TD4XC9",
+						"name": "parodies",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Parody tags.</p>"
+					},
+					{
+						"id": "jJXLuMKwklgtNNowrvQog",
+						"name": "pureTags",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Pure tags (with type {TagType.Tag}).</p>"
+					},
+					{
+						"id": "ybFssB5SLToJQa-ChmrhQ",
+						"name": "scanlator",
+						"brief": "",
+						"defaultValue": "''",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book scanlator.</p>"
+					},
+					{
+						"id": "EaeHTFwKjGcjlFVD6Fqlv",
+						"name": "tags",
+						"brief": "",
+						"defaultValue": "[]",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book tags.</p>"
+					},
+					{
+						"id": "J3MGzFNk-QRy2RlbA3lE4",
+						"name": "title",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book title.</p>"
+					},
+					{
+						"id": "wfYjrh3LMg4WKSG6Fvwca",
+						"name": "uploaded",
+						"brief": "",
+						"defaultValue": "new Date(0)",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Book upload date.</p>"
+					},
+					{
+						"id": "QRVXqRAvcx2ASV8A0ljQQ",
+						"name": "constructor",
+						"brief": "<p>Create unknown book.</p>",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"params": [],
+						"returns": []
+					},
+					{
+						"id": "EOdGnOcZXPNqHEFqrzWY-",
+						"name": "getTagsWith",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Get any tags with certain properties.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "object | %1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"dataType": {
+									"tokens": [
+										{
+											"value": "TagsArray",
+											"kind": "canonical"
+										},
+										{
+											"value": "TagsArray",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						]
+					},
+					{
+						"id": "yqjl1L7RSl4teBjg7sVz2",
+						"name": "hasTag",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Check if book has certain tag.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							},
+							{
+								"identifier": "strict",
+								"optional": true,
+								"default": "false",
+								"description": "<p>Strict comparison.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "l_wIEJdaQDV8hdAlX3vPR",
+						"name": "hasTagWith",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Check if book has any tags with certain properties.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "object | Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "object | %1"
+								}
+							}
+						],
+						"returns": []
+					},
+					{
+						"id": "0braHi9eSJNKYjMPaOO9x",
+						"name": "pushPage",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Push image to book pages.</p>",
+						"params": [
+							{
+								"identifier": "page",
+								"optional": false,
+								"description": "<p>Image.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever page was added.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					},
+					{
+						"id": "K4ZBxZuZ_VCKv1lUDEpwR",
+						"name": "pushTag",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Push tag to book tags.</p>",
+						"params": [
+							{
+								"identifier": "tag",
+								"optional": false,
+								"description": "<p>Tag.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Tag",
+											"kind": "canonical"
+										},
+										{
+											"value": "Tag",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever tag was added.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					},
+					{
+						"id": "2mEV2roOucmH_kcAylWk-",
+						"name": "setCover",
+						"brief": "",
+						"access": "private",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Set book cover image.</p>",
+						"params": [
+							{
+								"identifier": "cover",
+								"optional": false,
+								"description": "<p>Image.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "Image",
+											"kind": "canonical"
+										},
+										{
+											"value": "Image",
+											"kind": "link"
+										}
+									],
+									"template": "%1"
+								}
+							}
+						],
+						"returns": [
+							{
+								"description": "<p>Whatever cover was set.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "boolean",
+											"kind": "canonical"
+										}
+									],
+									"template": "boolean"
+								}
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "AOFf0FTqUuBhQQDKRC5NE",
+				"name": "UnknownImageType",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing unknown image type.</p>",
+				"extends": [
+					"ImageType"
+				],
+				"members": [
+					{
+						"id": "37uyDF5U2zzWGvOwMZwZ2",
+						"name": "extension",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image type extension.</p>"
+					},
+					{
+						"id": "tOoIDickBQCoofxi68TvH",
+						"name": "isKnown",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Whatever this tag type is unknown.</p>"
+					},
+					{
+						"id": "CzStCPADot85p1mMIHna2",
+						"name": "name",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Alias for type.</p>"
+					},
+					{
+						"id": "OQVWLsejPlEUUBihT4RAE",
+						"name": "type",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Image type name.</p>"
+					},
+					{
+						"id": "K_BudoC6vV0Ys8mimpAn4",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create unknown image type.</p>",
+						"params": [
+							{
+								"identifier": "type",
+								"optional": false,
+								"description": "<p>Unknown image type name.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							},
+							{
+								"identifier": "extension",
+								"optional": false,
+								"description": "<p>Unknown image type extension.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": []
+					}
+				]
+			},
+			{
+				"id": "fHHrceLkZhzxYy_qdlF1A",
+				"name": "UnknownTagType",
+				"brief": "",
+				"type": "ClassDoc",
+				"description": "<p>Class representing unknown tag type.</p>",
+				"extends": [
+					"TagType"
+				],
+				"members": [
+					{
+						"id": "12gdu69T6fhzSpniVP8SQ",
+						"name": "isKnown",
+						"brief": "",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Check if this tag type is unknown.</p>"
+					},
+					{
+						"id": "mGquQjDgRDjqNVLFouMyB",
+						"name": "type",
+						"brief": "",
+						"defaultValue": "null",
+						"scope": "instance",
+						"type": "PropertyDoc",
+						"description": "<p>Tag type name.</p>"
+					},
+					{
+						"id": "rYHSDZP3LDKXFoBSlpsKd",
+						"name": "constructor",
+						"brief": "",
+						"scope": "instance",
+						"type": "MethodDoc",
+						"description": "<p>Create unknown tag type.</p>",
+						"params": [
+							{
+								"identifier": "type",
+								"optional": true,
+								"default": "\"unknown\"",
+								"description": "<p>Unknown tag type name.</p>",
+								"dataType": {
+									"tokens": [
+										{
+											"value": "string",
+											"kind": "canonical"
+										}
+									],
+									"template": "string"
+								}
+							}
+						],
+						"returns": []
+					}
+				]
+			},
+			{
+				"id": "BDQHHOcmF7vm2XxG6j7cM",
+				"name": "APIArgs",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>API arguments</p>",
+				"members": [
+					{
+						"id": "9M1oCKwCmSywTjrzzm9JY",
+						"name": "apiPath",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>API endpoint URL path generator.</p>"
+					},
+					{
+						"id": "_iVDRoMsJfbzBrm_nOtRp",
+						"name": "host",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>API host.</p>"
+					}
+				]
+			},
+			{
+				"id": "FhfNVn5guhs1RqEqLNHFb",
+				"name": "APIBook",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Book object from API.</p>",
+				"members": [
+					{
+						"id": "iZ0DzycmFtLmIGWeCJYBj",
+						"name": "cover",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book cover image.</p>"
+					},
+					{
+						"id": "suaAYxWFs33IUR5GXIE2q",
+						"name": "id",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book ID.</p>"
+					},
+					{
+						"id": "ApPlYpVlaZNCYTAq6ahCU",
+						"name": "images",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book pages' images.</p>"
+					},
+					{
+						"id": "Ic_QfHvqmkiW8yyRERNjx",
+						"name": "media_id",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book Media ID.</p>"
+					},
+					{
+						"id": "WqmPJBaWBVXiFR05O7wDh",
+						"name": "num_favorites",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book favours count.</p>"
+					},
+					{
+						"id": "q8V2EHxzO7sDLIpULIeJb",
+						"name": "num_pages",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book pages count.</p>"
+					},
+					{
+						"id": "bdMW4JP3ahmCK9iOElju1",
+						"name": "scanlator",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book scanlator.</p>"
+					},
+					{
+						"id": "vJ0mrnqmQVJ5xUUIbHlFE",
+						"name": "tags",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book tags.</p>"
+					},
+					{
+						"id": "49nVMVuEIlctcSlPtTQjI",
+						"name": "title",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book title.</p>"
+					},
+					{
+						"id": "_1117KFnlMvEgGL4w4ReY",
+						"name": "title",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>.english  Book english title.</p>"
+					},
+					{
+						"id": "yngN5_0IgITzZd2r80gp9",
+						"name": "title",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>.japanese Book japanese title.</p>"
+					},
+					{
+						"id": "2XFIsoTPBuHORnu6_KXNj",
+						"name": "title",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>.pretty   Book short title.</p>"
+					},
+					{
+						"id": "4_VdyQ5jo2aTB1nrcZWSU",
+						"name": "uploaded",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Upload UNIX timestamp.</p>"
+					}
+				]
+			},
+			{
+				"id": "HfMf9VEZrFnp8p4Tc80t3",
+				"name": "APIImage",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Image object from API.</p>",
+				"members": [
+					{
+						"id": "ild7qtoKaEeDqe7wTQbaE",
+						"name": "h",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Image height.</p>"
+					},
+					{
+						"id": "HCThWfwFMRq7DJVMnQnka",
+						"name": "t",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Image type.</p>"
+					},
+					{
+						"id": "VRwi1Rudx0cIOTslfH-9H",
+						"name": "w",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Image width.</p>"
+					}
+				]
+			},
+			{
+				"id": "nhDp9x6mKBQRpe1Jo57XO",
+				"name": "APISearch",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Search object from API.</p>",
+				"members": [
+					{
+						"id": "RQTo456DwP0l6-NYRQKzk",
+						"name": "num_pages",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Number of search pages available.</p>"
+					},
+					{
+						"id": "mJPfEaketNdCuNp45KDmR",
+						"name": "per_page",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Number of books per page.</p>"
+					},
+					{
+						"id": "t2qd3T_Xx_YtnMtsCPi-k",
+						"name": "result",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Search results.</p>"
+					}
+				]
+			},
+			{
+				"id": "Syts2eib0wG-w7zJxYKp9",
+				"name": "APITag",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Tag object from API.</p>",
+				"members": [
+					{
+						"id": "WAhpRU4VkQsV4eAXkGh0v",
+						"name": "count",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tagged books count.</p>"
+					},
+					{
+						"id": "z3xcD4BoKowG0MLzb-Hbx",
+						"name": "id",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tag id.</p>"
+					},
+					{
+						"id": "qjzavUZzCImASbTSJDhWZ",
+						"name": "name",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tag name.</p>"
+					},
+					{
+						"id": "ri5ruNkMeURQnKgLMFm5z",
+						"name": "type",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tag type.</p>"
+					},
+					{
+						"id": "0BKsl6H3sJMdtVAuv6QRH",
+						"name": "url",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tag URL.</p>"
+					}
+				]
+			},
+			{
+				"id": "fsGj1cxOFmdMV10uyv6gl",
+				"name": "BookTitle",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Book title.</p>",
+				"members": [
+					{
+						"id": "sBL2fXHOJazT6e6oirCK0",
+						"name": "english",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book english title.</p>"
+					},
+					{
+						"id": "9blGOpwArVbqMIA8FR5xI",
+						"name": "japanese",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book japanese title.</p>"
+					},
+					{
+						"id": "zJXZ1fwWnPGrkfX5fn9wE",
+						"name": "pretty",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Book short title.</p>"
+					}
+				]
+			},
+			{
+				"id": "_Wy4njoRjeftQ_mwIZW48",
+				"name": "httpAgent",
+				"brief": "",
+				"type": "TypedefDoc"
+			},
+			{
+				"id": "brc_DvAuT78hBx4_CFhoH",
+				"name": "httpAgent",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Agent-like object or Agent class or it's instance.</p>"
+			},
+			{
+				"id": "xthSDWrs5rRFN9gugT9ET",
+				"name": "ImageTypes",
+				"brief": "",
+				"type": "TypedefDoc",
+				"members": [
+					{
+						"id": "8d5FW_KeO9sqL8qZbUvHS",
+						"name": "GIF",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>GIF image type.</p>"
+					},
+					{
+						"id": "f600nUG6baUq_xfaAfeNz",
+						"name": "JPEG",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>JPEG image type.</p>"
+					},
+					{
+						"id": "SO3MCa3n7T8qAT0lnmT01",
+						"name": "PNG",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>PNG image type.</p>"
+					}
+				]
+			},
+			{
+				"id": "8IEWBiAP4_y7mY_fBZWwn",
+				"name": "nHentaiHosts",
+				"brief": "",
+				"type": "TypedefDoc"
+			},
+			{
+				"id": "yOwWL77KMPoyrAcAS2KIv",
+				"name": "nHentaiHosts",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Common nHentai API hosts object.</p>",
+				"members": [
+					{
+						"id": "MGQ3OyT5JVb7VBrJOVE0p",
+						"name": "api",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Main API host.</p>"
+					},
+					{
+						"id": "EhkYvP1JdhZJC935Jdjyh",
+						"name": "images",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Media API host.</p>"
+					},
+					{
+						"id": "BCi419qw4vIvnFjzEAkLk",
+						"name": "thumbs",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Media thumbnails API host.</p>"
+					}
+				]
+			},
+			{
+				"id": "IrCAuDsBz1xPso5qBVI9s",
+				"name": "nHentaiOptions",
+				"brief": "",
+				"type": "TypedefDoc"
+			},
+			{
+				"id": "tz_KDF2izaVwSqKskDUN4",
+				"name": "nHentaiOptions",
+				"brief": "",
+				"type": "TypedefDoc",
+				"description": "<p>Common nHentai options object.</p>",
+				"members": [
+					{
+						"id": "weksr9w4etOD-8-gZAkDU",
+						"name": "agent",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>HTTP(S) agent.</p>"
+					},
+					{
+						"id": "mT52LYkC5FkdrRWWc0hxJ",
+						"name": "hosts",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Hosts.</p>"
+					},
+					{
+						"id": "MdTYB1Tty_5Ktonkjbf4m",
+						"name": "ssl",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Prefer HTTPS over HTTP.</p>"
+					}
+				]
+			},
+			{
+				"id": "jkKnoq35E-e781x_bxyou",
+				"name": "SearchSortMode",
+				"brief": "",
+				"type": "TypedefDoc"
+			},
+			{
+				"id": "3vZPDVx7N5ojpkUFBOtLk",
+				"name": "SearchSortMode",
+				"brief": "",
+				"type": "TypedefDoc",
+				"members": [
+					{
+						"id": "rk1Xnl_J8Hn5Bo4XKcDIS",
+						"name": "Popular",
+						"brief": "",
+						"defaultValue": "\"popular\"",
+						"scope": "static",
+						"type": "PropertyDoc"
+					},
+					{
+						"id": "h9ewLmEADRQEHx8uc5y6l",
+						"name": "PopularMonth",
+						"brief": "",
+						"defaultValue": "\"popular-month\"",
+						"scope": "static",
+						"type": "PropertyDoc"
+					},
+					{
+						"id": "k93ZlXdPuXQW3jhSSgaRg",
+						"name": "PopularToday",
+						"brief": "",
+						"defaultValue": "\"poplar-today\"",
+						"scope": "static",
+						"type": "PropertyDoc"
+					},
+					{
+						"id": "-vLqUcaCEzdByEuEbB04T",
+						"name": "PopularWeek",
+						"brief": "",
+						"defaultValue": "\"popular-week\"",
+						"scope": "static",
+						"type": "PropertyDoc"
+					},
+					{
+						"id": "ujqikgBXPB2cY0tnwXoUC",
+						"name": "Recent",
+						"brief": "",
+						"defaultValue": "\"\"",
+						"scope": "static",
+						"type": "PropertyDoc"
+					}
+				]
+			},
+			{
+				"id": "7kmT6Z0h8N1NIaaqcyF14",
+				"name": "TagTypes",
+				"brief": "",
+				"type": "TypedefDoc"
+			},
+			{
+				"id": "4R0WWxbLD-dj8g3SLQTsw",
+				"name": "TagTypes",
+				"brief": "",
+				"type": "TypedefDoc",
+				"members": [
+					{
+						"id": "5Zldr5OlprJmbLBSa7kqW",
+						"name": "Artist",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Artist tag type.</p>"
+					},
+					{
+						"id": "pnPp1ryUx4d3sXCxJGNl_",
+						"name": "Category",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Category tag type.</p>"
+					},
+					{
+						"id": "YDjJ2hWhiTkhl4V51rGlV",
+						"name": "Character",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Character tag type.</p>"
+					},
+					{
+						"id": "nQmPviQ4viyHAiOZKI9Fc",
+						"name": "Group",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Group tag type.</p>"
+					},
+					{
+						"id": "NtSpps9DuMNJi4Ujc88oc",
+						"name": "Language",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Language tag type.</p>"
+					},
+					{
+						"id": "fDTvPckG_BmZGvT9yKk9H",
+						"name": "Parody",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Parody tag type.</p>"
+					},
+					{
+						"id": "MM8Pyyid6fMhMWM0TqMUr",
+						"name": "Tag",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Tag tag type.</p>"
+					},
+					{
+						"id": "LiXRdhKui5bKYgSuGEj3d",
+						"name": "Unknown",
+						"brief": "",
+						"access": "public",
+						"scope": "static",
+						"type": "PropertyDoc",
+						"description": "<p>Unknown tag type.</p>"
+					}
+				]
+			},
+			{
+				"id": "_4smL58kFKYQ3SCHgNlw1",
+				"name": "TagTypes",
+				"brief": "",
+				"readonly": true,
+				"type": "PropertyDoc"
+			},
+			{
+				"id": "ZzZKG58byV2VnQRNGNpWb",
+				"name": "processOptions",
+				"brief": "",
+				"type": "FunctionDoc",
+				"description": "<p>Applies provided options on top of defaults.</p>",
+				"params": [
+					{
+						"identifier": "options",
+						"optional": true,
+						"default": "{}",
+						"description": "<p>Options to apply.</p>",
+						"dataType": {
+							"tokens": [
+								{
+									"value": "?nHentaiOptions",
+									"kind": "canonical"
+								},
+								{
+									"value": "nHentaiOptions",
+									"kind": "link"
+								}
+							],
+							"template": "?%1"
+						}
+					}
+				],
+				"returns": [
+					{
+						"description": "<p>Unified options.</p>",
+						"dataType": {
+							"tokens": [
+								{
+									"value": "nHentaiOptions",
+									"kind": "canonical"
+								},
+								{
+									"value": "nHentaiOptions",
+									"kind": "link"
+								}
+							],
+							"template": "%1"
+						}
+					}
+				]
+			}
+		]
+	},
+	"registry": {
+		"pkg-cMD4oGZNI8o-V9B4gbiGo": {
+			"uri": "/nhentai-api/nhentai-api.html"
+		},
+		"pB1xAVEPYELX8Q-n5fo3D": {
+			"uri": "/nhentai-api/nhentai-api/API.html"
+		},
+		"STyYi8odmdnET6eoo3UMW": {
+			"uri": "/nhentai-api/nhentai-api/API.html#APIPath"
+		},
+		"sAp9AGKeN1R604Het7K5N": {
+			"uri": "/nhentai-api/nhentai-api/API.html#agent"
+		},
+		"QIuJj2DFP2aFHxpMnmcZP": {
+			"uri": "/nhentai-api/nhentai-api/API.html#agent"
+		},
+		"sp02cEZrQwVCbdRDsS7UK": {
+			"uri": "/nhentai-api/nhentai-api/API.html#hosts"
+		},
+		"fVSue1HUhV4tc9nTFWMmd": {
+			"uri": "/nhentai-api/nhentai-api/API.html#net"
+		},
+		"zemIsAVKv0ghe9f3iUyDD": {
+			"uri": "/nhentai-api/nhentai-api/API.html#ssl"
+		},
+		"dhtjAOOYdzVQxYUp2xdrY": {
+			"uri": "/nhentai-api/nhentai-api/API.html#constructor"
+		},
+		"r25RPcr1PBjqGeGwvmz2Z": {
+			"uri": "/nhentai-api/nhentai-api/API.html#getBook"
+		},
+		"Yyx8_U7CIS0v2iClZDmTu": {
+			"uri": "/nhentai-api/nhentai-api/API.html#getImageURL"
+		},
+		"A7zU0onkU-Q-ob8SISPFB": {
+			"uri": "/nhentai-api/nhentai-api/API.html#getRandomBook"
+		},
+		"L-HYVHlt7P-JmGockpTVI": {
+			"uri": "/nhentai-api/nhentai-api/API.html#getThumbURL"
+		},
+		"dvkcTUgfwRF3RalZOJLv0": {
+			"uri": "/nhentai-api/nhentai-api/API.html#request"
+		},
+		"MbXMNZzOqzJ2J615OzBD_": {
+			"uri": "/nhentai-api/nhentai-api/API.html#request#response"
+		},
+		"h-NrZ3pVCFWGGVXvv27bh": {
+			"uri": "/nhentai-api/nhentai-api/API.html#search"
+		},
+		"VvWTH6nnKvY0Ttfodn6sw": {
+			"uri": "/nhentai-api/nhentai-api/API.html#searchAlike"
+		},
+		"znUxe4AAvCSl1_VH-S81A": {
+			"uri": "/nhentai-api/nhentai-api/API.html#searchGenerator"
+		},
+		"ClVTVjjc1EBV9pz9A-Jt1": {
+			"uri": "/nhentai-api/nhentai-api/API.html#searchTagged"
+		},
+		"P7__YPujT8x0agOe-39UF": {
+			"uri": "/nhentai-api/nhentai-api/API.html#getAPIArgs"
+		},
+		"pwzTS7oA7SHzwAkNjNH9q": {
+			"uri": "/nhentai-api/nhentai-api/APIError.html"
+		},
+		"a8Xeh52sT2ZHrVpSvLFPO": {
+			"uri": "/nhentai-api/nhentai-api/APIError.html#httpResponse"
+		},
+		"8Fb_xJZYCMjXsuln_8Wrq": {
+			"uri": "/nhentai-api/nhentai-api/APIError.html#originalError"
+		},
+		"28bumB7leunwkwpQtve6p": {
+			"uri": "/nhentai-api/nhentai-api/APIError.html#absorb"
+		},
+		"UdNhEnJsw7ANOt2WeTFWU": {
+			"uri": "/nhentai-api/nhentai-api/APIError.html#constructor"
+		},
+		"KhfSzSLwHHapKKE4aAHeD": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html"
+		},
+		"ury4yxZcMxifl-LvahWvV": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#book"
+		},
+		"ZSCW9yHtM9WVchDVl2sIz": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#bookCover"
+		},
+		"5htN50aoUAp7K5jW5dHul": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#bookPage"
+		},
+		"zjb-u4R35wa9nUUcxJl1v": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#bookThumb"
+		},
+		"foTH_ErbMYWKOhOSsStBy": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#randomBookRedirect"
+		},
+		"v1wiHAnHIPWK9Xd1qUjWD": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#search"
+		},
+		"PkfSKN3rApPidijTDFOsM": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#searchAlike"
+		},
+		"90nv7397NwXgbRyxvFVoi": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#searchTagged"
+		},
+		"KuinzaVvS7ssgo7XZau_M": {
+			"uri": "/nhentai-api/nhentai-api/APIPath.html#constructor"
+		},
+		"fMdJi9PbufEfeJj4tZh9v": {
+			"uri": "/nhentai-api/nhentai-api/Book.html"
+		},
+		"jmBLiXkPLjuaK54cAkiht": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#Unknown"
+		},
+		"x7fU2stuREqaj3LP0GnDf": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#UnknownBook"
+		},
+		"6xHLnTSQo3Yo001Pqv4ml": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#artists"
+		},
+		"Jgab2TfjxKRbZJwVa9ym-": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#categories"
+		},
+		"_X_o0ITRHBDXtbHdnpe9j": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#characters"
+		},
+		"7raV7NFREWFj35p39_Rab": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#cover"
+		},
+		"NKkqBEsitq9H_OdG2MCGa": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#favorites"
+		},
+		"9d0ZMjeczQ7TqE1g9GaIe": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#groups"
+		},
+		"0BIHBb0kjKBwRF-GhBRAO": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#id"
+		},
+		"CTfg4mInpzDLAB75kH4j-": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#isKnown"
+		},
+		"FQ_NwJfws3At1F6WBrFzZ": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#languages"
+		},
+		"muZXKsu_35okqRzmXs5fF": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#media"
+		},
+		"jlbpkFY7EL6ssfo0cFmAE": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#pages"
+		},
+		"RRs6igbOBHRrt8eC2RvfV": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#parodies"
+		},
+		"BdmwJ4UtNOXoHFaTznXL5": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#pureTags"
+		},
+		"mBvsRM92zIZNB1xlupEjF": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#scanlator"
+		},
+		"2zxIj1JOlr5Ee1CrTEifM": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#tags"
+		},
+		"ER0oh2oWAG65DyChabW_y": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#title"
+		},
+		"5T0E5Ms42FXYwu7nx0rWQ": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#uploaded"
+		},
+		"JAx7aWA9CPOWJosGbTuZj": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#parse"
+		},
+		"1GVEkWVr-r0kx9Hy_mA8h": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#constructor"
+		},
+		"Bv7wAGsocLFJIzaoQg5rn": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#getTagsWith"
+		},
+		"iinMxixjT3Nf0Ky4b8eOZ": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#hasTag"
+		},
+		"awIHVioyUYA_ylVgrU361": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#hasTagWith"
+		},
+		"mpFixNI_1WWJ01FNxLtq8": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#pushPage"
+		},
+		"2ZNY17lrS39rycP4wL-51": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#pushTag"
+		},
+		"dmyxxPJuJQJUsm8b5QnT9": {
+			"uri": "/nhentai-api/nhentai-api/Book.html#setCover"
+		},
+		"YYI1TeOydiO5P6TatHbIj": {
+			"uri": "/nhentai-api/nhentai-api/Image.html"
+		},
+		"kYQSpHAMW2YsOyr_McaQS": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#types"
+		},
+		"pKVgH8dyGjkCiRGkePqsH": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#types#known"
+		},
+		"WiBBC0gTOQ-A1yMlAy448": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#types#get"
+		},
+		"I5jjLSWuX7DX4vkYa2gB1": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#book"
+		},
+		"YbBWLOsuniXm_JZVQUQ0b": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#filename"
+		},
+		"gKLlmocfZQZIiuGxidFYL": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#height"
+		},
+		"Z_BoKCsFJR0b7-abmx0fQ": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#id"
+		},
+		"WBELkUKygji1bi-2sZnBP": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#isCover"
+		},
+		"ARNcgoCYF3wdfEfnpiVAV": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#type"
+		},
+		"IPatMNFRMsU1rC_4BA-AJ": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#width"
+		},
+		"TozTMyJ2WgSOwHMVFSWfo": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#parse"
+		},
+		"QonFHPPrBh-dm-XZ_vC-d": {
+			"uri": "/nhentai-api/nhentai-api/Image.html#constructor"
+		},
+		"4zI4tAAM1COxrBhFaCImi": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html"
+		},
+		"rk6T3K1I_ugWIDeGGK5lO": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html#knownTypes"
+		},
+		"5fJq1NBvM1RdMjx_9Csaq": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html#extension"
+		},
+		"niyXBqMDP7G7YVa8o_rQO": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html#isKnown"
+		},
+		"xYFFkltin4MxIWji2BP5Z": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html#name"
+		},
+		"BNUR_kDbNNXhmqKsmdxWN": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html#type"
+		},
+		"rSnNFvAN1Lwocb0VAa1uq": {
+			"uri": "/nhentai-api/nhentai-api/ImageType.html#constructor"
+		},
+		"XVQlCj7pb-I29UNvGNlPX": {
+			"uri": "/nhentai-api/nhentai-api/Search.html"
+		},
+		"BkB14YDu8YAyI21bUYb_0": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#api"
+		},
+		"NGQ9ZTW7dUmFMy2s6AsAv": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#books"
+		},
+		"6Yd19qBSVBQ7cv_ya_e4o": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#page"
+		},
+		"IENnt3JueFdrJpKgn9Cqc": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#pages"
+		},
+		"SU6aYPSfdDGbEVtROt7V8": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#perPage"
+		},
+		"IePk4QtmIvLG973telb1Z": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#query"
+		},
+		"xBrhIgaeQKZR239TnKXBh": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#sort"
+		},
+		"qgWeN49ZxUjfh16I4UJg7": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#parse"
+		},
+		"pBZZ-A0A_Jq7x2VlHR9Uv": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#constructor"
+		},
+		"qLUxri1EDSh-8OkeWM6Oh": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#getNextPage"
+		},
+		"3jiw7Bo0XOIwnpyVaR17M": {
+			"uri": "/nhentai-api/nhentai-api/Search.html#pushBook"
+		},
+		"j-aeoc4S5Uc-9zcru15th": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html"
+		},
+		"k0pIHODFFC2BTrvryn-Aw": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#types"
+		},
+		"ajdImR6od5HBWWNi_RYwO": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#types#known"
+		},
+		"ANzzMeEAoOYcwNU7kTuJO": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#types#get"
+		},
+		"DO-4KyMw5cv6zGLNY-Djb": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#count"
+		},
+		"FtoXLyMk6zP8d3Xa3nP2p": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#id"
+		},
+		"auLEXjUisp-iLc-czVoaV": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#name"
+		},
+		"2s0hKfsmimjmWJij5-FuH": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#type"
+		},
+		"T2gPPRZxIbjIi7-BF31cf": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#url"
+		},
+		"CmosEC7ASzqnV2a9vc-QN": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#get"
+		},
+		"aLsg7n5ZwP3kOlVcb7btP": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#compare"
+		},
+		"rbZan-FHQq56MLn-kjTP-": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#constructor"
+		},
+		"zI1RiTayGYHNSfgZiFP_X": {
+			"uri": "/nhentai-api/nhentai-api/Tag.html#toString"
+		},
+		"Fmz11BKCtbkIYcAACWw6r": {
+			"uri": "/nhentai-api/nhentai-api/TagsArray.html"
+		},
+		"LWZ4IoFXutVPxQ49Gz9vj": {
+			"uri": "/nhentai-api/nhentai-api/TagsArray.html#toNames"
+		},
+		"Z11M4d6_sTXHzJUxN2aYP": {
+			"uri": "/nhentai-api/nhentai-api/TagType.html"
+		},
+		"_HDO3m01rEvRv_FzVLSuK": {
+			"uri": "/nhentai-api/nhentai-api/TagType.html#knownTypes"
+		},
+		"773Yj5qUra2sEWbSUmOT-": {
+			"uri": "/nhentai-api/nhentai-api/TagType.html#isKnown"
+		},
+		"tGCdOSQXktY46qU2xSI8-": {
+			"uri": "/nhentai-api/nhentai-api/TagType.html#type"
+		},
+		"1qP9n_WhldJ5BcHlEiQG9": {
+			"uri": "/nhentai-api/nhentai-api/TagType.html#constructor"
+		},
+		"JpRd8P3-3iZjSwiHF91V0": {
+			"uri": "/nhentai-api/nhentai-api/TagType.html#toString"
+		},
+		"pn9ofRiQdN3EL9rk7gWG9": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html"
+		},
+		"JJaBzcFPIEFPPu-gyH1Vc": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#artists"
+		},
+		"SIiCWTcUdf8VzajaZo5SR": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#categories"
+		},
+		"rZzQVbIpUDE1nzheiGpE0": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#characters"
+		},
+		"iKUfSL3v-zrO65J3UQvoN": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#cover"
+		},
+		"h1wVIwD99R4kW3aF77odk": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#favorites"
+		},
+		"I_YR5IWQlL4eWAht3TEst": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#groups"
+		},
+		"94uEuyFlnHxrdnhzkWikd": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#id"
+		},
+		"wtazsYOljZHZwVeMxx5dk": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#isKnown"
+		},
+		"KJlY9ZmxTIM3IRIbB6zKK": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#languages"
+		},
+		"fzIE1BCq5ZlvW7WeSol2x": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#media"
+		},
+		"royD8UANn4DfDP7KZgR4U": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#pages"
+		},
+		"xzH6Lf2dCxOfQ76TD4XC9": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#parodies"
+		},
+		"jJXLuMKwklgtNNowrvQog": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#pureTags"
+		},
+		"ybFssB5SLToJQa-ChmrhQ": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#scanlator"
+		},
+		"EaeHTFwKjGcjlFVD6Fqlv": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#tags"
+		},
+		"J3MGzFNk-QRy2RlbA3lE4": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#title"
+		},
+		"wfYjrh3LMg4WKSG6Fvwca": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#uploaded"
+		},
+		"QRVXqRAvcx2ASV8A0ljQQ": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#constructor"
+		},
+		"EOdGnOcZXPNqHEFqrzWY-": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#getTagsWith"
+		},
+		"yqjl1L7RSl4teBjg7sVz2": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#hasTag"
+		},
+		"l_wIEJdaQDV8hdAlX3vPR": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#hasTagWith"
+		},
+		"0braHi9eSJNKYjMPaOO9x": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#pushPage"
+		},
+		"K4ZBxZuZ_VCKv1lUDEpwR": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#pushTag"
+		},
+		"2mEV2roOucmH_kcAylWk-": {
+			"uri": "/nhentai-api/nhentai-api/UnknownBook.html#setCover"
+		},
+		"AOFf0FTqUuBhQQDKRC5NE": {
+			"uri": "/nhentai-api/nhentai-api/UnknownImageType.html"
+		},
+		"37uyDF5U2zzWGvOwMZwZ2": {
+			"uri": "/nhentai-api/nhentai-api/UnknownImageType.html#extension"
+		},
+		"tOoIDickBQCoofxi68TvH": {
+			"uri": "/nhentai-api/nhentai-api/UnknownImageType.html#isKnown"
+		},
+		"CzStCPADot85p1mMIHna2": {
+			"uri": "/nhentai-api/nhentai-api/UnknownImageType.html#name"
+		},
+		"OQVWLsejPlEUUBihT4RAE": {
+			"uri": "/nhentai-api/nhentai-api/UnknownImageType.html#type"
+		},
+		"K_BudoC6vV0Ys8mimpAn4": {
+			"uri": "/nhentai-api/nhentai-api/UnknownImageType.html#constructor"
+		},
+		"fHHrceLkZhzxYy_qdlF1A": {
+			"uri": "/nhentai-api/nhentai-api/UnknownTagType.html"
+		},
+		"12gdu69T6fhzSpniVP8SQ": {
+			"uri": "/nhentai-api/nhentai-api/UnknownTagType.html#isKnown"
+		},
+		"mGquQjDgRDjqNVLFouMyB": {
+			"uri": "/nhentai-api/nhentai-api/UnknownTagType.html#type"
+		},
+		"rYHSDZP3LDKXFoBSlpsKd": {
+			"uri": "/nhentai-api/nhentai-api/UnknownTagType.html#constructor"
+		},
+		"BDQHHOcmF7vm2XxG6j7cM": {
+			"uri": "/nhentai-api/nhentai-api/APIArgs.html"
+		},
+		"9M1oCKwCmSywTjrzzm9JY": {
+			"uri": "/nhentai-api/nhentai-api/APIArgs.html#apiPath"
+		},
+		"_iVDRoMsJfbzBrm_nOtRp": {
+			"uri": "/nhentai-api/nhentai-api/APIArgs.html#host"
+		},
+		"FhfNVn5guhs1RqEqLNHFb": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html"
+		},
+		"iZ0DzycmFtLmIGWeCJYBj": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#cover"
+		},
+		"suaAYxWFs33IUR5GXIE2q": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#id"
+		},
+		"ApPlYpVlaZNCYTAq6ahCU": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#images"
+		},
+		"Ic_QfHvqmkiW8yyRERNjx": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#media_id"
+		},
+		"WqmPJBaWBVXiFR05O7wDh": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#num_favorites"
+		},
+		"q8V2EHxzO7sDLIpULIeJb": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#num_pages"
+		},
+		"bdMW4JP3ahmCK9iOElju1": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#scanlator"
+		},
+		"vJ0mrnqmQVJ5xUUIbHlFE": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#tags"
+		},
+		"49nVMVuEIlctcSlPtTQjI": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#title"
+		},
+		"_1117KFnlMvEgGL4w4ReY": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#title"
+		},
+		"yngN5_0IgITzZd2r80gp9": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#title"
+		},
+		"2XFIsoTPBuHORnu6_KXNj": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#title"
+		},
+		"4_VdyQ5jo2aTB1nrcZWSU": {
+			"uri": "/nhentai-api/nhentai-api/APIBook.html#uploaded"
+		},
+		"HfMf9VEZrFnp8p4Tc80t3": {
+			"uri": "/nhentai-api/nhentai-api/APIImage.html"
+		},
+		"ild7qtoKaEeDqe7wTQbaE": {
+			"uri": "/nhentai-api/nhentai-api/APIImage.html#h"
+		},
+		"HCThWfwFMRq7DJVMnQnka": {
+			"uri": "/nhentai-api/nhentai-api/APIImage.html#t"
+		},
+		"VRwi1Rudx0cIOTslfH-9H": {
+			"uri": "/nhentai-api/nhentai-api/APIImage.html#w"
+		},
+		"nhDp9x6mKBQRpe1Jo57XO": {
+			"uri": "/nhentai-api/nhentai-api/APISearch.html"
+		},
+		"RQTo456DwP0l6-NYRQKzk": {
+			"uri": "/nhentai-api/nhentai-api/APISearch.html#num_pages"
+		},
+		"mJPfEaketNdCuNp45KDmR": {
+			"uri": "/nhentai-api/nhentai-api/APISearch.html#per_page"
+		},
+		"t2qd3T_Xx_YtnMtsCPi-k": {
+			"uri": "/nhentai-api/nhentai-api/APISearch.html#result"
+		},
+		"Syts2eib0wG-w7zJxYKp9": {
+			"uri": "/nhentai-api/nhentai-api/APITag.html"
+		},
+		"WAhpRU4VkQsV4eAXkGh0v": {
+			"uri": "/nhentai-api/nhentai-api/APITag.html#count"
+		},
+		"z3xcD4BoKowG0MLzb-Hbx": {
+			"uri": "/nhentai-api/nhentai-api/APITag.html#id"
+		},
+		"qjzavUZzCImASbTSJDhWZ": {
+			"uri": "/nhentai-api/nhentai-api/APITag.html#name"
+		},
+		"ri5ruNkMeURQnKgLMFm5z": {
+			"uri": "/nhentai-api/nhentai-api/APITag.html#type"
+		},
+		"0BKsl6H3sJMdtVAuv6QRH": {
+			"uri": "/nhentai-api/nhentai-api/APITag.html#url"
+		},
+		"fsGj1cxOFmdMV10uyv6gl": {
+			"uri": "/nhentai-api/nhentai-api/BookTitle.html"
+		},
+		"sBL2fXHOJazT6e6oirCK0": {
+			"uri": "/nhentai-api/nhentai-api/BookTitle.html#english"
+		},
+		"9blGOpwArVbqMIA8FR5xI": {
+			"uri": "/nhentai-api/nhentai-api/BookTitle.html#japanese"
+		},
+		"zJXZ1fwWnPGrkfX5fn9wE": {
+			"uri": "/nhentai-api/nhentai-api/BookTitle.html#pretty"
+		},
+		"_Wy4njoRjeftQ_mwIZW48": {
+			"uri": "/nhentai-api/nhentai-api/httpAgent.html"
+		},
+		"brc_DvAuT78hBx4_CFhoH": {
+			"uri": "/nhentai-api/nhentai-api/httpAgent.html"
+		},
+		"xthSDWrs5rRFN9gugT9ET": {
+			"uri": "/nhentai-api/nhentai-api/ImageTypes.html"
+		},
+		"8d5FW_KeO9sqL8qZbUvHS": {
+			"uri": "/nhentai-api/nhentai-api/ImageTypes.html#GIF"
+		},
+		"f600nUG6baUq_xfaAfeNz": {
+			"uri": "/nhentai-api/nhentai-api/ImageTypes.html#JPEG"
+		},
+		"SO3MCa3n7T8qAT0lnmT01": {
+			"uri": "/nhentai-api/nhentai-api/ImageTypes.html#PNG"
+		},
+		"8IEWBiAP4_y7mY_fBZWwn": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiHosts.html"
+		},
+		"yOwWL77KMPoyrAcAS2KIv": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiHosts.html"
+		},
+		"MGQ3OyT5JVb7VBrJOVE0p": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiHosts.html#api"
+		},
+		"EhkYvP1JdhZJC935Jdjyh": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiHosts.html#images"
+		},
+		"BCi419qw4vIvnFjzEAkLk": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiHosts.html#thumbs"
+		},
+		"IrCAuDsBz1xPso5qBVI9s": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiOptions.html"
+		},
+		"tz_KDF2izaVwSqKskDUN4": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiOptions.html"
+		},
+		"weksr9w4etOD-8-gZAkDU": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiOptions.html#agent"
+		},
+		"mT52LYkC5FkdrRWWc0hxJ": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiOptions.html#hosts"
+		},
+		"MdTYB1Tty_5Ktonkjbf4m": {
+			"uri": "/nhentai-api/nhentai-api/nHentaiOptions.html#ssl"
+		},
+		"jkKnoq35E-e781x_bxyou": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html"
+		},
+		"3vZPDVx7N5ojpkUFBOtLk": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html"
+		},
+		"rk1Xnl_J8Hn5Bo4XKcDIS": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html#Popular"
+		},
+		"h9ewLmEADRQEHx8uc5y6l": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html#PopularMonth"
+		},
+		"k93ZlXdPuXQW3jhSSgaRg": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html#PopularToday"
+		},
+		"-vLqUcaCEzdByEuEbB04T": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html#PopularWeek"
+		},
+		"ujqikgBXPB2cY0tnwXoUC": {
+			"uri": "/nhentai-api/nhentai-api/SearchSortMode.html#Recent"
+		},
+		"7kmT6Z0h8N1NIaaqcyF14": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html"
+		},
+		"4R0WWxbLD-dj8g3SLQTsw": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html"
+		},
+		"5Zldr5OlprJmbLBSa7kqW": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Artist"
+		},
+		"pnPp1ryUx4d3sXCxJGNl_": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Category"
+		},
+		"YDjJ2hWhiTkhl4V51rGlV": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Character"
+		},
+		"nQmPviQ4viyHAiOZKI9Fc": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Group"
+		},
+		"NtSpps9DuMNJi4Ujc88oc": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Language"
+		},
+		"fDTvPckG_BmZGvT9yKk9H": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Parody"
+		},
+		"MM8Pyyid6fMhMWM0TqMUr": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Tag"
+		},
+		"LiXRdhKui5bKYgSuGEj3d": {
+			"uri": "/nhentai-api/nhentai-api/TagTypes.html#Unknown"
+		},
+		"_4smL58kFKYQ3SCHgNlw1": {
+			"uri": "global.html#TagTypes"
+		},
+		"ZzZKG58byV2VnQRNGNpWb": {
+			"uri": "/nhentai-api/nhentai-api/processOptions.html"
+		}
+	}
+}

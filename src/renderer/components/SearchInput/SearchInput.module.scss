@@ -1,67 +1,255 @@
 .searchForm {
-  position: relative;
   flex: 1;
-  max-width: 500px;
+  width: calc(35vw / 0.7);
+  position: absolute !important;
+  top: 10px;
+  -webkit-app-region: no-drag;
+  justify-self: anchor-center;
+  z-index: 99;
 }
 
 .searchContainer {
   position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #2a2a3a;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    box-shadow: 0 4px 20px rgba(110, 69, 226, 0.3);
+    border-color: rgba(110, 69, 226, 0.4);
+  }
+}
+
+.inputWrapper {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
 }
 
 .searchIcon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #888;
-  z-index: 1;
+  color: #6a6a8a;
+  margin-right: 8px;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
 }
 
 .searchInput {
-  width: 360px;
-  padding: 10px 15px 10px 40px;
-  border-radius: 6px;
-  border: 1px solid #3a3a4a;
-  background-color: #2a2a3a;
-  color: white;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  padding: 10px 0;
+  outline: none;
+  min-width: 0;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
 
-  &:focus {
-    outline: none;
-    border-color: #6e45e2;
-    box-shadow: 0 0 0 2px rgba(110, 69, 226, 0.2);
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   &::placeholder {
-    color: #888;
+    color: #6a6a8a;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+  }
+
+  &:focus::placeholder {
+    opacity: 0.5;
+  }
+}
+
+.tagsIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(110, 69, 226, 0.15);
+  color: #a080ff;
+  border: none;
+  border-radius: 16px;
+  padding: 4px 10px;
+  margin-right: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 4px;
+
+  &:hover {
+    background: rgba(110, 69, 226, 0.25);
+    color: #bda0ff;
+  }
+}
+
+.controlsContainer {
+  display: flex;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.contentTypeSelect {
+  position: relative;
+  min-width: 120px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.selectedContentType {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  
+  &.rotated {
+    transform: rotate(180deg);
+  }
+}
+
+.contentTypeDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #2a2a3a;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 110;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contentTypeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #ccc;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #3a3a4a;
+    color: #fff;
+  }
+
+  &.active {
+    color: #a080ff;
+    background: rgba(110, 69, 226, 0.1);
+  }
+}
+
+.searchButton {
+  background: linear-gradient(135deg, #6e45e2, #8a5de8);
+  color: #fff;
+  border: none;
+  padding: 0 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: linear-gradient(135deg, #5a37c8, #6e45e2);
+    box-shadow: 0 4px 12px rgba(110, 69, 226, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.tagsButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(110, 69, 226, 0.1);
+  color: #a080ff;
+  border: none;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(110, 69, 226, 0.2);
+    color: #bda0ff;
   }
 }
 
 .historyDropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   background: #2a2a3a;
-  border-radius: 6px;
-  margin-top: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   z-index: 100;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .historyHeader {
   display: flex;
   align-items: center;
-  padding: 10px 15px;
+  padding: 12px 16px;
   background: #3a3a4a;
   color: #b0b0c0;
-  font-size: 0.85rem;
+  font-size: 14px;
+  gap: 8px;
 }
 
 .historyIcon {
-  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.clearHistoryButton {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .historyList {
@@ -76,9 +264,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 15px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+  &:last-child {
+    border-bottom: none;
+  }
 
   &:hover {
     background-color: #3a3a4a;
@@ -98,15 +291,68 @@
   border: none;
   color: #888;
   cursor: pointer;
-  padding: 5px;
+  padding: 4px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 
   &:hover {
     color: #ff4444;
     background: rgba(255, 68, 68, 0.1);
+  }
+}
+
+.selectedTagsContainer {
+  margin-top: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.selectedTagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selectedTag {
+  background: linear-gradient(135deg, #6e45e2, #8a5de8);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(110, 69, 226, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, #5a37c8, #6e45e2);
+    transform: translateY(-1px);
+
+    .removeTag {
+      transform: scale(1.2);
+    }
+  }
+}
+
+.removeTag {
+  font-size: 14px;
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

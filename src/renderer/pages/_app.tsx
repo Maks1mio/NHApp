@@ -1,10 +1,13 @@
-import { createHashRouter, RouterProvider } from "react-router-dom";
-import MainPage from "./main";
-import PopularBooks from "../components/PopularBooks";
-import NewUploads from "../components/NewUploads";
-import SearchResults from "../components/SearchResults";
-import Favorites from "../components/Favorites";
-import BookPage from "../components/BookPage";
+import {
+  createHashRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
+
+import MainPage       from "./main";
+import SearchResults  from "../components/SearchResults";
+import BookPage       from "../components/BookPage";
+import { TagFilterProvider } from "../../context/TagFilterContext";
 
 function App() {
   const router = createHashRouter([
@@ -14,19 +17,16 @@ function App() {
       children: [
         {
           index: true,
-          element: <PopularBooks />,
-        },
-        {
-          path: "new",
-          element: <NewUploads />,
+          element: (
+            <Navigate
+              to="/search?type=popular&sort=popular-week"
+              replace
+            />
+          ),
         },
         {
           path: "search",
           element: <SearchResults />,
-        },
-        {
-          path: "favorites",
-          element: <Favorites />,
         },
         {
           path: "book/:id",
@@ -38,7 +38,9 @@ function App() {
 
   return (
     <div className="app-wrapper">
-      <RouterProvider router={router} />
+      <TagFilterProvider>
+        <RouterProvider router={router} />
+      </TagFilterProvider>
     </div>
   );
 }

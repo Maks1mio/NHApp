@@ -1,4 +1,6 @@
-node_modules
+.gitkeep
+node_modules/*
+!node_modules/nhentai-api/
 .webpack
 yarn.lock
 out
