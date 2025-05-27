@@ -1,17 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, MouseEvent, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./BookCard.module.scss";
 import SmartImage from "../SmartImage";
 import { FiHeart, FiEye, FiBookOpen, FiCalendar } from "react-icons/fi";
 import { FaHeart } from "react-icons/fa";
-
-interface Tag {
-  id: number;
-  type: string;
-  name: string;
-  url: string;
-  count: number;
-}
+import ReactCountryFlag from "react-country-flag";
+import { useTagFilter, Tag } from "../../../context/TagFilterContext";
 
 export interface Book {
   [x: string]: any;
@@ -39,7 +33,7 @@ export interface Book {
 interface BookCardProps {
   book: Book;
   isFavorite: boolean;
-  onToggleFavorite?: (id: number) => void; // ← optional
+  onToggleFavorite?: (id: number, newState: boolean) => void;
   className?: string;
 }
 
@@ -50,6 +44,25 @@ const formatDate = (iso: string): string =>
     day: "numeric",
   });
 
+const languageCountryCodes: Record<string, string> = {
+  english: "GB",
+  chinese: "CN",
+  japanese: "JP",
+};
+
+const SUPPORTED_LANGUAGES = Object.keys(languageCountryCodes);
+
+// Цвета для разных типов тегов
+const TAG_COLORS: Record<string, string> = {
+  language: "#FF7D7F",
+  artist: "#FB8DF4",
+  character: "#F3E17F",
+  parody: "#BCEA83",
+  group: "#86F0C6",
+  category: "#92EFFF",
+  tag: "#A1A1C3",
+};
+
 const BookCard: React.FC<BookCardProps> = ({
   book,
   isFavorite,
@@ -57,31 +70,251 @@ const BookCard: React.FC<BookCardProps> = ({
   className = "",
 }) => {
   const navigate = useNavigate();
+  const { selectedTags, setSelectedTags } = useTagFilter();
 
+  // Сортируем теги по категориям
+  const sortedTags = useMemo(() => {
+    const categories = [
+      {
+        type: "language",
+        filter: (t: Tag) => SUPPORTED_LANGUAGES.includes(t.name.toLowerCase()),
+      },
+      { type: "artist", filter: (t: Tag) => t.type === "artist" },
+      { type: "character", filter: (t: Tag) => t.type === "character" },
+      { type: "parody", filter: (t: Tag) => t.type === "parody" },
+      { type: "group", filter: (t: Tag) => t.type === "group" },
+      { type: "category", filter: (t: Tag) => t.type === "category" },
+      { type: "tag", filter: () => true }, // остаток
+    ];
+
+    // сначала убираем локальные дубликаты по id+name
+    const uniqueTags = book.tags.filter(
+      (tag, idx, arr) =>
+        idx === arr.findIndex((t) => t.id === tag.id && t.name === tag.name)
+    );
+
+    const usedIds = new Set<string>();
+    return categories.reduce((acc, { type, filter }) => {
+      // отбираем только ещё не выданные
+      const bucket = uniqueTags.filter((t) => {
+        const id = String(t.id);
+        return !usedIds.has(id) && filter(t);
+      });
+      if (bucket.length) {
+        // помечаем их как выданные
+        bucket.forEach((t) => usedIds.add(String(t.id)));
+        acc.push({ type, tags: bucket });
+      }
+      return acc;
+    }, [] as { type: string; tags: Tag[] }[]);
+  }, [book.tags]);
+
+  const idsEqual = (a: string | number, b: string | number) =>
+    Number(a) === Number(b);
+
+  // Проверка выбран ли тег
+  const isTagSelected = (tag: Tag) =>
+    selectedTags.some(
+      (t) =>
+        idsEqual(t.id, tag.id) &&
+        t.name.trim().replace(/\s+/g, " ") ===
+          tag.name.trim().replace(/\s+/g, " ")
+    );
+
+  const normalize = (tag: Tag): Tag => ({
+    ...tag,
+    id: String(tag.id),
+    name: tag.name.trim().replace(/\s+/g, " "),
+    url: tag.url.startsWith("/") ? `https://nhentai.net${tag.url}` : tag.url,
+  });
+
+  // Обработчик клика по тегу
+  const handleTagClick = (tag: Tag, e: MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    const normalized = normalize(tag);
+
+    const tagsEqual = (a: Tag, b: Tag) =>
+      Number(a.id) === Number(b.id) &&
+      a.name.trim().replace(/\s+/g, " ") === b.name.trim().replace(/\s+/g, " ");
+
+    // Проверяем, есть ли уже такой тег в selectedTags
+    const existingIndex = selectedTags.findIndex((t) =>
+      tagsEqual(t, normalized)
+    );
+
+    const newTags = [...selectedTags];
+    if (existingIndex >= 0) {
+      // Удаляем если есть
+      newTags.splice(existingIndex, 1);
+    } else {
+      // Добавляем если нет
+      newTags.push(normalized);
+    }
+
+    setSelectedTags(newTags);
+  };
+
+  // Избранное
+  const toggleFav = (e: MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(book.id, !isFavorite);
+    } else {
+      const key = "bookFavorites";
+      const list = JSON.parse(localStorage.getItem(key) ?? "[]") as number[];
+      const next = isFavorite
+        ? list.filter((i) => i !== book.id)
+        : [...list, book.id];
+      localStorage.setItem(key, JSON.stringify(next));
+    }
+  };
+
+  // Логика предпросмотра
   const [isHovered, setIsHovered] = useState(false);
-  const [showPreview, setShowPreview] = useState(false); // открыта ли модалка
-  const [shouldRenderPreview, setShouldRenderPreview] = useState(false); // нужна ли обёртка (для анимации)
+  const [showPreview, setShowPreview] = useState(false);
+  const [shouldRenderPreview, setShouldRenderPreview] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMouseMoving, setIsMouseMoving] = useState(false);
 
-  const hoverTimer = useRef<NodeJS.Timeout | null>(null);
-  const carouselTimer = useRef<NodeJS.Timeout | null>(null);
-  const movementTimer = useRef<NodeJS.Timeout | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
+  const timers = useRef<{
+    hover: NodeJS.Timeout | null;
+    carousel: NodeJS.Timeout | null;
+    movement: NodeJS.Timeout | null;
+    delay: NodeJS.Timeout | null;
+  }>({ hover: null, carousel: null, movement: null, delay: null });
+
+  // Очистка всех таймеров
+  const clearTimers = () => {
+    Object.values(timers.current).forEach((timer) => {
+      if (timer) clearTimeout(timer);
+    });
+    timers.current = {
+      hover: null,
+      carousel: null,
+      movement: null,
+      delay: null,
+    };
+  };
+
+  useEffect(() => {
+    return () => clearTimers();
+  }, []);
+
+  // Автопрокрутка карусели
+  const startCarousel = () => {
+    if (book.pages.length <= 1) return;
+
+    const tick = () => {
+      setActiveImageIndex(
+        (prev) => (prev + 1) % Math.min(book.pages.length, 5)
+      );
+      timers.current.carousel = setTimeout(tick, 3000);
+    };
+
+    timers.current.carousel = setTimeout(tick, 3000);
+  };
+
+  // Остановка карусели
+  const stopCarousel = () => {
+    if (timers.current.carousel) {
+      clearTimeout(timers.current.carousel);
+      timers.current.carousel = null;
+    }
+  };
+
+  // Основной обработчик движения мыши
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const newPos = { x: e.clientX, y: e.clientY };
+    const moved = mousePosition.x !== newPos.x || mousePosition.y !== newPos.y;
+    setMousePosition(newPos);
+
+    if (moved) {
+      setIsMouseMoving(true);
+
+      if (timers.current.movement) clearTimeout(timers.current.movement);
+      if (timers.current.hover) clearTimeout(timers.current.hover);
+
+      timers.current.movement = setTimeout(() => {
+        setIsMouseMoving(false);
+        if (isHovered && !showPreview) {
+          timers.current.hover = setTimeout(() => {
+            setShowPreview(true);
+            startCarousel();
+          }, 1000);
+        }
+      }, 400);
+    }
+  };
+
+  // Обработчик наведения на карточку
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    setShouldRenderPreview(true);
+
+    // Сбрасываем предыдущие таймеры
+    clearTimers();
+
+    // Если мышь не двигается, сразу запускаем превью
+    if (!isMouseMoving) {
+      timers.current.hover = setTimeout(() => {
+        setShowPreview(true);
+        startCarousel();
+      }, 1300); // Уменьшил задержку для более быстрого отклика
+    }
+  };
+
+  // Обработчик ухода с карточки
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setIsMouseMoving(false);
+    clearTimers();
+    setShowPreview(false);
+    stopCarousel();
+
+    // Задержка перед скрытием превью, чтобы избежать мерцания
+    timers.current.delay = setTimeout(() => {
+      setShouldRenderPreview(false);
+    }, 1300);
+  };
+
+  // Обработчик hover на карусели
+  const handleCarouselHover: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (!carouselRef.current || book.pages.length <= 1) return;
+
+    const { left, width } = carouselRef.current.getBoundingClientRect();
+    const idx = Math.floor(
+      (e.clientX - left) / (width / Math.min(book.pages.length, 5))
+    );
+    setActiveImageIndex(Math.min(idx, Math.min(book.pages.length, 5) - 1));
+
+    // Перезапускаем карусель после взаимодействия
+    stopCarousel();
+    timers.current.carousel = setTimeout(startCarousel, 5000);
+  };
+
+  // Плавный скролл карусели
+  useEffect(() => {
+    if (carouselRef.current && showPreview) {
+      const imageWidth = 200 + 10;
+      carouselRef.current.scrollTo({
+        left: activeImageIndex * imageWidth,
+        behavior: "smooth",
+      });
+    }
+  }, [activeImageIndex, showPreview]);
+
+  // Усечение текста
   const truncateText = (text: string, maxLines = 2) => {
     const words = text.split(" ");
     let truncated = "";
     let lineCount = 0;
-
     for (const word of words) {
       if ((truncated + word).length > 50 * (lineCount + 1)) {
         lineCount++;
-        if (lineCount >= maxLines) {
-          return truncated.trim() + "...";
-        }
+        if (lineCount >= maxLines) return truncated.trim() + "...";
         truncated += "\n";
       }
       truncated += word + " ";
@@ -89,145 +322,43 @@ const BookCard: React.FC<BookCardProps> = ({
     return truncated.trim();
   };
 
-  // —————————————————————————————————————————————
-  // Очистка таймеров при размонтировании
-  useEffect(() => {
-    return () => {
-      hoverTimer.current && clearTimeout(hoverTimer.current);
-      carouselTimer.current && clearTimeout(carouselTimer.current);
-      movementTimer.current && clearTimeout(movementTimer.current);
-    };
-  }, []);
-  // —————————————————————————————————————————————
-
-  // Движение мыши по карточке
-  const handleMouseMove: React.MouseEventHandler = (e) => {
-    const newPos = { x: e.clientX, y: e.clientY };
-    const moved = mousePosition.x !== newPos.x || mousePosition.y !== newPos.y;
-    setMousePosition(newPos);
-
-    if (moved) {
-      setIsMouseMoving(true);
-      hoverTimer.current && clearTimeout(hoverTimer.current);
-      movementTimer.current && clearTimeout(movementTimer.current);
-
-      // ждём, пока мышь остановится
-      movementTimer.current = setTimeout(() => {
-        setIsMouseMoving(false);
-        if (isHovered && !showPreview) {
-          hoverTimer.current = setTimeout(() => {
-            setShowPreview(true);
-            startCarouselAutoScroll();
-          }, 500);
-        }
-      }, 200);
-    }
-  };
-
-  // навели мышь на карточку
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    setShouldRenderPreview(true);
-    if (!isMouseMoving) {
-      hoverTimer.current = setTimeout(() => {
-        setShowPreview(true);
-        startCarouselAutoScroll();
-      }, 3500);
-    }
-  };
-
-  // вывели мышь
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setIsMouseMoving(false);
-
-    hoverTimer.current && clearTimeout(hoverTimer.current);
-    carouselTimer.current && clearTimeout(carouselTimer.current);
-    movementTimer.current && clearTimeout(movementTimer.current);
-
-    setShowPreview(false);
-    // даём анимации скрытия завершиться
-    setTimeout(() => setShouldRenderPreview(false), 300);
-  };
-
-  // автопрокрутка мини-карусели
-  const startCarouselAutoScroll = () => {
-    if (book.pages.length <= 1) return;
-    const scroll = () => {
-      setActiveImageIndex(
-        (prev) => (prev + 1) % Math.min(book.pages.length, 5)
-      );
-      carouselTimer.current = setTimeout(scroll, 3000);
-    };
-    carouselTimer.current = setTimeout(scroll, 3000);
-  };
-
-  // ручной выбор страницы в карусели
-  const handleCarouselHover: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    if (!carouselRef.current || book.pages.length <= 1) return;
-    const { left, width } = carouselRef.current.getBoundingClientRect();
-    const mouseX = e.clientX - left;
-    const segmentWidth = width / Math.min(book.pages.length, 5);
-    const idx = Math.min(
-      Math.floor(mouseX / segmentWidth),
-      Math.min(book.pages.length, 5) - 1
-    );
-    setActiveImageIndex(idx);
-
-    carouselTimer.current && clearTimeout(carouselTimer.current);
-    carouselTimer.current = setTimeout(startCarouselAutoScroll, 5000);
-  };
-
-  // плавный скролл при смене activeImageIndex
-  useEffect(() => {
-    if (carouselRef.current) {
-      const imageWidth = 200 + 10; // ширина + gap
-      carouselRef.current.scrollTo({
-        left: activeImageIndex * imageWidth,
-        behavior: "smooth",
-      });
-    }
-  }, [activeImageIndex]);
-
-  const onTagClick = (tagName: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigate(`/search?q=${encodeURIComponent(tagName)}`);
-  };
-
-  const handleCardClick = () => navigate(`/book/${book.id}`);
-
-  // —————————————————————————————————————————————
-  // JSX
-  // —————————————————————————————————————————————
   return (
     <div
-      ref={cardRef}
       className={`${styles.card} ${className}`}
+      onClick={() => navigate(`/book/${book.id}`)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
-      onClick={handleCardClick}
     >
       {/* Обложка */}
       <div className={styles.imageContainer}>
         <SmartImage
-          src={book.thumbnail} // единственный надёжный URL
+          src={book.thumbnail}
           alt={book.title.pretty}
-          className={styles.previewImage}
+          className={styles.image}
           loading="lazy"
         />
 
-        {/* Overlay с кнопкой избранного и счётчиками */}
+        {/* Флаги языков */}
+        {sortedTags
+          .find((t) => t.type === "language")
+          ?.tags.map((tag) => (
+            <ReactCountryFlag
+              key={tag.id}
+              countryCode={languageCountryCodes[tag.name.toLowerCase()]}
+              svg
+              className={styles.languageFlag}
+              title={tag.name}
+            />
+          ))}
+
         <div className={`${styles.overlay} ${isHovered ? styles.visible : ""}`}>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleFavorite?.(book.id); // ← безопасный вызов
-            }}
             className={styles.favoriteButton}
             aria-label={
               isFavorite ? "Удалить из избранного" : "Добавить в избранное"
             }
+            onClick={toggleFav}
           >
             {isFavorite ? (
               <FaHeart className={styles.favoriteIconActive} />
@@ -246,12 +377,11 @@ const BookCard: React.FC<BookCardProps> = ({
         </div>
       </div>
 
-      {/* Текстовая часть карточки */}
+      {/* Информация */}
       <div className={styles.info}>
         <p className={styles.titleText} title={book.title.pretty}>
           {truncateText(book.title.pretty)}
         </p>
-
         <div className={styles.meta}>
           <span className={styles.date}>
             <FiCalendar /> {formatDate(book.uploaded)}
@@ -260,52 +390,62 @@ const BookCard: React.FC<BookCardProps> = ({
             <FiHeart /> {book.favorites}
           </span>
         </div>
-
         <div className={styles.tags}>
-          {book.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag.id}
-              className={styles.tag}
-              onClick={(e) => onTagClick(tag.name, e)}
-              style={{ cursor: "pointer" }}
-            >
-              {tag.name}
+          {sortedTags.slice(0, 2).flatMap((category) =>
+            category.tags
+              .filter(
+                (tag, index, self) =>
+                  index ===
+                  self.findIndex((t) => t.id === tag.id && t.name === tag.name)
+              )
+              .slice(0, 2)
+              .map((tag) => (
+                <span
+                  key={`${tag.id}-${tag.name}`}
+                  className={`${styles.tag} ${
+                    isTagSelected(tag) ? styles.tagSelected : ""
+                  }`}
+                  onClick={(e) => handleTagClick(tag, e)}
+                  style={{
+                    color: TAG_COLORS[category.type] || TAG_COLORS.tag,
+                    outline: isTagSelected(tag) ? "1px solid white" : "none",
+                  }}
+                >
+                  {tag.name}
+                </span>
+              ))
+          )}
+          {sortedTags.reduce((acc, cat) => acc + cat.tags.length, 0) > 4 && (
+            <span className={styles.moreTags}>
+              +{sortedTags.reduce((acc, cat) => acc + cat.tags.length, 0) - 4}
             </span>
-          ))}
-          {book.tags.length > 3 && (
-            <span className={styles.moreTags}>+{book.tags.length - 3}</span>
           )}
         </div>
       </div>
 
-      {/* ────────────────────────────────────────
-          ПРЕВЬЮ-МОДАЛКА
-          ──────────────────────────────────────── */}
+      {/* Предпросмотр */}
       {shouldRenderPreview && (
         <div
           className={`${styles.previewContainer} ${
             showPreview ? styles.visible : ""
           }`}
-          onMouseLeave={handleMouseLeave}
         >
-          {/* Контент подгружаем только при открытии */}
           {showPreview && (
             <div className={styles.previewContent}>
-              {/* Карусель страниц */}
               <div
                 className={styles.previewCarousel}
                 ref={carouselRef}
                 onMouseMove={handleCarouselHover}
               >
-                {book.pages.slice(0, 5).map((page, idx) => (
+                {book.pages.slice(0, 5).map((p, i) => (
                   <div
-                    key={idx}
+                    key={i}
                     className={`${styles.previewImageWrapper} ${
-                      idx === activeImageIndex ? styles.active : ""
+                      i === activeImageIndex ? styles.active : ""
                     }`}
                   >
                     <SmartImage
-                      src={page.urlThumb}
+                      src={p.urlThumb}
                       alt={book.title.pretty}
                       className={styles.previewImage}
                     />
@@ -313,7 +453,6 @@ const BookCard: React.FC<BookCardProps> = ({
                 ))}
               </div>
 
-              {/* Информация о книге */}
               <div className={styles.previewInfo}>
                 <h3 className={styles.previewTitle}>
                   {truncateText(book.title.pretty)}
@@ -332,15 +471,38 @@ const BookCard: React.FC<BookCardProps> = ({
                 </div>
 
                 <div className={styles.previewTags}>
-                  {book.tags.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className={styles.previewTag}
-                      onClick={(e) => onTagClick(tag.name, e)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      {tag.name}
-                    </span>
+                  {sortedTags.map((category) => (
+                    <React.Fragment key={category.type}>
+                      {category.tags
+                        .filter(
+                          (tag, index, self) =>
+                            index ===
+                            self.findIndex(
+                              (t) => t.id === tag.id && t.name === tag.name
+                            )
+                        )
+                        .map((tag) => (
+                          <span
+                            key={`${tag.id}-${tag.name}`}
+                            className={`${styles.previewTag} ${
+                              isTagSelected(tag) ? styles.tagSelected : ""
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleTagClick(tag, e);
+                            }}
+                            style={{
+                              color:
+                                TAG_COLORS[category.type] || TAG_COLORS.tag,
+                              outline: isTagSelected(tag)
+                                ? "1px solid white"
+                                : "none",
+                            }}
+                          >
+                            {tag.name}
+                          </span>
+                        ))}
+                    </React.Fragment>
                   ))}
                 </div>
 

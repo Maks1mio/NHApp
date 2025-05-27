@@ -18,25 +18,41 @@ type ContentType = "favorites" | "new" | "search" | "popular";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { favorites }   = useFavorites();
+  const { favorites } = useFavorites();
   const { selectedTags } = useTagFilter();
   const PER_PAGE = 25;
 
   const handleSearch = (query: string, contentType: ContentType) => {
     /* ── определяем sort, если нужен ───────────────────────────────────── */
     let sortParam = "";
+
+    // страница «Новые»
     if (contentType === "new") {
       sortParam = "date";
     }
+
+    // страница «Популярные»
     if (contentType === "popular") {
-      // 1) берём из URL, если там уже есть ?sort=...
       const urlSort = new URLSearchParams(window.location.search).get("sort");
-      // 2) или из localStorage (то, что сохраняли в SearchResults)
       const savedSort = localStorage.getItem("popularBooksSortType");
       sortParam =
-        urlSort && urlSort !== "" ? urlSort :
-        savedSort && savedSort !== "" ? savedSort as string :
-        "popular";                               // fallback
+        urlSort && urlSort !== ""
+          ? urlSort
+          : savedSort && savedSort !== ""
+          ? (savedSort as string)
+          : "popular"; // fallback
+    }
+
+    // страница результатов поиска
+    if (contentType === "search") {
+      const urlSort = new URLSearchParams(window.location.search).get("sort");
+      const savedSort = localStorage.getItem("searchResultsSortType");
+      sortParam =
+        urlSort && urlSort !== ""
+          ? urlSort
+          : savedSort && savedSort !== ""
+          ? (savedSort as string)
+          : "popular"; // fallback
     }
 
     /* ── отправляем запрос ─────────────────────────────────────────────── */
@@ -47,20 +63,15 @@ const Header: React.FC = () => {
       page: 1,
       perPage: PER_PAGE,
       filterTags: contentType !== "favorites" ? selectedTags : "",
-      ids:        contentType === "favorites" ? favorites     : "",
-      sort:       sortParam,                     // <<<<< ключевая строка
+      ids: contentType === "favorites" ? favorites : "",
+      sort: sortParam, // << ключевая строка
     });
   };
-
 
   return (
     <header className={styles.nav}>
       <div className={styles.leftSide}>
-        <img
-          src={AppIcon}
-          alt="NHentaiApp"
-          className={styles.appIcon}
-        />
+        <img src={AppIcon} alt="NHentaiApp" className={styles.appIcon} />
       </div>
       <div className={styles.rightSide}>
         <SearchInput onSearch={handleSearch} />

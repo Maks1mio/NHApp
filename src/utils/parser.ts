@@ -12,11 +12,11 @@ type TagEntry = {
 };
 
 const BASE_URLS = [
-  { key: "tags", url: "https://nhentai.net/tags/" },
-  { key: "artists", url: "https://nhentai.net/artists/" },
-  { key: "characters", url: "https://nhentai.net/characters/" },
-  { key: "parodies", url: "https://nhentai.net/parodies/" },
-  { key: "groups", url: "https://nhentai.net/groups/" },
+  { key: "tag", url: "https://nhentai.net/tags/" },
+  { key: "artist", url: "https://nhentai.net/artists/" },
+  { key: "character", url: "https://nhentai.net/characters/" },
+  { key: "parody", url: "https://nhentai.net/parodies/" },
+  { key: "group", url: "https://nhentai.net/groups/" },
 ];
 
 function parseCount(str: string): number {

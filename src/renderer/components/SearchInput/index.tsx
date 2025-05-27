@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  FiSearch, 
-  FiClock, 
-  FiX, 
-  FiTag, 
-  FiStar, 
-  FiTrendingUp, 
+import {
+  FiSearch,
+  FiClock,
+  FiX,
+  FiTag,
+  FiStar,
+  FiTrendingUp,
   FiUpload,
-  FiChevronDown
+  FiChevronDown,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -28,7 +28,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const { favorites } = useFavorites();
-  
+
   const [query, setQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -37,7 +37,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
   const [contentType, setContentType] = useState<ContentType>(
     (queryParams.get("type") as ContentType) || "search"
   );
-  
+
   const { selectedTags, setSelectedTags } = useTagFilter();
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -101,7 +101,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
       ...searchHistory.filter(
         (item) => item.toLowerCase() !== searchQuery.toLowerCase()
       ),
-    ].slice(0, 5);
+    ].slice(0, 100);
 
     setSearchHistory(updatedHistory);
     localStorage.setItem("searchHistory", JSON.stringify(updatedHistory));
@@ -143,22 +143,32 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
   // Иконки для типов контента
   const getContentTypeIcon = (type: ContentType) => {
     switch (type) {
-      case "search": return <FiSearch size={16} />;
-      case "new": return <FiUpload size={16} />;
-      case "popular": return <FiTrendingUp size={16} />;
-      case "favorites": return <FiStar size={16} />;
-      default: return <FiSearch size={16} />;
+      case "search":
+        return <FiSearch size={16} />;
+      case "new":
+        return <FiUpload size={16} />;
+      case "popular":
+        return <FiTrendingUp size={16} />;
+      case "favorites":
+        return <FiStar size={16} />;
+      default:
+        return <FiSearch size={16} />;
     }
   };
 
   // Названия для типов контента
   const getContentTypeLabel = (type: ContentType) => {
     switch (type) {
-      case "search": return "Поиск";
-      case "new": return "Новые";
-      case "popular": return "Популярные";
-      case "favorites": return "Избранное";
-      default: return "Поиск";
+      case "search":
+        return "Поиск";
+      case "new":
+        return "Новые";
+      case "popular":
+        return "Популярные";
+      case "favorites":
+        return "Избранное";
+      default:
+        return "Поиск";
     }
   };
 
@@ -175,13 +185,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
             ref={inputRef}
             type="text"
             placeholder={
-              contentType === "search" 
-                ? "Поиск по названию, тегам..." 
-                : contentType === "new" 
-                  ? "Новые загрузки" 
-                  : contentType === "popular" 
-                    ? "Популярные работы" 
-                    : "Избранное"
+              contentType === "search"
+                ? "Поиск по названию, тегам..."
+                : contentType === "new"
+                ? "Новые загрузки"
+                : contentType === "popular"
+                ? "Популярные работы"
+                : "Избранное"
             }
             value={query}
             onChange={(e) => {
@@ -198,15 +208,19 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
               }
             }}
             onFocus={() => {
-              if (query === "" && searchHistory.length > 0 && contentType === "search") {
+              if (
+                query === "" &&
+                searchHistory.length > 0 &&
+                contentType === "search"
+              ) {
                 setShowHistory(true);
               }
             }}
             className={styles.searchInput}
             disabled={contentType !== "search"}
           />
-          
-          {selectedTags.length > 0 && (
+
+          {/* {selectedTags.length > 0 && (
             <button
               type="button"
               className={styles.tagsIndicator}
@@ -215,12 +229,12 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
               <FiTag size={14} />
               <span>{selectedTags.length}</span>
             </button>
-          )}
+          )} */}
         </div>
 
         <div className={styles.controlsContainer}>
           {/* Селектор типа контента */}
-          <div 
+          <div
             className={styles.contentTypeSelect}
             ref={selectRef}
             onClick={() => setShowContentTypes(!showContentTypes)}
@@ -228,9 +242,13 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
             <div className={styles.selectedContentType}>
               {getContentTypeIcon(contentType)}
               <span>{getContentTypeLabel(contentType)}</span>
-              <FiChevronDown className={`${styles.chevron} ${showContentTypes ? styles.rotated : ''}`} />
+              <FiChevronDown
+                className={`${styles.chevron} ${
+                  showContentTypes ? styles.rotated : ""
+                }`}
+              />
             </div>
-            
+
             <AnimatePresence>
               {showContentTypes && (
                 <motion.div
@@ -240,7 +258,9 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {(["search", "new", "popular", "favorites"] as ContentType[]).map((type) => (
+                  {(
+                    ["search", "new", "popular", "favorites"] as ContentType[]
+                  ).map((type) => (
                     <div
                       key={type}
                       className={`${styles.contentTypeOption} ${
@@ -257,18 +277,6 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
             </AnimatePresence>
           </div>
 
-          {/* Кнопка тегов */}
-          <motion.button
-            type="button"
-            className={styles.tagsButton}
-            onClick={() => setIsModalOpen(true)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FiTag size={18} />
-            <span>Теги</span>
-          </motion.button>
-
           {/* Кнопка поиска (только для search) */}
           {contentType === "search" && (
             <motion.button
@@ -281,65 +289,76 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
               Поиск
             </motion.button>
           )}
+
+          {/* Кнопка тегов */}
+          <motion.button
+            type="button"
+            className={styles.tagsButton}
+            onClick={() => setIsModalOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FiTag size={18} />
+            {selectedTags.length > 0 && <span>{selectedTags.length}</span>}
+          </motion.button>
         </div>
 
-        <TagFilter
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <TagFilter isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
         {/* История поиска (только для search) */}
         <AnimatePresence>
-          {showHistory && searchHistory.length > 0 && contentType === "search" && (
-            <motion.div
-              className={styles.historyDropdown}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className={styles.historyHeader}>
-                <FiClock className={styles.historyIcon} />
-                <span>Недавние запросы</span>
-                <button
-                  className={styles.clearHistoryButton}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSearchHistory([]);
-                    localStorage.removeItem("searchHistory");
-                  }}
-                >
-                  Очистить
-                </button>
-              </div>
-              <ul className={styles.historyList}>
-                {searchHistory.map((item, index) => (
-                  <motion.li
-                    key={index}
-                    className={styles.historyItem}
-                    onClick={() => handleHistoryItemClick(item)}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
+          {showHistory &&
+            searchHistory.length > 0 &&
+            contentType === "search" && (
+              <motion.div
+                className={styles.historyDropdown}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className={styles.historyHeader}>
+                  <FiClock className={styles.historyIcon} />
+                  <span>Недавние запросы</span>
+                  <button
+                    className={styles.clearHistoryButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchHistory([]);
+                      localStorage.removeItem("searchHistory");
+                    }}
                   >
-                    <span className={styles.historyText}>{item}</span>
-                    <button
-                      className={styles.removeHistoryButton}
-                      onClick={(e) => handleRemoveHistoryItem(e, item)}
-                      aria-label="Удалить из истории"
+                    Очистить
+                  </button>
+                </div>
+                <ul className={styles.historyList}>
+                  {searchHistory.map((item, index) => (
+                    <motion.li
+                      key={index}
+                      className={styles.historyItem}
+                      onClick={() => handleHistoryItemClick(item)}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
                     >
-                      <FiX size={14} />
-                    </button>
-                  </motion.li>
-                ))}
-              </ul>
-            </motion.div>
-          )}
+                      <span className={styles.historyText}>{item}</span>
+                      <button
+                        className={styles.removeHistoryButton}
+                        onClick={(e) => handleRemoveHistoryItem(e, item)}
+                        aria-label="Удалить из истории"
+                      >
+                        <FiX size={14} />
+                      </button>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
         </AnimatePresence>
       </div>
-      
+
       {/* Выбранные теги (для всех режимов) */}
-      {selectedTags.length > 0 && (
+      {/* {selectedTags.length > 0 && (
         <div className={styles.selectedTagsContainer}>
           <div className={styles.selectedTagsList}>
             {selectedTags.map((tag) => (
@@ -347,7 +366,11 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
                 key={`${tag.id}:${tag.type}`}
                 className={styles.selectedTag}
                 onClick={() => {
-                  setSelectedTags(selectedTags.filter(t => !(t.id === tag.id && t.type === tag.type)));
+                  setSelectedTags(
+                    selectedTags.filter(
+                      (t) => !(t.id === tag.id && t.type === tag.type)
+                    )
+                  );
                 }}
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -361,7 +384,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
             ))}
           </div>
         </div>
-      )}
+      )} */}
     </form>
   );
 };

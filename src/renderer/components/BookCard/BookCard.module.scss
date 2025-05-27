@@ -13,9 +13,8 @@
 
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    outline: solid 1px #b0b0c0;
+    // outline: solid 1px #b0b0c0;
     z-index: 10;
-    transform: translateY(-5px);
   }
 }
 
@@ -118,11 +117,10 @@
   color: #ffffff;
   margin: 0 0 8px 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-height: 2.4em;
   line-height: 1.2em;
 }
 
@@ -150,10 +148,18 @@
 
 .tag {
   background: #3a3a4a;
-  color: #b0b0c0;
+  color: white;
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+
+  &.tagSelected {
+    background: transparent;
+    border-color: white;
+    color: white;
+  }
 }
 
 .moreTags {
@@ -242,8 +248,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow: hidden;
-  padding-top: 300px;
+  padding-top: 295px;
 }
 
 .previewTitle {
@@ -276,19 +281,20 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding-right: 5px;
 }
 
 .previewTag {
   background: #3a3a4a;
-  color: #b0b0c0;
+  color: white;
   padding: 5px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
   transition: all 0.2s ease;
+  border: 1px solid transparent;
 
-  &:hover {
-    background: #6e45e2;
+  &.tagSelected {
+    background: transparent;
+    border-color: white;
     color: white;
   }
 }
@@ -300,4 +306,48 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.languageFlag {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  font-size: 1.35rem;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+/* Цвета для разных типов тегов */
+.tag-language {
+  background-color: #4caf50 !important;
+}
+
+.tag-artist {
+  background-color: #2196f3 !important;
+}
+
+.tag-character {
+  background-color: #9c27b0 !important;
+}
+
+.tag-parody {
+  background-color: #ff9800 !important;
+}
+
+.tag-group {
+  background-color: #607d8b !important;
+}
+
+.tag-category {
+  background-color: #e91e63 !important;
+}
+
+.tag-tag {
+  background-color: #795548 !important;
+}
+
+/* Для выбранных тегов */
+.tagSelected {
+  outline: 1px solid white !important;
+  color: white !important;
 }
