@@ -2,14 +2,42 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - "v*"
+    paths:
+      - 'package.json'
 
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Get previous commit
+        id: prev
+        run: echo "PREV_SHA=$(git rev-parse HEAD^1)" >> $GITHUB_ENV
+
+      - name: Get previous version
+        id: prev_version
+        run: |
+          git show $PREV_SHA:package.json > old_package.json
+          echo "OLD_VERSION=$(jq -r .version old_package.json)" >> $GITHUB_ENV
+
+      - name: Get current version
+        id: curr_version
+        run: |
+          echo "CURR_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+
+      - name: Compare versions and set output
+        id: compare
+        run: |
+          if [ "$OLD_VERSION" != "$CURR_VERSION" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Stop if version not changed
+        if: steps.compare.outputs.changed != 'true'
+        run: exit 0
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -34,5 +62,3 @@ jobs:
           files: |
             out/**/*.exe
             out/**/*.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
