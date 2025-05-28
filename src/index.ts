@@ -102,18 +102,38 @@ const extByToken = (
   }
 };
 
+// Расширенный интерфейс Book с подробной структурой для передачи информации
+
 interface Book {
   id: number;
-  title: { english: string; japanese: string; pretty: string };
-  uploaded: string;
+  title: {
+    english: string;
+    japanese: string;
+    pretty: string;
+  };
+  uploaded: string; // ISO string
   media: number;
   favorites: number;
   pagesCount: number;
   scanlator: string;
-  tags: any[];
-  cover: string;
-  thumbnail: string;
-  pages: { page: number; url: string }[];
+  tags: Tag[]; // Используем тип Tag из nhentai-api
+  cover: string; // URL
+  thumbnail: string; // URL
+  pages: {
+    page: number;
+    url: string;
+    urlThumb: string;
+    // Можно добавить дополнительные поля, если нужно
+  }[];
+  // Дополнительные поля для расширенной информации
+  artists?: Tag[];
+  characters?: Tag[];
+  parodies?: Tag[];
+  groups?: Tag[];
+  categories?: Tag[];
+  languages?: Tag[];
+  // Оригинальные данные, если нужно для отладки или расширения
+  raw?: any;
 }
 
 interface PaginatedResponse {
@@ -162,6 +182,10 @@ const parseBookData = (item: any): Book => {
     };
   });
 
+  // Фильтрация тегов по типу
+  const tags: Tag[] = item.tags || [];
+  const filterTags = (type: string) => tags.filter((t: Tag) => t.type === type as any);
+
   return {
     id: item.id,
     title: {
@@ -176,12 +200,20 @@ const parseBookData = (item: any): Book => {
     favorites: item.num_favorites,
     pagesCount: item.num_pages,
     scanlator: item.scanlator || "",
-    tags: item.tags || [],
+    tags,
     cover: `${coverBase}.${coverExt}`,
     thumbnail: `${thumbBase}.${thumbExt}`,
     pages,
+    artists: filterTags("artist"),
+    characters: filterTags("character"),
+    parodies: filterTags("parody"),
+    groups: filterTags("group"),
+    categories: filterTags("category"),
+    languages: filterTags("language"),
+    raw: item, // для отладки
   };
 };
+
 
 const paginate = (total: number, perPage: number) => Math.ceil(total / perPage);
 
