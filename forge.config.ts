@@ -1,22 +1,57 @@
+import type { ForgeConfig } from '@electron-forge/shared-types';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
+// import { FusesPlugin } from '@electron-forge/plugin-fuses'; // если не используете fuses, закомментируйте
+// import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
-import type { ForgeConfig } from '@electron-forge/shared-types';
+import path from 'path';
+import fs from 'fs-extra';
+import { execSync } from 'child_process';
 
 const forgeConfig: ForgeConfig = {
   packagerConfig: {
-    icon: "./icons/icon",
-    name: "Rectron",
+    icon: './icons/win/icon.ico',
+    name: 'NHApp',
+    executableName: 'NHApp',
+    appCopyright: 'Copyright (C) 2024 NHApp',
     asar: true,
+    win32metadata: {
+      CompanyName: 'NHApp',
+    },
+    // extendInfo: 'Info.plist', // если нужно для macOS
+    // extraResource: ['./app-update.yml'], // если нужно
     overwrite: true,
   },
+  rebuildConfig: {},
   makers: [
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        name: "Rectron",
+        name: "NHApp",
       },
     },
+    {
+      name: "@electron-forge/maker-zip",
+      platforms: ["darwin"],
+      config: {}
+    },
+    {
+      name: "@electron-forge/maker-deb",
+      config: {}
+    },
+    {
+      name: "@electron-forge/maker-rpm",
+      config: {}
+    },
+    // {
+    //   name: "@electron-forge/maker-dmg",
+    //   config: {
+    //     background: "./static/assets/images/no_banner.png",
+    //     icon: "./icons/mac/icon.icns",
+    //     format: "ULFO",
+    //     overwrite: true
+    //   }
+    // }
   ],
   plugins: [
     new WebpackPlugin({
@@ -35,7 +70,55 @@ const forgeConfig: ForgeConfig = {
         ],
       },
     }),
+    // Пример для FusesPlugin, если нужно:
+    // new FusesPlugin({
+    //   version: FuseVersion.V1,
+    //   [FuseV1Options.RunAsNode]: true,
+    //   [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+    //   [FuseV1Options.EnableCookieEncryption]: true,
+    //   [FuseV1Options.OnlyLoadAppFromAsar]: true,
+    // }),
   ],
+  hooks: {
+    packageAfterPrune: async (_forgeConfig, buildPath) => {
+      const packageJsonPath = path.resolve(buildPath, 'package.json');
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+      Object.keys(pkg).forEach(key => {
+        switch (key) {
+          case 'name':
+          case 'version':
+          case 'main':
+          case 'author':
+          case 'devDependencies':
+          case 'homepage':
+            break;
+          default:
+            delete pkg[key];
+        }
+      });
+
+      let branch = 'unknown';
+      try {
+        branch = execSync('git rev-parse --short HEAD', { cwd: process.cwd() })
+          .toString()
+          .trim();
+      } catch (err) {
+        console.warn('Bruh:', err);
+      }
+
+      pkg.buildInfo = {
+        VERSION: pkg.version,
+        BRANCH: branch,
+      };
+
+      fs.writeFileSync(packageJsonPath, JSON.stringify(pkg, null, '\t'));
+    },
+
+    packageAfterCopy: async (_forgeConfig, buildPath, electronVersion, platform, arch) => {
+      console.log(`Built app ${platform}-${arch} with Electron ${electronVersion}`);
+    },
+  },
 };
 
 export default forgeConfig;
