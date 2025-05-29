@@ -8,24 +8,28 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
 
+    steps:
+      # Клонируем с двумя последними коммитами, чтобы был доступен HEAD^1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Получаем предыдущий коммит
       - name: Get previous commit
-        id: prev
         run: echo "PREV_SHA=$(git rev-parse HEAD^1)" >> $GITHUB_ENV
 
+      # Получаем версию из предыдущего коммита
       - name: Get previous version
-        id: prev_version
         run: |
           git show $PREV_SHA:package.json > old_package.json
           echo "OLD_VERSION=$(jq -r .version old_package.json)" >> $GITHUB_ENV
 
+      # Получаем текущую версию
       - name: Get current version
-        id: curr_version
-        run: |
-          echo "CURR_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+        run: echo "CURR_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
 
+      # Сравниваем версии
       - name: Compare versions and set output
         id: compare
         run: |
@@ -35,27 +39,33 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
 
+      # Останавливаем джоб, если версия не изменилась
       - name: Stop if version not changed
         if: steps.compare.outputs.changed != 'true'
         run: exit 0
 
+      # Настройка Node.js
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
+      # Установка зависимостей
       - name: Install dependencies
         run: npm ci
 
+      # Сборка приложения
       - name: Build app
         run: npm run make
 
+      # Загрузка артефактов
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-            name: nhapp-dist
-            path: out/
+          name: nhapp-dist
+          path: out/
 
+      # Создание GitHub релиза
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
