@@ -23,13 +23,12 @@ jobs:
       - name: Get previous version (if exists)
         shell: bash
         run: |
-            if git cat-file -e $PREV_SHA:package.json; then
+          if git cat-file -e $PREV_SHA:package.json; then
             git show $PREV_SHA:package.json > old_package.json
             echo "OLD_VERSION=$(jq -r .version old_package.json)" >> $GITHUB_ENV
-            else
+          else
             echo "OLD_VERSION=none" >> $GITHUB_ENV
-            fi
-
+          fi
 
       # Получаем текущую версию
       - name: Get current version
@@ -40,11 +39,11 @@ jobs:
         id: compare
         shell: bash
         run: |
-            if [ "$OLD_VERSION" = "none" ] || [ "$OLD_VERSION" != "$CURR_VERSION" ]; then
+          if [ "$OLD_VERSION" = "none" ] || [ "$OLD_VERSION" != "$CURR_VERSION" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
-            else
+          else
             echo "changed=false" >> $GITHUB_OUTPUT
-            fi
+          fi
 
       # Останавливаем джоб, если версия не изменилась
       - name: Stop if version not changed
@@ -57,13 +56,23 @@ jobs:
         with:
           node-version: 20
 
-      # Установка зависимостей
+      # Кэш Yarn зависимостей
+      - name: Cache Yarn cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      # Установка зависимостей через Yarn
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       # Сборка приложения
       - name: Build app
-        run: npm run make
+        run: yarn make
 
       # Загрузка артефактов
       - name: Upload artifacts
