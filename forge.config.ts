@@ -1,20 +1,20 @@
-import type { ForgeConfig } from '@electron-forge/shared-types';
-import { WebpackPlugin } from '@electron-forge/plugin-webpack';
-import { mainConfig } from './webpack.main.config';
-import { rendererConfig } from './webpack.renderer.config';
-import path from 'path';
-import fs from 'fs-extra';
-import { execSync } from 'child_process';
+import type { ForgeConfig } from "@electron-forge/shared-types";
+import { WebpackPlugin } from "@electron-forge/plugin-webpack";
+import { mainConfig } from "./webpack.main.config";
+import { rendererConfig } from "./webpack.renderer.config";
+import path from "path";
+import fs from "fs-extra";
+import { execSync } from "child_process";
 
 const forgeConfig: ForgeConfig = {
   packagerConfig: {
-    icon: './icons/win/icon.ico',
-    name: 'NHApp',
-    executableName: 'NHApp',
-    appCopyright: 'Copyright (C) 2024 NHApp',
+    icon: "./icons/win/icon.ico",
+    name: "NHApp",
+    executableName: "NHApp",
+    appCopyright: "Copyright (C) 2024 NHApp",
     asar: true,
     win32metadata: {
-      CompanyName: 'NHApp',
+      CompanyName: "NHApp",
     },
     overwrite: true,
   },
@@ -24,20 +24,22 @@ const forgeConfig: ForgeConfig = {
       name: "@electron-forge/maker-squirrel",
       config: {
         name: "NHApp",
+        authors: "Maks1mio",
+        description: "A modern nHentai client",
       },
     },
     {
       name: "@electron-forge/maker-zip",
       platforms: ["darwin"],
-      config: {}
+      config: {},
     },
     {
       name: "@electron-forge/maker-deb",
-      config: {}
+      config: {},
     },
     {
       name: "@electron-forge/maker-rpm",
-      config: {}
+      config: {},
     },
   ],
   plugins: [
@@ -68,30 +70,30 @@ const forgeConfig: ForgeConfig = {
   ],
   hooks: {
     packageAfterPrune: async (_forgeConfig, buildPath) => {
-      const packageJsonPath = path.resolve(buildPath, 'package.json');
-      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      const packageJsonPath = path.resolve(buildPath, "package.json");
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
-      Object.keys(pkg).forEach(key => {
+      Object.keys(pkg).forEach((key) => {
         switch (key) {
-          case 'name':
-          case 'version':
-          case 'main':
-          case 'author':
-          case 'devDependencies':
-          case 'homepage':
+          case "name":
+          case "version":
+          case "main":
+          case "author":
+          case "devDependencies":
+          case "homepage":
             break;
           default:
             delete pkg[key];
         }
       });
 
-      let branch = 'unknown';
+      let branch = "unknown";
       try {
-        branch = execSync('git rev-parse --short HEAD', { cwd: process.cwd() })
+        branch = execSync("git rev-parse --short HEAD", { cwd: process.cwd() })
           .toString()
           .trim();
       } catch (err) {
-        console.warn('Bruh:', err);
+        console.warn("Bruh:", err);
       }
 
       pkg.buildInfo = {
@@ -99,11 +101,19 @@ const forgeConfig: ForgeConfig = {
         BRANCH: branch,
       };
 
-      fs.writeFileSync(packageJsonPath, JSON.stringify(pkg, null, '\t'));
+      fs.writeFileSync(packageJsonPath, JSON.stringify(pkg, null, "\t"));
     },
 
-    packageAfterCopy: async (_forgeConfig, buildPath, electronVersion, platform, arch) => {
-      console.log(`Built app ${platform}-${arch} with Electron ${electronVersion}`);
+    packageAfterCopy: async (
+      _forgeConfig,
+      buildPath,
+      electronVersion,
+      platform,
+      arch
+    ) => {
+      console.log(
+        `Built app ${platform}-${arch} with Electron ${electronVersion}`
+      );
     },
   },
 };
