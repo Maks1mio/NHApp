@@ -21,6 +21,7 @@ jobs:
 
       # Получаем версию из предыдущего коммита
       - name: Get previous version (if exists)
+        shell: bash
         run: |
             if git cat-file -e $PREV_SHA:package.json; then
             git show $PREV_SHA:package.json > old_package.json
@@ -37,12 +38,13 @@ jobs:
       # Сравниваем версии
       - name: Compare versions and set output
         id: compare
+        shell: bash
         run: |
-          if [ "$OLD_VERSION" != "$CURR_VERSION" ]; then
+            if [ "$OLD_VERSION" = "none" ] || [ "$OLD_VERSION" != "$CURR_VERSION" ]; then
             echo "changed=true" >> $GITHUB_OUTPUT
-          else
+            else
             echo "changed=false" >> $GITHUB_OUTPUT
-          fi
+            fi
 
       # Останавливаем джоб, если версия не изменилась
       - name: Stop if version not changed
