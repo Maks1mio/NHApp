@@ -105,7 +105,6 @@ jobs:
         tag_name: v${{ steps.curr.outputs.version }}
         name: v${{ steps.curr.outputs.version }}
         files: |
-          out/make/**/*.exe
-          out/make/**/*.zip
-          out/make/**/*.deb
-          out/make/**/*.rpm
+            out/make/**/*.exe
+            out/make/**/*.nupkg
+            out/make/**/RELEASES

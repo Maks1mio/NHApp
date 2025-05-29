@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "2025.0529.8",
+  "version": "2025.0529.9",
   "main": ".webpack/main",
   "license": "GPL-3.0+",
   "type": "commonjs",
@@ -24,6 +24,7 @@
     "copy-webpack-plugin": "^12.0.2",
     "crypto-browserify": "^3.12.1",
     "dotenv": "^16.5.0",
+    "electron-updater": "^6.6.2",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "framer-motion": "^12.12.2",
     "https-browserify": "^1.0.0",
@@ -82,5 +83,23 @@
   },
   "config": {
     "forge": "./forge.config.ts"
+  },
+  "build": {
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
+    "win": {
+      "target": "squirrel",
+      "publisherName": "NHApp"
+    },
+    "appId": "com.maks1mio.nhapp",
+    "productName": "NHApp",
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ]
   }
 }

@@ -3,12 +3,10 @@ import { WebSocketServer } from "ws";
 import axios from "axios";
 import { Agent } from "https";
 import { API, Tag } from "nhentai-api";
-import { APITag } from "nhentai-api/types/tag";
 import * as fs from "fs";
 import * as path from "path";
-// import "./utils/parser";
+import { autoUpdater } from "electron-updater";
 
-// Импортируем локальные теги
 const TAGS_PATH = path.resolve(__dirname, "utils", "nhentai-tags.json");
 let tagsDb: any = {};
 try {
@@ -26,7 +24,6 @@ try {
     languages: [],
   };
 }
-// import "./utils/parser"
 
 const nh = new API({
   agent: new Agent(),
@@ -136,22 +133,6 @@ interface Book {
   raw?: any;
 }
 
-interface PaginatedResponse {
-  books: Book[];
-  totalPages: number;
-  currentPage: number;
-}
-
-interface WsRequest {
-  type: string;
-  id?: number;
-  page?: number;
-  query?: string;
-  ids?: number[];
-  sort?: string;
-  perPage?: number;
-}
-
 const imageHosts = ["i1", "i2", "i3"];
 
 function pickHost(media: number, page: number): string {
@@ -212,56 +193,6 @@ const parseBookData = (item: any): Book => {
     languages: filterTags("language"),
     raw: item, // для отладки
   };
-};
-
-
-const paginate = (total: number, perPage: number) => Math.ceil(total / perPage);
-
-const searchBooks = async (
-  query: string,
-  page: number,
-  sort?: string,
-  perPage = 25
-): Promise<PaginatedResponse> => {
-  const params: any = { query, page, per_page: perPage };
-  if (sort) params.sort = sort;
-  const { data } = await api.get("/api/galleries/search", { params });
-  const books = data.result.map(parseBookData);
-  // Фикс: используем data.num_pages!
-  const totalPages = data.num_pages || 1;
-  return {
-    books,
-    totalPages,
-    currentPage: page,
-  };
-};
-
-const fetchBooks = async (
-  type: string,
-  page = 1,
-  perPage = 25
-): Promise<PaginatedResponse> => {
-  const isPopular = type !== "new";
-  let endpoint: "/api/galleries/all" | "/api/galleries/search" =
-    "/api/galleries/all";
-  const params: any = { page, per_page: perPage };
-  if (isPopular) {
-    endpoint = "/api/galleries/search";
-    params.query = " ";
-    params.sort = type;
-  }
-  const { data } = await api.get(endpoint, { params });
-  const books = data.result.map(parseBookData);
-  return {
-    books,
-    totalPages: paginate(data.num_pages, perPage),
-    currentPage: page,
-  };
-};
-
-const getBookById = async (id: number): Promise<Book> => {
-  const { data } = await api.get(`/api/gallery/${id}`);
-  return parseBookData(data);
 };
 
 const getFavorites = async (ids: number[]): Promise<Book[]> => {
@@ -415,6 +346,7 @@ app.whenReady().then(() => {
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).catch(console.error);
+  autoUpdater.checkForUpdatesAndNotify();
   ipcMain.on("window:minimize", () => mainWindow?.minimize());
   ipcMain.on("window:maximize", () =>
     mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow?.maximize()
