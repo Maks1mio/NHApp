@@ -1,13 +1,16 @@
 name: Build & Release
 
+permissions:
+  contents: write
+
 on:
   push:
     paths:
-      - 'package.json'            # запускаем только при изменении версии
+      - 'package.json'
 
 jobs:
   build:
-    runs-on: windows-latest       # нужен для Squirrel-инсталлятора
+    runs-on: windows-latest
 
     steps:
     # ────────── clone с двумя коммитами для сравнения версий ──────────
@@ -98,6 +101,7 @@ jobs:
       if: steps.changed.outputs.value == 'true'
       uses: softprops/action-gh-release@v1
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         tag_name: v${{ steps.curr.outputs.version }}
         name: v${{ steps.curr.outputs.version }}
         files: |
