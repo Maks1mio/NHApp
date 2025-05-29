@@ -3,19 +3,19 @@ name: Build & Release
 on:
   push:
     paths:
-      - 'package.json'        # триггер только при изменении файла
+      - 'package.json'        # триггер только при изменении версии
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    # ──────────────────────────── Git clone ────────────────────────────
+    # ──────────────────────── clone репозитория ────────────────────────
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 2        # нужен HEAD^1 для предыдущей версии
+        fetch-depth: 2        # нужен HEAD^1 для сравнения версий
 
-    # ───────────── читаем предыдущую версию (если пакет был раньше) ─────
+    # ─────────── предыдущая версия (если пакет был раньше) ─────────────
     - name: Get previous commit SHA
       id: prev_sha
       shell: bash
@@ -32,13 +32,13 @@ jobs:
           echo "version=none" >> $GITHUB_OUTPUT
         fi
 
-    # ───────────── читаем текущую версию и кладём в outputs ─────────────
+    # ───────────── текущая версия (из рабочего дерева) ────────────────
     - name: Read current version
       id: curr
       shell: bash
       run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
-    # ─────────── сравниваем и ставим флаг changed / unchanged ───────────
+    # ─────────── ставим флаг changed / unchanged ────────────
     - name: Compare versions
       id: compare
       shell: bash
@@ -49,30 +49,46 @@ jobs:
           echo "changed=false" >> $GITHUB_OUTPUT
         fi
 
-    # ─────────────── пропускаем дальнейшие шаги, если без изменений ─────
+    # ─────────── пропускаем сборку, если версия та же ──────────────────
     - name: Skip build (version unchanged)
       if: steps.compare.outputs.changed != 'true'
       run: echo "Version unchanged – skipping build."
 
-    # ───────────────────────── Node + Yarn с кэшем ──────────────────────
+    # ─────────────────────── Node.js без встроенного cache ─────────────
     - name: Set up Node.js
       if: steps.compare.outputs.changed == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: 22
-        cache: yarn                       # встроенный кэш ~/.cache/yarn
 
-    # ─────────────────────────── установка deps ─────────────────────────
+    # ─────────────── условный кэш Yarn (только если lock есть) ─────────
+    - name: Cache Yarn
+      if: steps.compare.outputs.changed == 'true' && hashFiles('yarn.lock') != ''
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/yarn
+        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
+    # ───────────────────── установка зависимостей ──────────────────────
     - name: Install dependencies
       if: steps.compare.outputs.changed == 'true'
-      run: yarn install --frozen-lockfile
+      shell: bash
+      run: |
+        if [ -f yarn.lock ]; then
+          yarn install --frozen-lockfile
+        else
+          yarn install --no-lockfile --non-interactive
+        fi
 
-    # ───────────────────────────── сборка app ───────────────────────────
+    # ─────────────────────────── сборка Forge ──────────────────────────
     - name: Build app (electron-forge make)
       if: steps.compare.outputs.changed == 'true'
-      run: yarn make                     # Forge подхватит forge.config.ts + ts-node
+      run: yarn make
 
-    # ───────────────────── загрузка артефактов в Actions ────────────────
+    # ───────────────────── загрузка артефактов в Actions ───────────────
     - name: Upload artifacts
       if: steps.compare.outputs.changed == 'true'
       uses: actions/upload-artifact@v4
@@ -80,9 +96,9 @@ jobs:
         name: nhapp-make
         path: |
           out/make/**/*
-          !out/make/*.blockmap           # не тащим большие .blockmap
+          !out/make/*.blockmap
 
-    # ───────────────────────────── GitHub Release ───────────────────────
+    # ─────────────────────────── GitHub Release ────────────────────────
     - name: Create GitHub Release
       if: steps.compare.outputs.changed == 'true'
       uses: softprops/action-gh-release@v1
