@@ -1,14 +1,14 @@
 {
   "name": "rectron",
-  "version": "2025.0529.5",
+  "version": "2025.0529.6",
   "main": ".webpack/main",
   "license": "GPL-3.0+",
   "type": "commonjs",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
+    "postinstall": "rimraf node_modules/bufferutil node_modules/utf-8-validate",
+    "start": "cross-env WS_NO_BUFFER_UTIL=1 WS_NO_UTF8_VALIDATE=1 electron-forge start",
     "make": "electron-forge make",
-    "build_prod": "electron-forge package && electron-builder --projectDir ./out/NHApp-win32-x64"
+    "package": "electron-forge package"
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
@@ -19,13 +19,11 @@
     "axios": "^1.9.0",
     "axios-retry": "^4.5.0",
     "buffer": "^6.0.3",
-    "bufferutil": "^4.0.9",
     "cheerio": "^1.0.0",
     "clsx": "^2.1.1",
     "copy-webpack-plugin": "^12.0.2",
     "crypto-browserify": "^3.12.1",
     "dotenv": "^16.5.0",
-    "electron": "^34.0.0",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "framer-motion": "^12.12.2",
     "https-browserify": "^1.0.0",
@@ -48,7 +46,6 @@
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "url": "^0.11.4",
-    "utf-8-validate": "^6.0.5",
     "util": "^0.12.5"
   },
   "devDependencies": {
@@ -57,6 +54,10 @@
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",
     "@electron-forge/cli": "^7.8.1",
+    "@electron-forge/maker-deb": "^7.8.1",
+    "@electron-forge/maker-rpm": "^7.8.1",
+    "@electron-forge/maker-squirrel": "^7.8.1",
+    "@electron-forge/maker-zip": "^7.8.1",
     "@electron-forge/plugin-webpack": "^7.6.0",
     "@svgr/webpack": "^8.1.0",
     "@types/node": "^22.10.7",
@@ -65,8 +66,9 @@
     "@types/webpack-dev-server": "^4.7.2",
     "@vercel/webpack-asset-relocator-loader": "1.5.0",
     "babel-loader": "^9.2.1",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
-    "electron": "^28.0.0",
+    "electron": "^34.0.0",
     "electron-builder": "^24.0.0",
     "sass": "^1.83.4",
     "sass-loader": "^16.0.4",
