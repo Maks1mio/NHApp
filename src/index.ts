@@ -1,4 +1,4 @@
-import { app, BrowserWindow, protocol, ipcMain, session } from "electron";
+import { app, BrowserWindow, protocol, ipcMain, session, dialog } from "electron";
 import { WebSocketServer } from "ws";
 import axios from "axios";
 import { Agent } from "https";
@@ -165,7 +165,8 @@ const parseBookData = (item: any): Book => {
 
   // Фильтрация тегов по типу
   const tags: Tag[] = item.tags || [];
-  const filterTags = (type: string) => tags.filter((t: Tag) => t.type === type as any);
+  const filterTags = (type: string) =>
+    tags.filter((t: Tag) => t.type === (type as any));
 
   return {
     id: item.id,
@@ -222,13 +223,12 @@ function mapSortType(type: string): string {
 
 const wss = new WebSocketServer({ port: 8080 });
 
-wss.on("connection", ws => {
-  ws.on("message", async raw => {
+wss.on("connection", (ws) => {
+  ws.on("message", async (raw) => {
     const msg = JSON.parse(raw.toString());
 
     try {
       switch (msg.type) {
-
         /* ---------- избранное ----------------------------------- */
         case "get-favorites": {
           const { ids = [], sort = "relevance", page = 1, perPage = 25 } = msg;
@@ -247,32 +247,51 @@ wss.on("connection", ws => {
           const start = (page - 1) * perPage;
           const paged = sorted.slice(start, start + perPage);
 
-          ws.send(JSON.stringify({
-            type: "favorites-reply",
-            books: paged,
-            totalPages: Math.max(1, Math.ceil(sorted.length / perPage)),
-            currentPage: page,
-            totalItems: sorted.length,           // ★
-          }));
+          ws.send(
+            JSON.stringify({
+              type: "favorites-reply",
+              books: paged,
+              totalPages: Math.max(1, Math.ceil(sorted.length / perPage)),
+              currentPage: page,
+              totalItems: sorted.length, // ★
+            })
+          );
           break;
         }
 
         /* ---------- поиск / popular / new ------------------------ */
         case "search-books": {
-          const { query = "", sort = "", page = 1, perPage = 25, filterTags = [], contentType } = msg;
+          const {
+            query = "",
+            sort = "",
+            page = 1,
+            perPage = 25,
+            filterTags = [],
+            contentType,
+          } = msg;
 
           /* сборка строки запроса */
-          const tagsPart = Array.isArray(filterTags) && filterTags.length
-            ? filterTags.map((t: any) => `${t.type.replace(/s$/, "")}:"${t.name}"`).join(" ")
-            : "";
+          const tagsPart =
+            Array.isArray(filterTags) && filterTags.length
+              ? filterTags
+                  .map((t: any) => `${t.type.replace(/s$/, "")}:"${t.name}"`)
+                  .join(" ")
+              : "";
           const nhQuery = `${query.trim()} ${tagsPart}`.trim() || " ";
 
           /* корректировка sort */
-          const allowed = ["popular","popular-week","popular-today","popular-month"];
+          const allowed = [
+            "popular",
+            "popular-week",
+            "popular-today",
+            "popular-month",
+          ];
           const realSort =
-            contentType === "new"      ? "date"   :
-            contentType === "popular" && !allowed.includes(sort) ? "popular" :
-            sort;
+            contentType === "new"
+              ? "date"
+              : contentType === "popular" && !allowed.includes(sort)
+              ? "popular"
+              : sort;
 
           const { data } = await api.get("/api/galleries/search", {
             params: { query: nhQuery, page, per_page: perPage, sort: realSort },
@@ -280,15 +299,20 @@ wss.on("connection", ws => {
 
           const books = data.result.map(parseBookData);
           const wsType =
-            contentType === "new"     ? "new-uploads-reply"   :
-            contentType === "popular" ? "popular-books-reply" : "search-results-reply";
+            contentType === "new"
+              ? "new-uploads-reply"
+              : contentType === "popular"
+              ? "popular-books-reply"
+              : "search-results-reply";
 
-          ws.send(JSON.stringify({
-            type: wsType,
-            books,
-            totalPages: data.num_pages || 1,
-            currentPage: page,
-          }));
+          ws.send(
+            JSON.stringify({
+              type: wsType,
+              books,
+              totalPages: data.num_pages || 1,
+              currentPage: page,
+            })
+          );
           break;
         }
 
@@ -297,23 +321,35 @@ wss.on("connection", ws => {
           const { id } = msg;
           if (!id) throw new Error("ID missing");
           const { data } = await api.get(`/api/gallery/${id}`);
-          ws.send(JSON.stringify({ type: "book-reply", book: parseBookData(data) }));
+          ws.send(
+            JSON.stringify({ type: "book-reply", book: parseBookData(data) })
+          );
           break;
         }
 
         /* ---------- список тегов -------------------------------- */
         case "get-tags":
-          ws.send(JSON.stringify({ type: "tags-reply", tags: tagsDb, updated: tagsDb.updated }));
+          ws.send(
+            JSON.stringify({
+              type: "tags-reply",
+              tags: tagsDb,
+              updated: tagsDb.updated,
+            })
+          );
           break;
 
         /* ---------- unknown ------------------------------------- */
         default:
           throw new Error(`Unknown type: ${msg.type}`);
       }
-
     } catch (err: any) {
       console.error(err);
-      ws.send(JSON.stringify({ type: "error", message: err.message || "Unknown error" }));
+      ws.send(
+        JSON.stringify({
+          type: "error",
+          message: err.message || "Unknown error",
+        })
+      );
     }
   });
 });
@@ -347,6 +383,23 @@ app.whenReady().then(() => {
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).catch(console.error);
   autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.on("update-downloaded", () => {
+    dialog
+      .showMessageBox(mainWindow!, {
+        type: "info",
+        buttons: ["Перезапустить", "Позже"],
+        defaultId: 0,
+        cancelId: 1,
+        title: "Обновление готово",
+        message:
+          "Доступна новая версия. Перезапустить приложение сейчас, чтобы применить обновление?",
+      })
+      .then(({ response }) => {
+        if (response === 0) {
+          autoUpdater.quitAndInstall();
+        }
+      });
+  });
   ipcMain.on("window:minimize", () => mainWindow?.minimize());
   ipcMain.on("window:maximize", () =>
     mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow?.maximize()

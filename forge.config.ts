@@ -98,6 +98,7 @@ const forgeConfig: ForgeConfig = {
 
       pkg.buildInfo = {
         VERSION: pkg.version,
+        DATE: new Date().toISOString(),
         BRANCH: branch,
       };
 
