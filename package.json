@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": ".webpack/main",
   "license": "GPL-3.0+",
   "type": "commonjs",
@@ -87,7 +87,9 @@
   "build": {
     "publish": [
       {
-        "provider": "github"
+        "provider": "github",
+        "owner": "Maks1mio",
+        "repo": "NHentaiApp"
       }
     ],
     "win": {
