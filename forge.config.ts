@@ -1,7 +1,5 @@
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { WebpackPlugin } from '@electron-forge/plugin-webpack';
-// import { FusesPlugin } from '@electron-forge/plugin-fuses'; // если не используете fuses, закомментируйте
-// import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 import path from 'path';
@@ -18,8 +16,6 @@ const forgeConfig: ForgeConfig = {
     win32metadata: {
       CompanyName: 'NHApp',
     },
-    // extendInfo: 'Info.plist', // если нужно для macOS
-    // extraResource: ['./app-update.yml'], // если нужно
     overwrite: true,
   },
   rebuildConfig: {},
@@ -43,15 +39,6 @@ const forgeConfig: ForgeConfig = {
       name: "@electron-forge/maker-rpm",
       config: {}
     },
-    // {
-    //   name: "@electron-forge/maker-dmg",
-    //   config: {
-    //     background: "./static/assets/images/no_banner.png",
-    //     icon: "./icons/mac/icon.icns",
-    //     format: "ULFO",
-    //     overwrite: true
-    //   }
-    // }
   ],
   plugins: [
     new WebpackPlugin({

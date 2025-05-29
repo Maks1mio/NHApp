@@ -50,11 +50,11 @@ jobs:
       - name: Build app
         run: npm run make
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: nhapp-dist
-          path: out/
+            name: nhapp-dist
+            path: out/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
