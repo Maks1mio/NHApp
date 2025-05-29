@@ -20,10 +20,15 @@ jobs:
         run: echo "PREV_SHA=$(git rev-parse HEAD^1)" >> $GITHUB_ENV
 
       # Получаем версию из предыдущего коммита
-      - name: Get previous version
+      - name: Get previous version (if exists)
         run: |
-          git show $PREV_SHA:package.json > old_package.json
-          echo "OLD_VERSION=$(jq -r .version old_package.json)" >> $GITHUB_ENV
+            if git cat-file -e $PREV_SHA:package.json; then
+            git show $PREV_SHA:package.json > old_package.json
+            echo "OLD_VERSION=$(jq -r .version old_package.json)" >> $GITHUB_ENV
+            else
+            echo "OLD_VERSION=none" >> $GITHUB_ENV
+            fi
+
 
       # Получаем текущую версию
       - name: Get current version
