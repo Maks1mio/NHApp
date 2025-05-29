@@ -68,7 +68,6 @@
     "css-loader": "^7.1.2",
     "electron": "^28.0.0",
     "electron-builder": "^24.0.0",
-    "electron-forge": "^6.0.0",
     "sass": "^1.83.4",
     "sass-loader": "^16.0.4",
     "style-loader": "^4.0.0",

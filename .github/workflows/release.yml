@@ -1,90 +1,96 @@
-name: Build and Release
+name: Build & Release
 
 on:
   push:
     paths:
-      - 'package.json'
+      - 'package.json'        # триггер только при изменении файла
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      # Клонируем с двумя последними коммитами, чтобы был доступен HEAD^1
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    # ──────────────────────────── Git clone ────────────────────────────
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 2        # нужен HEAD^1 для предыдущей версии
 
-      # Получаем предыдущий коммит
-      - name: Get previous commit
-        run: echo "PREV_SHA=$(git rev-parse HEAD^1)" >> $GITHUB_ENV
+    # ───────────── читаем предыдущую версию (если пакет был раньше) ─────
+    - name: Get previous commit SHA
+      id: prev_sha
+      shell: bash
+      run: echo "sha=$(git rev-parse HEAD^1 || echo 0000000)" >> $GITHUB_OUTPUT
 
-      # Получаем версию из предыдущего коммита
-      - name: Get previous version (if exists)
-        shell: bash
-        run: |
-          if git cat-file -e $PREV_SHA:package.json; then
-            git show $PREV_SHA:package.json > old_package.json
-            echo "OLD_VERSION=$(jq -r .version old_package.json)" >> $GITHUB_ENV
-          else
-            echo "OLD_VERSION=none" >> $GITHUB_ENV
-          fi
+    - name: Read previous version
+      id: prev
+      shell: bash
+      run: |
+        if git cat-file -e ${{ steps.prev_sha.outputs.sha }}:package.json 2>/dev/null; then
+          git show ${{ steps.prev_sha.outputs.sha }}:package.json > old_package.json
+          echo "version=$(jq -r .version old_package.json)" >> $GITHUB_OUTPUT
+        else
+          echo "version=none" >> $GITHUB_OUTPUT
+        fi
 
-      # Получаем текущую версию
-      - name: Get current version
-        run: echo "CURR_VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+    # ───────────── читаем текущую версию и кладём в outputs ─────────────
+    - name: Read current version
+      id: curr
+      shell: bash
+      run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
-      # Сравниваем версии
-      - name: Compare versions and set output
-        id: compare
-        shell: bash
-        run: |
-          if [ "$OLD_VERSION" = "none" ] || [ "$OLD_VERSION" != "$CURR_VERSION" ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "changed=false" >> $GITHUB_OUTPUT
-          fi
+    # ─────────── сравниваем и ставим флаг changed / unchanged ───────────
+    - name: Compare versions
+      id: compare
+      shell: bash
+      run: |
+        if [ "${{ steps.prev.outputs.version }}" = "none" ] || [ "${{ steps.prev.outputs.version }}" != "${{ steps.curr.outputs.version }}" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
 
-      # Останавливаем джоб, если версия не изменилась
-      - name: Stop if version not changed
-        if: steps.compare.outputs.changed != 'true'
-        run: exit 0
+    # ─────────────── пропускаем дальнейшие шаги, если без изменений ─────
+    - name: Skip build (version unchanged)
+      if: steps.compare.outputs.changed != 'true'
+      run: echo "Version unchanged – skipping build."
 
-      # Настройка Node.js
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+    # ───────────────────────── Node + Yarn с кэшем ──────────────────────
+    - name: Set up Node.js
+      if: steps.compare.outputs.changed == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: yarn                       # встроенный кэш ~/.cache/yarn
 
-      # Кэш Yarn зависимостей
-      - name: Cache Yarn cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+    # ─────────────────────────── установка deps ─────────────────────────
+    - name: Install dependencies
+      if: steps.compare.outputs.changed == 'true'
+      run: yarn install --frozen-lockfile
 
-      # Установка зависимостей через Yarn
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+    # ───────────────────────────── сборка app ───────────────────────────
+    - name: Build app (electron-forge make)
+      if: steps.compare.outputs.changed == 'true'
+      run: yarn make                     # Forge подхватит forge.config.ts + ts-node
 
-      # Сборка приложения
-      - name: Build app
-        run: yarn make
+    # ───────────────────── загрузка артефактов в Actions ────────────────
+    - name: Upload artifacts
+      if: steps.compare.outputs.changed == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: nhapp-make
+        path: |
+          out/make/**/*
+          !out/make/*.blockmap           # не тащим большие .blockmap
 
-      # Загрузка артефактов
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: nhapp-dist
-          path: out/
-
-      # Создание GitHub релиза
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            out/**/*.exe
-            out/**/*.zip
+    # ───────────────────────────── GitHub Release ───────────────────────
+    - name: Create GitHub Release
+      if: steps.compare.outputs.changed == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.curr.outputs.version }}
+        name: v${{ steps.curr.outputs.version }}
+        files: |
+          out/make/**/*.exe
+          out/make/**/*.zip
+          out/make/**/*.deb
+          out/make/**/*.rpm
