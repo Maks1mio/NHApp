@@ -4,3 +4,4 @@ node_modules/*
 .webpack
 yarn.lock
 out
+dist

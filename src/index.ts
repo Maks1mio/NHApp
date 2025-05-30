@@ -1,4 +1,11 @@
-import { app, BrowserWindow, protocol, ipcMain, session, dialog } from "electron";
+import {
+  app,
+  BrowserWindow,
+  protocol,
+  ipcMain,
+  session,
+  dialog,
+} from "electron";
 import { WebSocketServer } from "ws";
 import axios from "axios";
 import { Agent } from "https";
@@ -382,7 +389,9 @@ app.whenReady().then(() => {
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).catch(console.error);
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.checkForUpdatesAndNotify().catch((err) => {
+    console.warn("Ошибка автообновления:", err.message);
+  });
   autoUpdater.on("update-downloaded", () => {
     dialog
       .showMessageBox(mainWindow!, {
