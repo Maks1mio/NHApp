@@ -5,6 +5,7 @@ import {
   ipcMain,
   session,
   dialog,
+  powerMonitor,
 } from "electron";
 import { WebSocketServer } from "ws";
 import axios from "axios";
@@ -12,15 +13,23 @@ import { Agent } from "https";
 import { API, Tag } from "nhentai-api";
 import * as fs from "fs";
 import * as path from "path";
-import { autoUpdater } from "electron-updater";
+import { autoUpdater, AppUpdater } from "electron-updater";
+import log from "electron-log";
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+
+// Configure logging
+log.transports.file.level = "debug";
+log.transports.console.level = "debug";
 
 const TAGS_PATH = path.resolve(__dirname, "utils", "nhentai-tags.json");
 let tagsDb: any = {};
 try {
   tagsDb = JSON.parse(fs.readFileSync(TAGS_PATH, "utf8"));
-  console.log("Теги успешно загружены, обновлено:", tagsDb.updated);
+  log.info("Tags loaded successfully, updated:", tagsDb.updated);
 } catch (err) {
-  console.error("Не удалось загрузить nhentai-tags.json:", err);
+  log.error("Failed to load nhentai-tags.json:", err);
   tagsDb = {
     tags: [],
     artists: [],
@@ -106,8 +115,6 @@ const extByToken = (
   }
 };
 
-// Расширенный интерфейс Book с подробной структурой для передачи информации
-
 interface Book {
   id: number;
   title: {
@@ -115,28 +122,25 @@ interface Book {
     japanese: string;
     pretty: string;
   };
-  uploaded: string; // ISO string
+  uploaded: string;
   media: number;
   favorites: number;
   pagesCount: number;
   scanlator: string;
-  tags: Tag[]; // Используем тип Tag из nhentai-api
-  cover: string; // URL
-  thumbnail: string; // URL
+  tags: Tag[];
+  cover: string;
+  thumbnail: string;
   pages: {
     page: number;
     url: string;
     urlThumb: string;
-    // Можно добавить дополнительные поля, если нужно
   }[];
-  // Дополнительные поля для расширенной информации
   artists?: Tag[];
   characters?: Tag[];
   parodies?: Tag[];
   groups?: Tag[];
   categories?: Tag[];
   languages?: Tag[];
-  // Оригинальные данные, если нужно для отладки или расширения
   raw?: any;
 }
 
@@ -170,7 +174,6 @@ const parseBookData = (item: any): Book => {
     };
   });
 
-  // Фильтрация тегов по типу
   const tags: Tag[] = item.tags || [];
   const filterTags = (type: string) =>
     tags.filter((t: Tag) => t.type === (type as any));
@@ -199,7 +202,7 @@ const parseBookData = (item: any): Book => {
     groups: filterTags("group"),
     categories: filterTags("category"),
     languages: filterTags("language"),
-    raw: item, // для отладки
+    raw: item,
   };
 };
 
@@ -236,7 +239,6 @@ wss.on("connection", (ws) => {
 
     try {
       switch (msg.type) {
-        /* ---------- избранное ----------------------------------- */
         case "get-favorites": {
           const { ids = [], sort = "relevance", page = 1, perPage = 25 } = msg;
           if (!Array.isArray(ids) || ids.length === 0)
@@ -244,13 +246,11 @@ wss.on("connection", (ws) => {
 
           const all = await getFavorites(ids);
 
-          /* ★ сортировка */
           let sorted = all;
           if (sort === "popular") {
             sorted = [...all].sort((a, b) => b.favorites - a.favorites);
-          } // relevance = порядок в ids
+          }
 
-          /* ★ пагинация */
           const start = (page - 1) * perPage;
           const paged = sorted.slice(start, start + perPage);
 
@@ -260,13 +260,12 @@ wss.on("connection", (ws) => {
               books: paged,
               totalPages: Math.max(1, Math.ceil(sorted.length / perPage)),
               currentPage: page,
-              totalItems: sorted.length, // ★
+              totalItems: sorted.length,
             })
           );
           break;
         }
 
-        /* ---------- поиск / popular / new ------------------------ */
         case "search-books": {
           const {
             query = "",
@@ -277,7 +276,6 @@ wss.on("connection", (ws) => {
             contentType,
           } = msg;
 
-          /* сборка строки запроса */
           const tagsPart =
             Array.isArray(filterTags) && filterTags.length
               ? filterTags
@@ -286,7 +284,6 @@ wss.on("connection", (ws) => {
               : "";
           const nhQuery = `${query.trim()} ${tagsPart}`.trim() || " ";
 
-          /* корректировка sort */
           const allowed = [
             "popular",
             "popular-week",
@@ -323,7 +320,6 @@ wss.on("connection", (ws) => {
           break;
         }
 
-        /* ---------- получение одной книги ----------------------- */
         case "get-book": {
           const { id } = msg;
           if (!id) throw new Error("ID missing");
@@ -334,7 +330,6 @@ wss.on("connection", (ws) => {
           break;
         }
 
-        /* ---------- список тегов -------------------------------- */
         case "get-tags":
           ws.send(
             JSON.stringify({
@@ -345,12 +340,11 @@ wss.on("connection", (ws) => {
           );
           break;
 
-        /* ---------- unknown ------------------------------------- */
         default:
           throw new Error(`Unknown type: ${msg.type}`);
       }
     } catch (err: any) {
-      console.error(err);
+      log.error("WebSocket error:", err);
       ws.send(
         JSON.stringify({
           type: "error",
@@ -388,53 +382,84 @@ app.whenReady().then(() => {
     },
   });
 
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).catch(console.error);
-  autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-    dialog.showMessageBox(mainWindow!, {
-      type: "error",
-      buttons: ["OK"],
-      defaultId: 0,
-      title: "Ошибка автообновления",
-      message: "Не удалось проверить наличие обновлений",
-      detail: err.message,
-    });
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).catch((err) => {
+    log.error("Failed to load main window URL:", err);
   });
 
-  // 2) Любая другая ошибка в процессе авто-апдейта
-  autoUpdater.on("error", (err) => {
-    dialog.showMessageBox(mainWindow!, {
-      type: "error",
-      buttons: ["OK"],
-      defaultId: 0,
-      title: "Ошибка автообновления",
-      message: "Произошла ошибка во время обновления",
-      detail: err == null ? "Unknown error" : err.message,
-    });
-  });
-
-  // 3) Обновление скачано — предлагаем перезапустить
-  autoUpdater.on("update-downloaded", () => {
-    dialog
-      .showMessageBox(mainWindow!, {
-        type: "info",
-        buttons: ["Перезапустить", "Позже"],
-        defaultId: 0,
-        cancelId: 1,
-        title: "Обновление готово",
-        message:
-          "Доступна новая версия. Перезапустить приложение сейчас, чтобы применить обновление?",
-      })
-      .then(({ response }) => {
-        if (response === 0) {
-          autoUpdater.quitAndInstall();
-        }
-      });
-  });
   ipcMain.on("window:minimize", () => mainWindow?.minimize());
   ipcMain.on("window:maximize", () =>
     mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow?.maximize()
   );
   ipcMain.on("window:close", () => mainWindow?.close());
+  ipcMain.on("window:check-for-updates", () => {
+    log.info("Checking for updates...");
+    autoUpdater.checkForUpdates().catch((err) => {
+      log.error("Update check failed:", err);
+    });
+  });
+
+  // Enhanced autoUpdater event handlers
+  autoUpdater.on("checking-for-update", () => {
+    log.info("Checking for updates...");
+    mainWindow?.webContents.send("update-message", "Checking for updates...");
+  });
+
+  autoUpdater.on("update-available", (info) => {
+    log.info("Update available:", info.version);
+    if (mainWindow) {
+      dialog
+        .showMessageBox(mainWindow, {
+          type: "info",
+          title: "Update Available",
+          message: `Version ${info.version} is available. Do you want to download it?`,
+          buttons: ["Yes", "No"],
+          defaultId: 0,
+        })
+        .then(({ response }) => {
+          if (response === 0) {
+            autoUpdater.downloadUpdate();
+            mainWindow?.webContents.send(
+              "update-message",
+              `Downloading version ${info.version}...`
+            );
+          } else {
+            mainWindow?.webContents.send(
+              "update-message",
+              "Update check complete"
+            );
+          }
+        });
+    }
+  });
+
+  autoUpdater.on("update-not-available", () => {
+    log.info("No updates available.");
+    mainWindow?.webContents.send("update-message", "No updates available");
+  });
+
+  autoUpdater.on("error", (err) => {
+    log.error("Updater error:", err);
+    mainWindow?.webContents.send(
+      "update-message",
+      `Update error: ${err.message}`
+    );
+  });
+
+  autoUpdater.on("download-progress", (progress) => {
+    log.info(`Download progress: ${progress.percent}%`);
+    mainWindow?.webContents.send(
+      "update-message",
+      `Downloading: ${progress.percent.toFixed(1)}%`
+    );
+  });
+
+  autoUpdater.on("update-downloaded", (info) => {
+    log.info("Update downloaded:", info.version);
+    mainWindow?.webContents.send(
+      "update-message",
+      `Version ${info.version} downloaded. Will install on app quit.`
+    );
+  });
 });
 
 app.on("window-all-closed", () => process.platform !== "darwin" && app.quit());

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as styles from "./header.module.scss";
 import { FiHeart, FiClock, FiHome } from "react-icons/fi";
@@ -68,10 +68,30 @@ const Header: React.FC = () => {
     });
   };
 
+  const [updateText, setUpdateText] = useState("Check for Updates");
+
+  useEffect(() => {
+    const handleUpdateMessage = (_event: any, message: string) => {
+      setUpdateText(message);
+    };
+    window.electron?.window?.updateMessage?.(handleUpdateMessage);
+    return () => {
+      window.electron?.window?.updateMessage?.(() => {});
+    };
+  }, []);
+
+  const handleUpdateCheck = () => {
+    window.electron?.window?.checkForUpdates?.();
+    setUpdateText("Checking...");
+  };
+
   return (
     <header className={styles.nav}>
       <div className={styles.leftSide}>
         <img src={AppIcon} alt="NHentaiApp" className={styles.appIcon} />
+        <button className={styles.buttons} onClick={handleUpdateCheck}>
+          {updateText}
+        </button>
       </div>
       <div className={styles.rightSide}>
         <SearchInput onSearch={handleSearch} />

@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld("electron", {
     minimize: () => ipcRenderer.send("window:minimize"),
     maximize: () => ipcRenderer.send("window:maximize"),
     close: () => ipcRenderer.send("window:close"),
+    checkForUpdates: () => ipcRenderer.send("window:check-for-updates"),
+    updateMessage: (callback: (event: any, message: string) => void) =>
+      ipcRenderer.on("update-available", callback),
   },
   dialog: {
     showOpenDialog: (options: Electron.OpenDialogOptions) =>

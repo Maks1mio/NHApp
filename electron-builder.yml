@@ -1,0 +1,35 @@
+appId: com.nhapp.rectron
+productName: NHApp
+directories:
+  output: dist
+  buildResources: build
+files:
+  - "**/*"
+  - "!node_modules/bufferutil/**"
+  - "!node_modules/utf-8-validate/**"
+asar: true
+protocols:
+  - name: NHApp
+    schemes:
+      - NHApp
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+        - ia32
+mac:
+  target:
+    - dmg
+  category: app.nhapp.utilities
+linux:
+  target:
+    - deb
+    - rpm
+  category: Utility
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+publish:
+  - provider: github
+    releaseType: release
