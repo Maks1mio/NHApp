@@ -1,6 +1,8 @@
 {
   "name": "rectron",
-  "version": "1.0.5",
+  "version": "1.0.6",
+  "author": "Maks1mio <youremail@example.com>",
+  "description": "A modern nHentai client built with Electron",
   "main": ".webpack/main",
   "license": "GPL-3.0+",
   "type": "commonjs",
@@ -72,6 +74,7 @@
     "css-loader": "^7.1.2",
     "electron": "^34.0.0",
     "electron-builder": "^24.0.0",
+    "electron-builder-squirrel-windows": "^26.0.12",
     "sass": "^1.83.4",
     "sass-loader": "^16.0.4",
     "style-loader": "^4.0.0",

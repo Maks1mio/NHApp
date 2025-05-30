@@ -1,3 +1,4 @@
+# .github/workflows/release.yml
 name: Build & Release
 
 permissions:
@@ -6,19 +7,15 @@ permissions:
 on:
   push:
     paths:
-      - 'package.json'
+      - "package.json"
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-      # ───────────────────────── clone репозитория ─────────────────────────
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2  # нужен HEAD^1 для сравнения версий
+        with: { fetch-depth: 2 }
 
-      # ─────────────── предыдущая версия из прошлого коммита ───────────────
       - name: Previous version
         id: prev
         shell: bash
@@ -31,13 +28,11 @@ jobs:
           fi
           echo "version=$ver" >> $GITHUB_OUTPUT
 
-      # ─────────────── текущая версия из рабочего дерева ───────────────
       - name: Current version
         id: curr
         shell: bash
         run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
 
-      # ────────────────── сравнение версий ──────────────────
       - name: Compare versions
         id: changed
         shell: bash
@@ -53,31 +48,26 @@ jobs:
         if: steps.changed.outputs.value != 'true'
         run: echo "Version unchanged – skipping build."
 
-      # ───────────────────── Node.js + Yarn ─────────────────────
       - name: Set up Node.js
         if: steps.changed.outputs.value == 'true'
         uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: { node-version: 20 }
+
       - name: Cache Yarn
         if: steps.changed.outputs.value == 'true' && hashFiles('yarn.lock') != ''
         uses: actions/cache@v3
         with:
           path: ~/.cache/yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         if: steps.changed.outputs.value == 'true'
         run: yarn install --frozen-lockfile
 
-      # ─────────────────── production–сборка ───────────────────
       - name: Build production
         if: steps.changed.outputs.value == 'true'
         run: yarn build_prod
 
-      # ─────────────────── GitHub Release ───────────────────
       - name: Create GitHub Release
         if: steps.changed.outputs.value == 'true'
         uses: softprops/action-gh-release@v1
@@ -86,7 +76,7 @@ jobs:
           tag_name: v${{ steps.curr.outputs.version }}
           name: Release v${{ steps.curr.outputs.version }}
           files: |
-            dist/*.nupkg       # полный NuGet-пакет
-            dist/*.exe         # Setup.exe
-            dist/latest.yml    # feed для авто-апдейта
-            dist/RELEASES      # манифест Squirrel
+            dist/*.nupkg
+            dist/*.exe
+            dist/latest.yml
+            dist/RELEASES
