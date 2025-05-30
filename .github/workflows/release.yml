@@ -107,4 +107,5 @@ jobs:
         files: |
             out/make/**/*.exe
             out/make/**/*.nupkg
+            out/latest.yml
             out/make/**/RELEASES

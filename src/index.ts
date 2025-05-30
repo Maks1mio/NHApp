@@ -390,8 +390,29 @@ app.whenReady().then(() => {
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).catch(console.error);
   autoUpdater.checkForUpdatesAndNotify().catch((err) => {
-    console.warn("Ошибка автообновления:", err.message);
+    dialog.showMessageBox(mainWindow!, {
+      type: "error",
+      buttons: ["OK"],
+      defaultId: 0,
+      title: "Ошибка автообновления",
+      message: "Не удалось проверить наличие обновлений",
+      detail: err.message,
+    });
   });
+
+  // 2) Любая другая ошибка в процессе авто-апдейта
+  autoUpdater.on("error", (err) => {
+    dialog.showMessageBox(mainWindow!, {
+      type: "error",
+      buttons: ["OK"],
+      defaultId: 0,
+      title: "Ошибка автообновления",
+      message: "Произошла ошибка во время обновления",
+      detail: err == null ? "Unknown error" : err.message,
+    });
+  });
+
+  // 3) Обновление скачано — предлагаем перезапустить
   autoUpdater.on("update-downloaded", () => {
     dialog
       .showMessageBox(mainWindow!, {
