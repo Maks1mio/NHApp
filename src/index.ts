@@ -357,6 +357,66 @@ wss.on("connection", (ws) => {
 
 let mainWindow: BrowserWindow | null = null;
 
+function setupAutoUpdater(window: BrowserWindow) {
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  // Проверка обновлений при запуске
+  autoUpdater.checkForUpdates().catch((err) => {
+    log.error("Initial update check failed:", err);
+  });
+
+  autoUpdater.on("checking-for-update", () => {
+    log.info("Checking for updates...");
+    window.webContents.send("update-status", {
+      status: "checking",
+      message: "Checking for updates...",
+    });
+  });
+
+  autoUpdater.on("update-available", (info) => {
+    log.info("Update available:", info.version);
+    window.webContents.send("update-status", {
+      status: "available",
+      message: `Update ${info.version} available! Click to download.`,
+      version: info.version,
+    });
+  });
+
+  autoUpdater.on("update-not-available", () => {
+    log.info("No updates available.");
+    window.webContents.send("update-status", {
+      status: "not-available",
+      message: "No updates available",
+    });
+  });
+
+  autoUpdater.on("error", (err) => {
+    log.error("Update error:", err);
+    window.webContents.send("update-status", {
+      status: "error",
+      message: `Update error: ${err.message || "Unknown error"}`,
+    });
+  });
+
+  autoUpdater.on("download-progress", (progress) => {
+    log.info(`Download progress: ${progress.percent}%`);
+    window.webContents.send("update-progress", {
+      percent: progress.percent,
+      message: `Downloading: ${progress.percent.toFixed(1)}%`,
+    });
+  });
+
+  autoUpdater.on("update-downloaded", (info) => {
+    log.info("Update downloaded:", info.version);
+    window.webContents.send("update-status", {
+      status: "downloaded",
+      message: `Update ${info.version} downloaded. Click to install.`,
+      version: info.version,
+    });
+  });
+}
+
 app.whenReady().then(() => {
   session.defaultSession.webRequest.onHeadersReceived((details, cb) => {
     cb({
@@ -391,74 +451,37 @@ app.whenReady().then(() => {
     mainWindow?.isMaximized() ? mainWindow.unmaximize() : mainWindow?.maximize()
   );
   ipcMain.on("window:close", () => mainWindow?.close());
+
+  setupAutoUpdater(mainWindow);
+
+  // Модифицируем обработчик ipcMain.on("window:check-for-updates", ...)
   ipcMain.on("window:check-for-updates", () => {
-    log.info("Checking for updates...");
+    log.info("Manual update check triggered");
     autoUpdater.checkForUpdates().catch((err) => {
-      log.error("Update check failed:", err);
+      log.error("Manual update check failed:", err);
+      mainWindow?.webContents.send("update-status", {
+        status: "error",
+        message: `Update check failed: ${err.message}`,
+      });
     });
   });
 
-  // Enhanced autoUpdater event handlers
-  autoUpdater.on("checking-for-update", () => {
-    log.info("Checking for updates...");
-    mainWindow?.webContents.send("update-message", "Checking for updates...");
+  // Добавляем новый обработчик для начала загрузки
+  ipcMain.on("window:download-update", () => {
+    log.info("Starting update download");
+    autoUpdater.downloadUpdate().catch((err) => {
+      log.error("Download failed:", err);
+      mainWindow?.webContents.send("update-status", {
+        status: "error",
+        message: `Download failed: ${err.message}`,
+      });
+    });
   });
 
-  autoUpdater.on("update-available", (info) => {
-    log.info("Update available:", info.version);
-    if (mainWindow) {
-      dialog
-        .showMessageBox(mainWindow, {
-          type: "info",
-          title: "Update Available",
-          message: `Version ${info.version} is available. Do you want to download it?`,
-          buttons: ["Yes", "No"],
-          defaultId: 0,
-        })
-        .then(({ response }) => {
-          if (response === 0) {
-            autoUpdater.downloadUpdate();
-            mainWindow?.webContents.send(
-              "update-message",
-              `Downloading version ${info.version}...`
-            );
-          } else {
-            mainWindow?.webContents.send(
-              "update-message",
-              "Update check complete"
-            );
-          }
-        });
-    }
-  });
-
-  autoUpdater.on("update-not-available", () => {
-    log.info("No updates available.");
-    mainWindow?.webContents.send("update-message", "No updates available");
-  });
-
-  autoUpdater.on("error", (err) => {
-    log.error("Updater error:", err);
-    mainWindow?.webContents.send(
-      "update-message",
-      `Update error: ${err.message}`
-    );
-  });
-
-  autoUpdater.on("download-progress", (progress) => {
-    log.info(`Download progress: ${progress.percent}%`);
-    mainWindow?.webContents.send(
-      "update-message",
-      `Downloading: ${progress.percent.toFixed(1)}%`
-    );
-  });
-
-  autoUpdater.on("update-downloaded", (info) => {
-    log.info("Update downloaded:", info.version);
-    mainWindow?.webContents.send(
-      "update-message",
-      `Version ${info.version} downloaded. Will install on app quit.`
-    );
+  // Добавляем новый обработчик для установки обновления
+  ipcMain.on("window:install-update", () => {
+    log.info("Quitting and installing update");
+    autoUpdater.quitAndInstall();
   });
 });
 

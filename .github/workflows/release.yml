@@ -98,8 +98,8 @@ jobs:
       with:
         name: rectron-build
         path: |
-          release/*.exe
-          release/*.blockmap
+          release/NHApp-Setup-*.exe
+          release/NHApp-Setup-*.exe.blockmap
           release/latest.yml
 
     # ─────────────────── GitHub Release ───────────────────
@@ -111,6 +111,6 @@ jobs:
         tag_name: v${{ steps.curr.outputs.version }}
         name: v${{ steps.curr.outputs.version }}
         files: |
-          release/*.exe
-          release/*.blockmap
+          release/NHApp-Setup-*.exe
+          release/NHApp-Setup-*.exe.blockmap
           release/latest.yml

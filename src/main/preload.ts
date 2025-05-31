@@ -8,8 +8,12 @@ contextBridge.exposeInMainWorld("electron", {
     maximize: () => ipcRenderer.send("window:maximize"),
     close: () => ipcRenderer.send("window:close"),
     checkForUpdates: () => ipcRenderer.send("window:check-for-updates"),
-    updateMessage: (callback: (event: any, message: string) => void) =>
-      ipcRenderer.on("update-available", callback),
+    downloadUpdate: () => ipcRenderer.send("window:download-update"),
+    installUpdate: () => ipcRenderer.send("window:install-update"),
+    onUpdateStatus: (callback: (event: any, status: any) => void) => {
+      ipcRenderer.on("update-status", callback);
+      ipcRenderer.on("update-progress", callback);
+    },
   },
   dialog: {
     showOpenDialog: (options: Electron.OpenDialogOptions) =>
