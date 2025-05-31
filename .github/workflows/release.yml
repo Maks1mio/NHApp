@@ -89,7 +89,7 @@ jobs:
     # ──────────────────── сборка с electron-builder ────────────────────
     - name: Build with electron-builder
       if: steps.changed.outputs.value == 'true'
-      run: yarn electron-builder --config electron-builder.yml --publish always --pd ./out/NHApp-win32-x64
+      run: yarn electron-builder --config electron-builder.yml --pd ./out/NHApp-win32-x64
 
     # ─────────── загружаем артефакты в Actions ───────────
     - name: Upload artifacts
