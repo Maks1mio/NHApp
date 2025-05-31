@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "Maks1mio <one.evt@gmail.com>",
   "description": "A modern nHentai client built with Electron",
   "main": ".webpack/main",
@@ -26,7 +26,7 @@
     "win": {
       "target": "nsis"
     },
-    "derictories": {
+    "directories": {
       "output": "dist"
     }
   },
