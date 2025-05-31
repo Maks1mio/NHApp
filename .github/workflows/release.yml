@@ -63,7 +63,7 @@ jobs:
     # ─────────────── условный кэш Yarn ───────────────
     - name: Cache Yarn
       if: steps.changed.outputs.value == 'true' && hashFiles('yarn.lock') != ''
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/yarn
         key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
@@ -81,10 +81,15 @@ jobs:
           yarn install --no-lockfile --non-interactive
         fi
 
+    # ──────────────────── сборка с electron-forge package ────────────────────
+    - name: Package with electron-forge
+      if: steps.changed.outputs.value == 'true'
+      run: yarn package
+
     # ──────────────────── сборка с electron-builder ────────────────────
     - name: Build with electron-builder
       if: steps.changed.outputs.value == 'true'
-      run: yarn build
+      run: yarn electron-builder --config electron-builder.yml --publish always --pd ./out/NHApp-win32-x64
 
     # ─────────── загружаем артефакты в Actions ───────────
     - name: Upload artifacts
@@ -93,9 +98,9 @@ jobs:
       with:
         name: rectron-build
         path: |
-          dist/*.exe
-          dist/*.blockmap
-          dist/latest.yml
+          release/*.exe
+          release/*.blockmap
+          release/latest.yml
 
     # ─────────────────── GitHub Release ───────────────────
     - name: Create GitHub Release
@@ -106,6 +111,6 @@ jobs:
         tag_name: v${{ steps.curr.outputs.version }}
         name: v${{ steps.curr.outputs.version }}
         files: |
-          dist/*.exe
-          dist/*.blockmap
-          dist/latest.yml
+          release/*.exe
+          release/*.blockmap
+          release/latest.yml

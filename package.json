@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": "Maks1mio <one.evt@gmail.com>",
   "description": "A modern nHentai client built with Electron",
   "main": ".webpack/main",
@@ -12,23 +12,8 @@
     "build": "electron-builder --win --publish always",
     "make": "electron-forge make",
     "package": "electron-forge package",
-    "build_prod": "electron-forge package && electron-builder --config electron-builder.yml --publish never",
+    "build_prod": "electron-forge package && electron-builder --pd ./out/NHApp-win32-x64",
     "dist": "electron-builder"
-  },
-  "repository": "https://github.com/Maks1mio/NHApp",
-  "publish": {
-    "provider": "github",
-    "releaseType": "release"
-  },
-  "build": {
-    "appId": "com.nhapp.rectron",
-    "productName": "Rectron",
-    "win": {
-      "target": "nsis"
-    },
-    "directories": {
-      "output": "dist"
-    }
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",

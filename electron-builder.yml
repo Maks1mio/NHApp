@@ -1,35 +1,36 @@
 appId: com.nhapp.rectron
 productName: NHApp
+copyright: 'Power by Maks1mio'
+
 directories:
-  output: dist
-  buildResources: build
+    output: release
+
 files:
-  - "**/*"
-  - "!node_modules/bufferutil/**"
-  - "!node_modules/utf-8-validate/**"
-asar: true
-protocols:
-  - name: NHApp
-    schemes:
-      - NHApp
+    - package.json
+
 win:
-  target:
-    - target: nsis
-      arch:
-        - x64
-        - ia32
-mac:
-  target:
-    - dmg
-  category: app.nhapp.utilities
-linux:
-  target:
-    - deb
-    - rpm
-  category: Utility
+  requestedExecutionLevel: asInvoker
+  compression: maximum
+  target: nsis
+
+extraResources:
+  - "app-update.yml"
+
 nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
+    oneClick: false
+    createDesktopShortcut: true
+    createStartMenuShortcut: true
+    perMachine: false
+    allowElevation: false
+    unicode: true
+    language: 1251
+    deleteAppDataOnUninstall: false
+    packElevateHelper: true
+    license: ./license.txt
+    allowToChangeInstallationDirectory: true
+    include: scripts/installer.nsh
+    useZip: false
+
 publish:
   - provider: github
     releaseType: release
