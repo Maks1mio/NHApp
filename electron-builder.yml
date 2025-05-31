@@ -1,6 +1,7 @@
 appId: com.nhapp.rectron
 productName: NHApp
 copyright: 'Power by Maks1mio'
+artifactName: ${productName}-Setup-${version}.${ext}  
 
 directories:
     output: release
