@@ -1,41 +1,55 @@
-![image](https://github.com/user-attachments/assets/2e1f3e18-02bd-4c56-9252-cbbf8aea2696)
+![image](https://github.com/user-attachments/assets/4e44b0ad-5aee-4d65-b965-00507798acef)
 
-# Rectron
+# NHApp (Beta) — Modern Client for nHentai
 
-[Русская документация](https://github.com/Maks1mio/Rectron/blob/main/readme.ru.md)
+**NHApp (Beta)** is a desktop application for Windows, providing a convenient interface for browsing, searching, and navigating the nHentai catalog.
 
-## Description  
-Rectron is a customized template for working with Electron and React, designed to simplify the creation of cross-platform applications.
+---
 
-## Installation  
-1. Make sure you have [Node.js](https://nodejs.org/) installed.  
-2. Clone the repository:  
-   ```bash  
-   git clone https://github.com/Maks1mio/Rectron
-   ```  
-3. Navigate to the project folder:  
-   ```bash  
-   cd Rectron  
-   ```  
-4. Install the dependencies:  
-   ```bash  
-   yarn install  
-   ```  
+## Key Features
 
-## Running  
-1. To start the project in development mode, run:  
-   ```bash  
-   yarn dev  
-   ```  
-2. To build the project, run:  
-   ```bash  
-   yarn build  
-   ```  
-3. To launch the built project, run:  
-   ```bash  
-   yarn start  
-   ```  
+* Catalog with dynamic loading and tile-based grid
+* Sorting by popularity, date, and other criteria
+* Search by tags, authors, and languages
+* Saving favorites and viewing history
+* Content viewing in fullscreen and modal modes
+* Fast performance due to internal caching and API optimizations
+* In-app update downloading available
 
-## Additional Notes  
-- Make sure all required environment variables are configured, if necessary.  
-- Refer to the in-code documentation for more detailed information.
+---
+
+## Current Platform Support Status
+
+| Platform   | Status                     | Details                                  |
+|------------|----------------------------|------------------------------------------|
+| 🖥️ Windows | 🚧 In Development (Beta)  | Actively tested, beta version available  |
+| 📱 Android | 📅 Planned after Windows  | Development will start after Windows stabilization |
+
+✨ **Note**: The Windows version is the priority. Android support is planned to expand NHApp’s accessibility.
+
+---
+
+## Installation
+
+1. Visit the project page: [https://github.com/Maks1mio/NHApp](https://github.com/Maks1mio/NHApp)
+2. In the **Releases** section, download the latest version of the installer.
+3. Install the application following the standard Windows installation procedure.
+4. After installation, launch NHApp via the Start menu or desktop shortcut.
+
+---
+
+## Feedback and Support
+
+If you encounter a bug, want to report an issue, or suggest an improvement:
+
+* Create an issue: [https://github.com/Maks1mio/NHApp/issues](https://github.com/Maks1mio/NHApp/issues)
+
+---
+
+## Structure
+
+* Built on Electron + React + TypeScript
+* NHApp is based on a fork of [Rectron](https://github.com/Maks1mio/Rectron), which serves as the technical foundation of the application. Significant changes were made to the architecture and user interface during development.
+* Uses [nhentai-api](https://github.com/Zekfad/nhentai-api) — a slightly modified version by me (not an official API)
+
+---
