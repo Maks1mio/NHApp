@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "author": "Maks1mio <one.evt@gmail.com>",
   "description": "A modern nHentai client built with Electron",
   "main": ".webpack/main",
