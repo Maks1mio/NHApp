@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "Maks1mio <one.evt@gmail.com>",
   "description": "A modern nHentai client built with Electron",
   "main": ".webpack/main",
@@ -9,6 +9,7 @@
   "scripts": {
     "postinstall": "rimraf node_modules/bufferutil node_modules/utf-8-validate",
     "start": "cross-env WS_NO_BUFFER_UTIL=1 WS_NO_UTF8_VALIDATE=1 electron-forge start",
+    "build": "electron-builder --win --publish always",
     "make": "electron-forge make",
     "package": "electron-forge package",
     "build_prod": "electron-forge package && electron-builder --config electron-builder.yml --publish never",

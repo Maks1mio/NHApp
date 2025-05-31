@@ -81,20 +81,21 @@ jobs:
           yarn install --no-lockfile --non-interactive
         fi
 
-    # ──────────────────── сборка Forge ────────────────────
-    - name: Build (electron-forge make)
+    # ──────────────────── сборка с electron-builder ────────────────────
+    - name: Build with electron-builder
       if: steps.changed.outputs.value == 'true'
-      run: yarn make
+      run: yarn build
 
-    # ─────────── загружаем артефакты пакета в Actions ───────────
+    # ─────────── загружаем артефакты в Actions ───────────
     - name: Upload artifacts
       if: steps.changed.outputs.value == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: rectron-make
+        name: rectron-build
         path: |
-          out/make/**/*
-          !out/make/*.blockmap        # большие map-файлы не нужны
+          dist/*.exe
+          dist/*.blockmap
+          dist/latest.yml
 
     # ─────────────────── GitHub Release ───────────────────
     - name: Create GitHub Release
@@ -105,6 +106,6 @@ jobs:
         tag_name: v${{ steps.curr.outputs.version }}
         name: v${{ steps.curr.outputs.version }}
         files: |
-            out/make/**/*.exe
-            out/make/**/*.nupkg
-            out/make/**/RELEASES
+          dist/*.exe
+          dist/*.blockmap
+          dist/latest.yml

@@ -16,7 +16,8 @@ const forgeConfig: ForgeConfig = {
     win32metadata: {
       CompanyName: "NHApp",
     },
-    overwrite: true,
+    extendInfo: "Info.plist",
+    extraResource: ["./app-update.yml"],
   },
   rebuildConfig: {},
   makers: [
@@ -40,6 +41,13 @@ const forgeConfig: ForgeConfig = {
     {
       name: "@electron-forge/maker-rpm",
       config: {},
+    },
+    {
+      name: "@electron-forge/maker-dmg",
+      config: {
+        format: "ULFO",
+        overwrite: true,
+      },
     },
   ],
   plugins: [
