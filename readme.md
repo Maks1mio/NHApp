@@ -1,6 +1,6 @@
 ![image](https://github.com/user-attachments/assets/4e44b0ad-5aee-4d65-b965-00507798acef)
 
-# NHApp (Beta) — Modern Client for nHentai
+# NHApp (Beta)
 
 **NHApp (Beta)** is a desktop application for Windows, providing a convenient interface for browsing, searching, and navigating the nHentai catalog.
 
