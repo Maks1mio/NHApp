@@ -606,3 +606,22 @@
     padding: 0.4rem 0.8rem;
   }
 }
+
+.relatedBooks {
+  margin-top: 2rem;
+  padding: 0 1rem;
+
+  .relatedBooksTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+
+  .relatedBooksGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+  }
+}

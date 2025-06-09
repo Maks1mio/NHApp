@@ -13,13 +13,12 @@ import { Agent } from "https";
 import { API, Tag } from "nhentai-api";
 import * as fs from "fs";
 import * as path from "path";
-import { autoUpdater, AppUpdater } from "electron-updater";
+import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
 
-// Configure logging
 log.transports.file.level = "debug";
 log.transports.console.level = "debug";
 
@@ -339,6 +338,163 @@ wss.on("connection", (ws) => {
             })
           );
           break;
+
+        case "get-related-books": {
+          const { id } = msg;
+          if (!id) throw new Error("Book ID missing");
+
+          // 1. ── исходная книга ───────────────────────────────────────
+          const { data: currentRaw } = await api.get(`/api/gallery/${id}`);
+          const current = parseBookData(currentRaw);
+
+          // вспомогательное: быстро проверяем пересечения
+          const toSet = <T extends { name: string }>(arr?: T[]) =>
+            new Set((arr || []).map((t) => t.name));
+
+          const metaCurrent = {
+            tags: new Set(current.tags.map((t) => `${t.type}:${t.name}`)),
+            artists: toSet(current.artists),
+            parodies: toSet(current.parodies),
+            characters: toSet(current.characters),
+            groups: toSet(current.groups),
+            categories: toSet(current.categories),
+            languages: toSet(current.languages),
+          };
+
+          // 2. ── весовые коэффициенты ─────────────────────────────────
+          const weights = {
+            artist: 4,
+            parody: 3,
+            character: 2.5,
+            group: 2,
+            category: 2,
+            tag: 1,
+            language: 0.5,
+          } as const;
+
+          // редкий тег важнее (tf-idf)
+          const getRarityBoost = (t: Tag) => {
+            const info =
+              tagsDb?.[`${t.type}s`]?.find?.((x: any) => x.id === t.id) || {};
+            const total = tagsDb.totalTagUsage || 10_000_000;
+            const freq = info.count || 1;
+            return Math.log((total + 1) / (freq + 1)); // ≥ 0
+          };
+
+          // 3. ── расширенный поиск кандидатов ─────────────────────────
+          const primaryQueryParts = [
+            ...(current.artists?.map((t) => `artist:"${t.name}"`) || []),
+            ...(current.parodies?.map((t) => `parody:"${t.name}"`) || []),
+            ...(current.categories?.map((t) => `category:"${t.name}"`) || []),
+          ];
+          const primaryQuery =
+            primaryQueryParts.join(" ") ||
+            current.tags
+              .slice(0, 10)
+              .map((t) => t.name)
+              .join(" ");
+
+          // получаем до 200 кандидатов
+          const pagesToFetch = [1, 2, 3, 4];
+          const candidatePromises = pagesToFetch.map((p) =>
+            api
+              .get("/api/galleries/search", {
+                params: {
+                  query: primaryQuery,
+                  page: p,
+                  per_page: 50,
+                  sort: "popular",
+                },
+              })
+              .then((res) => res.data.result)
+          );
+          const searchResults = (await Promise.all(candidatePromises)).flat();
+
+          // fallback если мало совпадений
+          if (searchResults.length < 30) {
+            const { data: hot } = await api.get("/api/galleries/search", {
+              params: { query: " ", sort: "popular-today", per_page: 50 },
+            });
+            searchResults.push(...hot.result);
+          }
+
+          // 4. ── считаем очки похожести ───────────────────────────────
+          const decay = {
+            // плавно «старим» книги: −10 % баллов за каждый месяц
+            freshness: (uploadedIso: string) => {
+              const months =
+                (Date.now() - new Date(uploadedIso).getTime()) /
+                (30 * 24 * 3600e3);
+              return Math.max(0.4, 1 - months * 0.1);
+            },
+          };
+
+          const scored = searchResults
+            .filter((x) => x.id !== id) // не включаем саму книгу
+            .map((raw) => {
+              const book = parseBookData(raw);
+              let score = 0;
+
+              // пересечения тегов
+              book.tags.forEach((t) => {
+                if (metaCurrent.tags.has(`${t.type}:${t.name}`)) {
+                  score +=
+                    (weights[t.type as unknown as keyof typeof weights] || 1) *
+                    getRarityBoost(t);
+                }
+              });
+
+              // artists / groups / … (быстрее, чем forEach на Set)
+              const addIfMatch = (
+                arr: Tag[] | undefined,
+                set: Set<string>,
+                w: number
+              ) => {
+                arr?.forEach((t) => {
+                  if (set.has(t.name)) score += w;
+                });
+              };
+              addIfMatch(book.artists, metaCurrent.artists, weights.artist);
+              addIfMatch(book.parodies, metaCurrent.parodies, weights.parody);
+              addIfMatch(
+                book.characters,
+                metaCurrent.characters,
+                weights.character
+              );
+              addIfMatch(book.groups, metaCurrent.groups, weights.group);
+              addIfMatch(
+                book.categories,
+                metaCurrent.categories,
+                weights.category
+              );
+              addIfMatch(
+                book.languages,
+                metaCurrent.languages,
+                weights.language
+              );
+
+              // популярность и свежесть
+              score += book.favorites / 15_000; // ≈ 0-7 баллов
+              score *= decay.freshness(book.uploaded);
+
+              return { book, score };
+            })
+            .filter(({ score }) => score >= 2); // отсекаем совсем слабые
+
+          // 5. ── итог: 6 самых горячих ────────────────────────────────
+          const relatedBooks = scored
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 6)
+            .map((x) => x.book);
+
+          ws.send(
+            JSON.stringify({
+              type: "related-books-reply",
+              books: relatedBooks,
+            })
+          );
+          break;
+        }
 
         default:
           throw new Error(`Unknown type: ${msg.type}`);

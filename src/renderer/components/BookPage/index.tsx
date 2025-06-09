@@ -27,13 +27,14 @@ import { FaHeart } from "react-icons/fa";
 import SmartImage from "../SmartImage";
 import { useTagFilter } from "../../../context/TagFilterContext";
 import ReactCountryFlag from "react-country-flag";
+import BookCard from "../BookCard";
 
 interface Tag {
   id: number;
   type: string;
   name: string;
   url: string;
-  count?: number;
+  count: number;
 }
 
 interface Book {
@@ -93,6 +94,7 @@ const BookPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [relatedBooks, setRelatedBooks] = useState<Book[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(() => {
     const saved = localStorage.getItem("bookZoomLevel");
@@ -173,6 +175,10 @@ const BookPage: React.FC = () => {
       if (response.type === "book-reply") {
         setBook(response.book);
         setLoading(false);
+        // Fetch related books after loading the current book
+        wsClient.send({ type: "get-related-books", id: parseInt(id || "0") });
+      } else if (response.type === "related-books-reply") {
+        setRelatedBooks(response.books || []);
       } else if (response.type === "error") {
         setError(response.message || "Не удалось загрузить книгу");
         setLoading(false);
@@ -623,6 +629,29 @@ const BookPage: React.FC = () => {
               />
               <div className={styles.pageNumber}>{idx + 1}</div>
             </div>
+          ))}
+        </div>
+      </section>
+      <section className={styles.relatedBooks}>
+        <h2 className={styles.relatedBooksTitle}>Похожие книги</h2>
+        <div className={styles.relatedBooksGrid}>
+          {relatedBooks.map((relatedBook) => (
+            <BookCard
+              key={relatedBook.id}
+              book={relatedBook}
+              isFavorite={favorites.includes(relatedBook.id)}
+              onToggleFavorite={(bookId, newState) => {
+                const newFavorites = newState
+                  ? [...favorites, bookId]
+                  : favorites.filter((id) => id !== bookId);
+                setFavorites(newFavorites);
+                localStorage.setItem(
+                  "bookFavorites",
+                  JSON.stringify(newFavorites)
+                );
+              }}
+              className={styles.relatedBookCard}
+            />
           ))}
         </div>
       </section>
