@@ -13,7 +13,6 @@
 
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    // outline: solid 1px #b0b0c0;
     z-index: 10;
   }
 }
@@ -317,7 +316,6 @@
   pointer-events: none;
 }
 
-/* Цвета для разных типов тегов */
 .tag-language {
   background-color: #4caf50 !important;
 }
@@ -346,8 +344,22 @@
   background-color: #795548 !important;
 }
 
-/* Для выбранных тегов */
 .tagSelected {
   outline: 1px solid white !important;
   color: white !important;
+}
+
+.newBadge {
+  position: absolute;
+  top: 370px;
+  left: 16px;
+  background: #ff4757;
+  color: #fff;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+  text-transform: uppercase;
+  z-index: 2;
 }

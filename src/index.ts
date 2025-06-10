@@ -15,6 +15,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
+import { limitFetch, cachedGet } from "./utils/requestCache";
 
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
@@ -343,15 +344,18 @@ wss.on("connection", (ws) => {
           const { id } = msg;
           if (!id) throw new Error("Book ID missing");
 
-          // 1. ── исходная книга ───────────────────────────────────────
-          const { data: currentRaw } = await api.get(`/api/gallery/${id}`);
-          const current = parseBookData(currentRaw);
+          const current = parseBookData(
+            (await api.get(`/api/gallery/${id}`)).data
+          );
 
-          // вспомогательное: быстро проверяем пересечения
+          const origLangs = new Set(
+            (current.languages || []).map((l) => l.name)
+          );
+
           const toSet = <T extends { name: string }>(arr?: T[]) =>
             new Set((arr || []).map((t) => t.name));
 
-          const metaCurrent = {
+          const meta = {
             tags: new Set(current.tags.map((t) => `${t.type}:${t.name}`)),
             artists: toSet(current.artists),
             parodies: toSet(current.parodies),
@@ -361,136 +365,340 @@ wss.on("connection", (ws) => {
             languages: toSet(current.languages),
           };
 
-          // 2. ── весовые коэффициенты ─────────────────────────────────
-          const weights = {
+          const W = {
+            character: 7,
+            multiCharBonus: 3,
             artist: 4,
             parody: 3,
-            character: 2.5,
             group: 2,
             category: 2,
             tag: 1,
             language: 0.5,
           } as const;
 
-          // редкий тег важнее (tf-idf)
-          const getRarityBoost = (t: Tag) => {
+          const tfidf = (t: Tag) => {
             const info =
               tagsDb?.[`${t.type}s`]?.find?.((x: any) => x.id === t.id) || {};
-            const total = tagsDb.totalTagUsage || 10_000_000;
-            const freq = info.count || 1;
-            return Math.log((total + 1) / (freq + 1)); // ≥ 0
+            const total = tagsDb.totalTagUsage || 1e7;
+            return Math.log((total + 1) / ((info.count ?? 1) + 1));
           };
 
-          // 3. ── расширенный поиск кандидатов ─────────────────────────
-          const primaryQueryParts = [
+          const characters = current.characters?.slice(0, 7) || [];
+          const charQueries = characters.map((c) => `character:"${c.name}"`);
+          const baseParts = [
             ...(current.artists?.map((t) => `artist:"${t.name}"`) || []),
             ...(current.parodies?.map((t) => `parody:"${t.name}"`) || []),
             ...(current.categories?.map((t) => `category:"${t.name}"`) || []),
           ];
-          const primaryQuery =
-            primaryQueryParts.join(" ") ||
-            current.tags
-              .slice(0, 10)
-              .map((t) => t.name)
-              .join(" ");
 
-          // получаем до 200 кандидатов
-          const pagesToFetch = [1, 2, 3, 4];
-          const candidatePromises = pagesToFetch.map((p) =>
-            api
-              .get("/api/galleries/search", {
-                params: {
-                  query: primaryQuery,
-                  page: p,
-                  per_page: 50,
-                  sort: "popular",
-                },
-              })
-              .then((res) => res.data.result)
-          );
-          const searchResults = (await Promise.all(candidatePromises)).flat();
+          const fetchPages = async (q: string, pages = [1, 2, 3]) =>
+            (
+              await Promise.all(
+                pages.map((p) =>
+                  api.get("/api/galleries/search", {
+                    params: {
+                      query: q,
+                      page: p,
+                      per_page: 50,
+                      sort: "popular",
+                    },
+                  })
+                )
+              )
+            ).flatMap((r) => r.data.result);
 
-          // fallback если мало совпадений
-          if (searchResults.length < 30) {
-            const { data: hot } = await api.get("/api/galleries/search", {
-              params: { query: " ", sort: "popular-today", per_page: 50 },
-            });
-            searchResults.push(...hot.result);
+          const buckets = new Map<string, any[]>();
+          for (const q of charQueries) {
+            const hero = q.match(/"(.+?)"/)![1];
+            buckets.set(hero, await fetchPages(q));
           }
 
-          // 4. ── считаем очки похожести ───────────────────────────────
-          const decay = {
-            // плавно «старим» книги: −10 % баллов за каждый месяц
-            freshness: (uploadedIso: string) => {
-              const months =
-                (Date.now() - new Date(uploadedIso).getTime()) /
-                (30 * 24 * 3600e3);
-              return Math.max(0.4, 1 - months * 0.1);
-            },
-          };
+          if ([...buckets.values()].flat().length < 60) {
+            const q =
+              baseParts.join(" ") ||
+              current.tags
+                .slice(0, 10)
+                .map((t) => t.name)
+                .join(" ");
+            buckets.set("_tags", await fetchPages(q, [1, 2, 3, 4]));
+          }
 
-          const scored = searchResults
-            .filter((x) => x.id !== id) // не включаем саму книгу
-            .map((raw) => {
-              const book = parseBookData(raw);
-              let score = 0;
+          const scoredBuckets = new Map<
+            string,
+            { book: Book; score: number }[]
+          >();
 
-              // пересечения тегов
-              book.tags.forEach((t) => {
-                if (metaCurrent.tags.has(`${t.type}:${t.name}`)) {
-                  score +=
-                    (weights[t.type as unknown as keyof typeof weights] || 1) *
-                    getRarityBoost(t);
-                }
+          const decay = (iso: string) =>
+            Math.max(
+              0.4,
+              1 -
+                ((Date.now() - new Date(iso).getTime()) / (30 * 24 * 3600e3)) *
+                  0.1
+            );
+
+          const scoreBook = (raw: any) => {
+            const b = parseBookData(raw);
+            let s = 0;
+
+            b.tags.forEach((t) => {
+              if (meta.tags.has(`${t.type}:${t.name}`))
+                s += (W[t.type as unknown as keyof typeof W] || 1) * tfidf(t);
+            });
+
+            const add = (arr: Tag[] | undefined, set: Set<string>, w: number) =>
+              arr?.forEach((t) => {
+                if (set.has(t.name)) s += w;
               });
 
-              // artists / groups / … (быстрее, чем forEach на Set)
-              const addIfMatch = (
-                arr: Tag[] | undefined,
-                set: Set<string>,
-                w: number
-              ) => {
-                arr?.forEach((t) => {
-                  if (set.has(t.name)) score += w;
-                });
-              };
-              addIfMatch(book.artists, metaCurrent.artists, weights.artist);
-              addIfMatch(book.parodies, metaCurrent.parodies, weights.parody);
-              addIfMatch(
-                book.characters,
-                metaCurrent.characters,
-                weights.character
-              );
-              addIfMatch(book.groups, metaCurrent.groups, weights.group);
-              addIfMatch(
-                book.categories,
-                metaCurrent.categories,
-                weights.category
-              );
-              addIfMatch(
-                book.languages,
-                metaCurrent.languages,
-                weights.language
-              );
+            let matched = 0;
+            b.characters?.forEach((c) => {
+              if (meta.characters.has(c.name)) {
+                matched++;
+                s += W.character;
+              }
+            });
+            if (matched > 1) s += matched * W.multiCharBonus;
 
-              // популярность и свежесть
-              score += book.favorites / 15_000; // ≈ 0-7 баллов
-              score *= decay.freshness(book.uploaded);
+            add(b.artists, meta.artists, W.artist);
+            add(b.parodies, meta.parodies, W.parody);
+            add(b.groups, meta.groups, W.group);
+            add(b.categories, meta.categories, W.category);
+            add(b.languages, meta.languages, W.language);
 
-              return { book, score };
-            })
-            .filter(({ score }) => score >= 2); // отсекаем совсем слабые
+            s += b.favorites / 15000;
+            s *= decay(b.uploaded);
+            return { book: b, score: s };
+          };
 
-          // 5. ── итог: 6 самых горячих ────────────────────────────────
-          const relatedBooks = scored
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 6)
-            .map((x) => x.book);
+          for (const [hero, raws] of buckets) {
+            const uniq = new Map(raws.map((it: any) => [it.id, it]));
+            uniq.delete(id);
+            const items = [...uniq.values()].map(scoreBook);
+            scoredBuckets.set(
+              hero,
+              items.sort((a, b) => b.score - a.score)
+            );
+          }
+
+          const ORDER = [...characters.map((c) => c.name), "_tags"];
+          const SEEN_TITLES = new Map<
+            string,
+            { book: Book; langMatch: boolean }
+          >();
+          const result: Book[] = [];
+          const MAX = 12;
+
+          const pushIfOk = (bk: Book) => {
+            const key = bk.title.pretty.trim().toLowerCase();
+            const langMatch =
+              bk.languages?.some((l) => origLangs.has(l.name)) || false;
+
+            const existing = SEEN_TITLES.get(key);
+            if (!existing) {
+              SEEN_TITLES.set(key, { book: bk, langMatch });
+              result.push(bk);
+              return;
+            }
+
+            if (!existing.langMatch && langMatch) {
+              SEEN_TITLES.set(key, { book: bk, langMatch });
+              const idx = result.findIndex((r) => r.id === existing.book.id);
+              if (idx !== -1) result[idx] = bk;
+            }
+          };
+
+          let idx = 0;
+          while (
+            result.length < MAX &&
+            ORDER.some((h) => scoredBuckets.get(h)?.length)
+          ) {
+            const hero = ORDER[idx % ORDER.length];
+            const bucket = scoredBuckets.get(hero);
+            if (bucket && bucket.length) {
+              const { book } = bucket.shift()!;
+              pushIfOk(book);
+            }
+            idx++;
+          }
 
           ws.send(
             JSON.stringify({
               type: "related-books-reply",
-              books: relatedBooks,
+              books: result.slice(0, MAX),
+            })
+          );
+          break;
+        }
+
+        case "get-recommendations": {
+          const {
+            ids = [],
+            sentIds = [],
+            page = 0,
+            perPage = 1000000000000,
+            filterTags = [],
+          } = msg as {
+            ids: number[];
+            sentIds?: number[];
+            page?: number;
+            perPage?: number;
+            filterTags?: { id: number; type: string; name: string }[];
+          };
+          if (!ids.length) throw new Error("Ids array required");
+
+          const liked = await getFavorites(ids);
+
+          /** частотная таблица */
+          const freq: Record<Bucket, Record<string, number>> = {
+            character: {},
+            artist: {},
+            parody: {},
+            group: {},
+            category: {},
+            tag: {},
+          };
+
+          /** известные «корзины», которые повышают вес */
+          const KNOWN_BUCKETS = [
+            "artist",
+            "parody",
+            "group",
+            "category",
+            "character",
+          ] as const;
+          type KnownBucket = (typeof KNOWN_BUCKETS)[number];
+
+          type Bucket = KnownBucket | "tag";
+
+          /** type-guard для bucket-ов */
+          const isKnownBucket = (t: string): t is KnownBucket =>
+            (KNOWN_BUCKETS as readonly string[]).includes(t);
+
+          /** вернуть Bucket либо "tag" */
+          const bucketOf = (t: Tag["type"]): Bucket =>
+            isKnownBucket(t as any) ? (t as any) : "tag";
+
+          liked.forEach((b) =>
+            b.tags.forEach((t) => {
+              const bkt = bucketOf(t.type);
+              freq[bkt][t.name] = (freq[bkt][t.name] || 0) + 1;
+            })
+          );
+
+          const filterPart =
+            Array.isArray(filterTags) && filterTags.length
+              ? filterTags
+                  .map((t) => `${t.type.replace(/s$/, "")}:"${t.name}"`)
+                  .join(" ")
+              : "";
+
+          const topN = (m: Record<string, number>, n: number): string[] =>
+            Object.entries(m)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, n)
+              .map(([k]) => k);
+
+          const fetchPage = (q: string, p: number): Promise<any[]> =>
+            cachedGet(`https://${nh.hosts.api}/api/galleries/search`, {
+              query: q,
+              page: p,
+              per_page: perPage,
+              sort: "popular",
+            })
+              .then((r) => r.data.result as any[])
+              .catch(() => <any[]>[]);
+
+          const topChars = topN(freq.character, 7);
+          const topArts = topN(freq.artist, 5);
+          const topTags = topN(freq.tag, 12);
+
+          const favQueries: string[] = [
+            ...topChars.map((c) => `character:"${c}"`),
+            ...topChars
+              .slice(0, 3)
+              .flatMap((c, i) =>
+                topArts[i] ? [`character:"${c}" artist:"${topArts[i]}"`] : []
+              ),
+          ];
+
+          const tagQueries: string[] = [
+            topTags.join(" "),
+            ...topTags.map((t) => `"${t}"`),
+          ];
+
+          const exclude = new Set<number>(sentIds);
+          const candidates = new Map<number, any>();
+
+          const grab = async (queries: string[]): Promise<void> => {
+            await Promise.all(
+              [1, 2, 3].map((p) =>
+                Promise.all(queries.map((q) => fetchPage(q, p)))
+              )
+            ).then((arr) =>
+              arr.flat(2).forEach((item) => {
+                if (!exclude.has(item.id) && candidates.size < perPage * 10) {
+                  candidates.set(item.id, item);
+                }
+              })
+            );
+          };
+
+          const prependFilter = (arr: string[]) =>
+            filterPart ? arr.map((q) => `${filterPart} ${q}`.trim()) : arr;
+
+          await grab(prependFilter(favQueries));
+          await grab(prependFilter(tagQueries));
+
+          const rawCandidates = Array.from(candidates.values());
+
+          const TAG_WEIGHTS: Record<Bucket, number> = {
+            character: 4,
+            artist: 3,
+            parody: 2,
+            group: 2,
+            category: 1.5,
+            tag: 1,
+          };
+
+          const required = new Set(
+            filterTags.map((t) => `${t.type}:${t.name}`)
+          );
+
+          const scored = rawCandidates.flatMap((raw) => {
+            const b = parseBookData(raw);
+
+            const tagKeys = new Set(b.tags.map((t) => `${t.type}:${t.name}`));
+            for (const k of required) if (!tagKeys.has(k)) return [];
+
+            let sc = b.favorites / 15_000;
+            b.tags.forEach((t) => {
+              const bkt = bucketOf(t.type);
+              const count = freq[bkt][t.name] || 0;
+              sc += TAG_WEIGHTS[bkt] * Math.pow(count, 1.3);
+            });
+            return [{ book: b, score: sc }];
+          });
+
+          const ordered = scored
+            .sort((a, b) => b.score - a.score)
+            .map((o) => o.book);
+
+          const mildShuffle = <T>(arr: T[], top = 20): void => {
+            for (let i = 0; i < Math.min(top, arr.length - 1); i++) {
+              const j =
+                i + Math.floor(Math.random() * (Math.min(top, arr.length) - i));
+              [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+          };
+          mildShuffle(ordered);
+
+          const start = (page - 1) * perPage;
+          ws.send(
+            JSON.stringify({
+              type: "recommendations-reply",
+              books: ordered.slice(start, start + perPage),
+              totalPages: Math.max(1, Math.ceil(ordered.length / perPage)),
+              currentPage: page,
             })
           );
           break;
@@ -517,7 +725,6 @@ function setupAutoUpdater(window: BrowserWindow) {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
 
-  // Проверка обновлений при запуске
   autoUpdater.checkForUpdates().catch((err) => {
     log.error("Initial update check failed:", err);
   });
@@ -610,7 +817,6 @@ app.whenReady().then(() => {
 
   setupAutoUpdater(mainWindow);
 
-  // Модифицируем обработчик ipcMain.on("window:check-for-updates", ...)
   ipcMain.on("window:check-for-updates", () => {
     log.info("Manual update check triggered");
     autoUpdater.checkForUpdates().catch((err) => {
@@ -622,7 +828,6 @@ app.whenReady().then(() => {
     });
   });
 
-  // Добавляем новый обработчик для начала загрузки
   ipcMain.on("window:download-update", () => {
     log.info("Starting update download");
     autoUpdater.downloadUpdate().catch((err) => {
@@ -634,7 +839,6 @@ app.whenReady().then(() => {
     });
   });
 
-  // Добавляем новый обработчик для установки обновления
   ipcMain.on("window:install-update", () => {
     log.info("Quitting and installing update");
     autoUpdater.quitAndInstall();

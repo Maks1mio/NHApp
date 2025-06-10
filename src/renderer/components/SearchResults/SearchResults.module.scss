@@ -7,8 +7,6 @@
   padding: 0.5rem 2rem;
   background: rgb(53 53 71 / 98%);
   backdrop-filter: blur(45px);
-  // position: sticky;
-  // top: 0;
   z-index: 11;
   border-bottom: 1px solid rgba(226, 232, 240, 0.1);
 }
@@ -215,4 +213,43 @@
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
+}
+
+.infoWrapper {
+  position: relative;
+  display: inline-flex;
+  margin-left: 6px;
+  cursor: pointer;
+}
+
+.infoIcon {
+  font-size: 17px;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.nh-tooltip {
+  position: fixed;
+  z-index: 10000;
+  max-width: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.tooltipInner section {
+  margin-bottom: 8px;
+}
+.tooltipInner ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
 }

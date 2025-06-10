@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
 
 * {
   /* user-select: none; */
@@ -25,7 +25,29 @@ body {
   bottom: 0;
 }
 
+.nh-tooltip {
+  position: fixed;
+  z-index: 10000;                     /* поверх всего */
+  max-width: 280px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: #2c2f33;
+  outline: #202229 solid 1px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.14);
+  font-size: 13px;
+}
+
+.tooltipInner section {
+  margin-bottom: 8px;
+}
+.tooltipInner ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
 ::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
+  width: 0px;
+  height: 0px;
 }

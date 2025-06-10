@@ -33,6 +33,7 @@ export interface Book {
 interface BookCardProps {
   book: Book;
   isFavorite: boolean;
+  isNew?: boolean;
   onToggleFavorite?: (id: number, newState: boolean) => void;
   className?: string;
 }
@@ -52,7 +53,6 @@ const languageCountryCodes: Record<string, string> = {
 
 const SUPPORTED_LANGUAGES = Object.keys(languageCountryCodes);
 
-// Цвета для разных типов тегов
 const TAG_COLORS: Record<string, string> = {
   language: "#FF7D7F",
   artist: "#FB8DF4",
@@ -71,8 +71,10 @@ const BookCard: React.FC<BookCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const { selectedTags, setSelectedTags } = useTagFilter();
+  const isNew =
+    book.uploaded &&
+    new Date(book.uploaded) > new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  // Сортируем теги по категориям
   const sortedTags = useMemo(() => {
     const categories = [
       {
@@ -84,10 +86,9 @@ const BookCard: React.FC<BookCardProps> = ({
       { type: "parody", filter: (t: Tag) => t.type === "parody" },
       { type: "group", filter: (t: Tag) => t.type === "group" },
       { type: "category", filter: (t: Tag) => t.type === "category" },
-      { type: "tag", filter: () => true }, // остаток
+      { type: "tag", filter: () => true },
     ];
 
-    // сначала убираем локальные дубликаты по id+name
     const uniqueTags = book.tags.filter(
       (tag, idx, arr) =>
         idx === arr.findIndex((t) => t.id === tag.id && t.name === tag.name)
@@ -95,13 +96,11 @@ const BookCard: React.FC<BookCardProps> = ({
 
     const usedIds = new Set<string>();
     return categories.reduce((acc, { type, filter }) => {
-      // отбираем только ещё не выданные
       const bucket = uniqueTags.filter((t) => {
         const id = String(t.id);
         return !usedIds.has(id) && filter(t);
       });
       if (bucket.length) {
-        // помечаем их как выданные
         bucket.forEach((t) => usedIds.add(String(t.id)));
         acc.push({ type, tags: bucket });
       }
@@ -112,7 +111,6 @@ const BookCard: React.FC<BookCardProps> = ({
   const idsEqual = (a: string | number, b: string | number) =>
     Number(a) === Number(b);
 
-  // Проверка выбран ли тег
   const isTagSelected = (tag: Tag) =>
     selectedTags.some(
       (t) =>
@@ -128,7 +126,6 @@ const BookCard: React.FC<BookCardProps> = ({
     url: tag.url.startsWith("/") ? `https://nhentai.net${tag.url}` : tag.url,
   });
 
-  // Обработчик клика по тегу
   const handleTagClick = (tag: Tag, e: MouseEvent<HTMLSpanElement>) => {
     e.stopPropagation();
     const normalized = normalize(tag);
@@ -137,24 +134,20 @@ const BookCard: React.FC<BookCardProps> = ({
       Number(a.id) === Number(b.id) &&
       a.name.trim().replace(/\s+/g, " ") === b.name.trim().replace(/\s+/g, " ");
 
-    // Проверяем, есть ли уже такой тег в selectedTags
     const existingIndex = selectedTags.findIndex((t) =>
       tagsEqual(t, normalized)
     );
 
     const newTags = [...selectedTags];
     if (existingIndex >= 0) {
-      // Удаляем если есть
       newTags.splice(existingIndex, 1);
     } else {
-      // Добавляем если нет
       newTags.push(normalized);
     }
 
     setSelectedTags(newTags);
   };
 
-  // Избранное
   const toggleFav = (e: MouseEvent) => {
     e.stopPropagation();
     if (onToggleFavorite) {
@@ -169,7 +162,6 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   };
 
-  // Логика предпросмотра
   const [isHovered, setIsHovered] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [shouldRenderPreview, setShouldRenderPreview] = useState(false);
@@ -186,7 +178,6 @@ const BookCard: React.FC<BookCardProps> = ({
     delay: NodeJS.Timeout | null;
   }>({ hover: null, carousel: null, movement: null, delay: null });
 
-  // Очистка всех таймеров
   const clearTimers = () => {
     Object.values(timers.current).forEach((timer) => {
       if (timer) clearTimeout(timer);
@@ -203,7 +194,6 @@ const BookCard: React.FC<BookCardProps> = ({
     return () => clearTimers();
   }, []);
 
-  // Автопрокрутка карусели
   const startCarousel = () => {
     if (book.pages.length <= 1) return;
 
@@ -217,7 +207,6 @@ const BookCard: React.FC<BookCardProps> = ({
     timers.current.carousel = setTimeout(tick, 3000);
   };
 
-  // Остановка карусели
   const stopCarousel = () => {
     if (timers.current.carousel) {
       clearTimeout(timers.current.carousel);
@@ -225,7 +214,6 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   };
 
-  // Основной обработчик движения мыши
   const handleMouseMove = (e: React.MouseEvent) => {
     const newPos = { x: e.clientX, y: e.clientY };
     const moved = mousePosition.x !== newPos.x || mousePosition.y !== newPos.y;
@@ -249,24 +237,20 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   };
 
-  // Обработчик наведения на карточку
   const handleMouseEnter = () => {
     setIsHovered(true);
     setShouldRenderPreview(true);
 
-    // Сбрасываем предыдущие таймеры
     clearTimers();
 
-    // Если мышь не двигается, сразу запускаем превью
     if (!isMouseMoving) {
       timers.current.hover = setTimeout(() => {
         setShowPreview(true);
         startCarousel();
-      }, 1300); // Уменьшил задержку для более быстрого отклика
+      }, 1300);
     }
   };
 
-  // Обработчик ухода с карточки
   const handleMouseLeave = () => {
     setIsHovered(false);
     setIsMouseMoving(false);
@@ -274,13 +258,11 @@ const BookCard: React.FC<BookCardProps> = ({
     setShowPreview(false);
     stopCarousel();
 
-    // Задержка перед скрытием превью, чтобы избежать мерцания
     timers.current.delay = setTimeout(() => {
       setShouldRenderPreview(false);
     }, 1300);
   };
 
-  // Обработчик hover на карусели
   const handleCarouselHover: React.MouseEventHandler<HTMLDivElement> = (e) => {
     if (!carouselRef.current || book.pages.length <= 1) return;
 
@@ -290,12 +272,10 @@ const BookCard: React.FC<BookCardProps> = ({
     );
     setActiveImageIndex(Math.min(idx, Math.min(book.pages.length, 5) - 1));
 
-    // Перезапускаем карусель после взаимодействия
     stopCarousel();
     timers.current.carousel = setTimeout(startCarousel, 5000);
   };
 
-  // Плавный скролл карусели
   useEffect(() => {
     if (carouselRef.current && showPreview) {
       const imageWidth = 200 + 10;
@@ -306,7 +286,6 @@ const BookCard: React.FC<BookCardProps> = ({
     }
   }, [activeImageIndex, showPreview]);
 
-  // Усечение текста
   const truncateText = (text: string, maxLines = 2) => {
     const words = text.split(" ");
     let truncated = "";
@@ -330,8 +309,8 @@ const BookCard: React.FC<BookCardProps> = ({
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}
     >
-      {/* Обложка */}
       <div className={styles.imageContainer}>
+        {isNew && <span className={styles.newBadge}>NEW</span>}
         <SmartImage
           src={book.thumbnail}
           alt={book.title.pretty}
@@ -339,7 +318,6 @@ const BookCard: React.FC<BookCardProps> = ({
           loading="lazy"
         />
 
-        {/* Флаги языков */}
         {sortedTags
           .find((t) => t.type === "language")
           ?.tags.map((tag) => (
@@ -377,7 +355,6 @@ const BookCard: React.FC<BookCardProps> = ({
         </div>
       </div>
 
-      {/* Информация */}
       <div className={styles.info}>
         <p className={styles.titleText} title={book.title.pretty}>
           {truncateText(book.title.pretty)}
@@ -423,7 +400,6 @@ const BookCard: React.FC<BookCardProps> = ({
         </div>
       </div>
 
-      {/* Предпросмотр */}
       {shouldRenderPreview && (
         <div
           className={`${styles.previewContainer} ${

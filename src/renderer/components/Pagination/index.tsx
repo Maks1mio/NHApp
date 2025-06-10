@@ -71,7 +71,7 @@ const Pagination: React.FC<PaginationProps> = ({
               currentPage === page ? styles.active : ""
             }`}
           >
-            "{page}"
+            {page}
           </button>
         )
       )}

@@ -175,7 +175,6 @@ const BookPage: React.FC = () => {
       if (response.type === "book-reply") {
         setBook(response.book);
         setLoading(false);
-        // Fetch related books after loading the current book
         wsClient.send({ type: "get-related-books", id: parseInt(id || "0") });
       } else if (response.type === "related-books-reply") {
         setRelatedBooks(response.books || []);
@@ -275,6 +274,16 @@ const BookPage: React.FC = () => {
   }, [book, selectedImage, showDoublePage]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+
+    setBook(null);
+    setLoading(true);
+    setError(null);
+    setSelectedImage(null);
+    setShowModal(false);
+  }, [id]);
+
+  useEffect(() => {
     if (showModal) preloadImages();
   }, [showModal, selectedImage, preloadImages, showDoublePage]);
 
@@ -300,26 +309,23 @@ const BookPage: React.FC = () => {
   }, []);
 
   const [magnifierData, setMagnifierData] = useState({
-    pageIdx: 0, // какую страницу подсматриваем
+    pageIdx: 0,
     cx: 0,
-    cy: 0, // позиция курсора в контейнере (для left/top лупы)
+    cy: 0,
     nx: 0,
-    ny: 0, // точка в natural-координатах (для backgroundPosition)
+    ny: 0,
   });
 
-  // --- обработчик движения ------------------------------------------------
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageRef.current) return;
     const containerRect = imageRef.current.getBoundingClientRect();
 
-    // координаты курсора внутри контейнера
     const cx = e.clientX - containerRect.left;
     const cy = e.clientY - containerRect.top;
 
-    // найдём, над какой именно <img> мы находимся
     let pageIdx = 0;
     let nx = 0,
-      ny = 0; // natural-coords
+      ny = 0;
     imageRefs.current.forEach((img, idx) => {
       if (!img) return;
       const r = img.getBoundingClientRect();
@@ -327,7 +333,6 @@ const BookPage: React.FC = () => {
       const inY = e.clientY - r.top;
       if (inX >= 0 && inX <= r.width && inY >= 0 && inY <= r.height) {
         pageIdx = idx;
-        // пересчитаем точку в натуральные координаты (до scale)
         nx = (inX / r.width) * img.naturalWidth;
         ny = (inY / r.height) * img.naturalHeight;
       }
@@ -765,7 +770,6 @@ const BookPage: React.FC = () => {
                       minHeight: magnifierSize,
                       top: magnifierData.cy,
                       left: magnifierData.cx,
-                      // «сидим» ровно под курсором
                       transform: "translate(-50%, -50%)",
                       backgroundImage: `url(${
                         book.pages[selectedImage + magnifierData.pageIdx].url
