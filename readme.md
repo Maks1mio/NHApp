@@ -17,6 +17,11 @@
 * Fast performance due to internal caching and API optimizations
 * In-app update downloading available
 
+![image](https://github.com/user-attachments/assets/f8b75ccd-e321-4a88-84d6-d4a13a792dd4)
+
+![image](https://github.com/user-attachments/assets/b0412d88-4496-44d0-9f47-1fde1bd592fa)
+
+
 ---
 
 ## Current Platform Support Status
