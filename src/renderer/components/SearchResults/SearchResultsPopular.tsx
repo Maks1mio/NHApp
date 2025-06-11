@@ -15,10 +15,10 @@ const LS_FAVORITES_KEY = "bookFavorites";
 type SortType = "popular" | "popular-week" | "popular-today" | "popular-month";
 
 const SORT_OPTS: { value: SortType; label: string; icon: React.ReactNode }[] = [
-  { value: "popular", label: "Популярное (всё)", icon: <FiTrendingUp /> },
-  { value: "popular-week", label: "Популярное (неделя)", icon: <FiClock /> },
-  { value: "popular-today", label: "Популярное (сегодня)", icon: <FiClock /> },
-  { value: "popular-month", label: "Популярное (месяц)", icon: <FiClock /> },
+  { value: "popular", label: "Popular (all time)", icon: <FiTrendingUp /> },
+  { value: "popular-week", label: "Popular (week)", icon: <FiClock /> },
+  { value: "popular-today", label: "Popular (today)", icon: <FiClock /> },
+  { value: "popular-month", label: "Popular (month)", icon: <FiClock /> },
 ];
 
 const SearchResultsPopular: React.FC = () => {
@@ -188,7 +188,7 @@ const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
       <div className={styles.errorIcon}>⚠️</div>
       <div className={styles.errorText}>{msg}</div>
       <button className={styles.retryButton} onClick={retry}>
-        Повторить
+        Retry
       </button>
     </div>
   </div>
@@ -197,8 +197,8 @@ const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
 const EmptyBlock = () => (
   <div className={styles.emptyState}>
     <div className={styles.emptyIllustration}>📈</div>
-    <h3>Пока пусто</h3>
-    <p>Популярных работ не найдено — попробуйте позже</p>
+    <h3>Empty for now</h3>
+    <p>No popular works found — try again later</p>
   </div>
 );
 

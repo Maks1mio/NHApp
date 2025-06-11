@@ -19,8 +19,8 @@ const SORT_OPTIONS: {
   label: string;
   icon: React.ReactNode;
 }[] = [
-  { value: "relevance", label: "По релевантности", icon: <FiSearch /> },
-  { value: "popular", label: "Популярное", icon: <FiTrendingUp /> },
+  { value: "relevance", label: "By relevance", icon: <FiSearch /> },
+  { value: "popular", label: "Popular", icon: <FiTrendingUp /> },
 ];
 
 const SearchResultsSearch: React.FC = () => {
@@ -196,7 +196,7 @@ const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
       <div className={styles.errorIcon}>⚠️</div>
       <div className={styles.errorText}>{msg}</div>
       <button className={styles.retryButton} onClick={retry}>
-        Повторить
+        Retry
       </button>
     </div>
   </div>
@@ -205,8 +205,8 @@ const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
 const EmptySearch = () => (
   <div className={styles.emptyState}>
     <div className={styles.emptyIllustration}>🔍</div>
-    <h3>Ничего не найдено</h3>
-    <p>Попробуйте изменить параметры поиска или фильтры</p>
+    <h3>Nothing found</h3>
+    <p>Try changing your search parameters or filters</p>
   </div>
 );
 

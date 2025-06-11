@@ -340,6 +340,18 @@ wss.on("connection", (ws) => {
           );
           break;
 
+        case "get-random-book": {
+          const book = await nh.getRandomBook();
+
+          ws.send(
+            JSON.stringify({
+              type: "random-book-reply",
+              id: book.id,
+            })
+          );
+          break;
+        }
+
         case "get-related-books": {
           const { id } = msg;
           if (!id) throw new Error("Book ID missing");

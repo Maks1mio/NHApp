@@ -54,7 +54,7 @@ const Favorites: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // обновляем отображаемый срез при смене страницы или наборе книг
+    // update the displayed slice when changing page or book set
     const start = (currentPage - 1) * PER_PAGE;
     setDisplayBooks(allBooks.slice(start, start + PER_PAGE));
   }, [allBooks, currentPage]);
@@ -69,7 +69,7 @@ const Favorites: React.FC = () => {
       : [...favorites, id];
     setFavorites(next);
     localStorage.setItem("bookFavorites", JSON.stringify(next));
-    // сразу убираем из отображения, если удаляем
+    // immediately remove from display if removing
     setAllBooks((prev) => prev.filter((b) => next.includes(b.id)));
   };
 
@@ -78,40 +78,40 @@ const Favorites: React.FC = () => {
       <div className={styles.header}>
         <h1 className={styles.mainTitle}>
           <FiHeart className={styles.icon} />
-          Избранное
+          Favorites
         </h1>
         <button
           onClick={fetchData}
           disabled={loading}
           className={styles.reloadBtn}
-          aria-label="Обновить"
+          aria-label="Refresh"
         >
           <FiRefreshCw
             className={`${styles.reloadIcon} ${loading ? styles.spin : ""}`}
           />
-          Обновить
+          Refresh
         </button>
       </div>
 
       <div className={styles.content}>
         {error && (
           <div className={styles.error}>
-            Ошибка: {error}
+            Error: {error}
             <button onClick={fetchData} className={styles.retryBtn}>
-              Повторить
+              Retry
             </button>
           </div>
         )}
         {loading && (
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner} />
-            Загрузка...
+            Loading...
           </div>
         )}
         {!loading && allBooks.length === 0 && (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>💔</div>
-            Нет избранных книг
+            No favorite books
           </div>
         )}
         {!loading && displayBooks.length > 0 && (

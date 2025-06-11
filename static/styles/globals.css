@@ -2,13 +2,14 @@
 
 * {
   /* user-select: none; */
+  transition: var(--tr);
   font-family: "Nunito Sans";
   font-style: normal;
   max-width: -webkit-fill-available;
 }
 
 :root {
-  --tr: all 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --tr: cubic-bezier(0.45, 0.65, 0.395, 1) all 0.2s;
 }
 
 body {

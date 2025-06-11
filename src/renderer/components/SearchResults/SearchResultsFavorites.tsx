@@ -13,8 +13,8 @@ const LS_FAVORITES_KEY = "bookFavorites";
 type SortType = "relevance" | "popular";
 
 const SORT_OPTS: { value: SortType; label: string; icon: React.ReactNode }[] = [
-  { value: "relevance", label: "По дате добавления", icon: <FiStar /> },
-  { value: "popular", label: "По популярности", icon: <FiTrendingUp /> },
+  { value: "relevance", label: "By date added", icon: <FiStar /> },
+  { value: "popular", label: "By popularity", icon: <FiTrendingUp /> },
 ];
 
 const SearchResultsFavorites: React.FC = () => {
@@ -182,7 +182,7 @@ const Error: React.FC<{ msg: string; retry: () => void }> = ({
       <div className={styles.errorIcon}>⚠️</div>
       <div className={styles.errorText}>{msg}</div>
       <button className={styles.retryButton} onClick={retry}>
-        Повторить
+        Retry
       </button>
     </div>
   </div>
@@ -191,16 +191,16 @@ const Error: React.FC<{ msg: string; retry: () => void }> = ({
 const EmptyFav = () => (
   <div className={styles.emptyState}>
     <div className={styles.emptyIllustration}>📚</div>
-    <h3>Ваше избранное пусто</h3>
-    <p>Сохраняйте понравившиеся работы, чтобы они появились здесь</p>
+    <h3>Your favorites are empty</h3>
+    <p>Save the works you like, and they will appear here</p>
   </div>
 );
 
 const EmptyRes = () => (
   <div className={styles.emptyState}>
     <div className={styles.emptyIllustration}>🔍</div>
-    <h3>Ничего не найдено</h3>
-    <p>Попробуйте изменить сортировку или фильтры</p>
+    <h3>Nothing found</h3>
+    <p>Try changing the sort or filters</p>
   </div>
 );
 

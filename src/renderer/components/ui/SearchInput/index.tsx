@@ -28,7 +28,7 @@ const SearchInput: React.FC<Props> = ({ onSearch }) => {
       .suggest(v)
       .then((tags) => setSuggestions(tags))
       .catch(() => {
-        // повторить через 1с при ошибке
+        // retry after 1 second on error
         setTimeout(() => triggerSuggest(v), 1000);
       });
   };
@@ -90,7 +90,7 @@ const SearchInput: React.FC<Props> = ({ onSearch }) => {
           value={query}
           onChange={handleChange}
           onKeyDown={onKeyDown}
-          placeholder="Поиск по тегам..."
+          placeholder="Search by tags..."
           className={styles.searchInput}
           autoComplete="off"
         />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   FiSearch,
   FiClock,
@@ -9,236 +9,288 @@ import {
   FiUpload,
   FiChevronDown,
   FiHeart,
+  FiShuffle,
 } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as styles from "./SearchInput.module.scss";
 import TagFilter from "../TagFilter";
 import { useTagFilter } from "../../../context/TagFilterContext";
+import { wsClient } from "../../../wsClient";
 
 type ContentType =
   | "recommendations"
   | "search"
+  | "random"
   | "new"
   | "popular"
   | "favorites";
 
 interface SearchInputProps {
-  onSearch: (query: string, contentType: ContentType) => void;
+  onSearch: (query: string, type: ContentType) => void;
   className?: string;
 }
+
+interface Suggestion {
+  id: number;
+  title: string;
+  thumbnail: string;
+  pages: number;
+}
+
+const icon = (t: ContentType) =>
+  t === "search" ? (
+    <FiSearch />
+  ) : t === "random" ? (
+    <FiShuffle />
+  ) : t === "new" ? (
+    <FiUpload />
+  ) : t === "popular" ? (
+    <FiTrendingUp />
+  ) : t === "favorites" ? (
+    <FiStar />
+  ) : (
+    <FiHeart />
+  );
+
+const label = (t: ContentType) =>
+  t === "recommendations"
+    ? "Recommendations"
+    : t === "new"
+    ? "New"
+    : t === "popular"
+    ? "Popular"
+    : t === "favorites"
+    ? "Favorites"
+    : t === "random"
+    ? "Random"
+    : "Search";
 
 const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  const qs = new URLSearchParams(location.search);
+  const { selectedTags } = useTagFilter();
 
   const [query, setQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [showContentTypes, setShowContentTypes] = useState(false);
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [contentType, setContentType] = useState<ContentType>(
-    (queryParams.get("type") as ContentType) || "search"
+  const [type, setType] = useState<ContentType>(
+    (qs.get("type") as ContentType) || "search"
   );
+  const [history, setHistory] = useState<string[]>([]);
+  const [results, setResults] = useState<Suggestion[]>([]);
+  const [tagsOpen, setTagsOpen] = useState(false);
+  const [showTypes, setShowTypes] = useState(false);
+  const [focused, setFocused] = useState(false);
 
-  const { selectedTags } = useTagFilter();
   const inputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const selectRef = useRef<HTMLDivElement>(null);
+  const debRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const type = queryParams.get("type") as ContentType | null;
-    if (
-      type &&
-      ["recommendations", "search", "new", "popular", "favorites"].includes(
-        type
-      )
-    ) {
-      setContentType(type as ContentType);
-    } else {
-      setContentType("search");
-    }
-  }, [location.search]);
-
-  useEffect(() => {
-    const history = localStorage.getItem("searchHistory");
-    if (history) setSearchHistory(JSON.parse(history));
+    const stored = localStorage.getItem("searchHistory");
+    if (stored) setHistory(JSON.parse(stored));
   }, []);
 
   useEffect(() => {
-    onSearch(query, contentType);
-  }, [selectedTags, contentType]);
+    onSearch(query, type);
+  }, [selectedTags, type]);
 
-  const addToHistory = (searchQuery: string) => {
-    if (!searchQuery) return;
-    const updated = [
-      searchQuery,
-      ...searchHistory.filter(
-        (q) => q.toLowerCase() !== searchQuery.toLowerCase()
-      ),
-    ].slice(0, 100);
-
-    setSearchHistory(updated);
-    localStorage.setItem("searchHistory", JSON.stringify(updated));
-  };
-
-  const handleSearch = () => {
-    if (query.trim()) {
-      onSearch(query.trim(), "search");
-      addToHistory(query.trim());
-      setShowHistory(false);
-      navigate(`/search?q=${encodeURIComponent(query.trim())}&type=search`);
-    } else if (contentType === "search") {
-      navigate(`/search?type=search`);
-      onSearch("", "search");
-    }
-  };
-
-  const switchContentType = (type: ContentType) => {
-    setContentType(type);
-    setShowContentTypes(false);
-
-    if (type === "search") {
-      if (query.trim()) {
-        navigate(`/search?q=${encodeURIComponent(query.trim())}&type=search`);
-        onSearch(query.trim(), "search");
-      } else {
-        navigate(`/search?type=search`);
-        onSearch("", "search");
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!formRef.current?.contains(e.target as Node)) {
+        setShowTypes(false);
+        setResults([]);
       }
-    } else {
-      navigate(`/search?type=${type}`);
-      setQuery("");
-      onSearch("", type);
+    };
+    window.addEventListener("mousedown", handler);
+    return () => window.removeEventListener("mousedown", handler);
+  }, []);
+
+  const fetchSuggestions = useCallback(
+    (q: string) => {
+      if (!q.trim() && selectedTags.length === 0) {
+        setResults([]);
+        return;
+      }
+
+      const unsub = wsClient.subscribe((msg) => {
+        if (msg.type === "search-results-reply") {
+          const list = (msg.books || []).slice(0, 6).map((b: any) => ({
+            id: b.id,
+            title: b.title?.pretty || b.title?.english || "",
+            thumbnail: b.thumbnail,
+            pages: b.pagesCount,
+          }));
+          setResults(list);
+          unsub();
+        }
+      });
+
+      wsClient.send({
+        type: "search-books",
+        query: q,
+        page: 1,
+        perPage: 6,
+        sort: "",
+        filterTags: selectedTags,
+        contentType: "search",
+      });
+    },
+    [selectedTags]
+  );
+
+  useEffect(() => {
+    if (debRef.current) clearTimeout(debRef.current);
+    if (type !== "search") {
+      setResults([]);
+      return;
     }
+    debRef.current = setTimeout(() => fetchSuggestions(query), 800);
+    return () => debRef.current && clearTimeout(debRef.current);
+  }, [query, selectedTags, type, fetchSuggestions]);
+
+  const addHistory = (q: string) => {
+    const upd = [
+      q,
+      ...history.filter((h) => h.toLowerCase() !== q.toLowerCase()),
+    ].slice(0, 100);
+    setHistory(upd);
+    localStorage.setItem("searchHistory", JSON.stringify(upd));
   };
 
-  const getContentTypeIcon = (type: ContentType) => {
-    switch (type) {
-      case "search":
-        return <FiSearch size={16} />;
-      case "new":
-        return <FiUpload size={16} />;
-      case "popular":
-        return <FiTrendingUp size={16} />;
-      case "favorites":
-        return <FiStar size={16} />;
-      case "recommendations":
-        return <FiHeart size={16} />;
-      default:
-        return <FiSearch size={16} />;
-    }
+  const clearDropdown = () => {
+    setShowTypes(false);
+    setResults([]);
   };
 
-  const getContentTypeLabel = (type: ContentType) => {
-    switch (type) {
-      case "recommendations":
-        return "Рекомендации";
-      case "search":
-        return "Поиск";
-      case "new":
-        return "Новые";
-      case "popular":
-        return "Популярные";
-      case "favorites":
-        return "Избранное";
-      default:
-        return "Поиск";
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = query.trim();
+    if (/^\d+$/.test(trimmed)) {
+      clearDropdown();
+      setFocused(false);
+      navigate(`/book/${trimmed}`);
+      return;
     }
+    executeSearch(trimmed);
   };
+
+  const executeSearch = (q: string, saveHist = true) => {
+    clearDropdown();
+    setFocused(false);
+    inputRef.current?.blur();
+    setQuery(q);
+    if (saveHist && q) addHistory(q);
+    navigate(`/search?q=${encodeURIComponent(q)}&type=search`);
+    onSearch(q, "search");
+  };
+
+  const openRandom = () => {
+    clearDropdown();
+    setQuery("");
+    wsClient.once("random-book-reply", (msg) => {
+      if (msg.id) navigate(`/book/${msg.id}`);
+    });
+    wsClient.send({ type: "get-random-book" });
+  };
+
+  const qLower = query.trim().toLowerCase();
+  const histList = qLower
+    ? history.filter((h) => h.toLowerCase().includes(qLower))
+    : history;
+
+  const showDropdown =
+    focused && type === "search" && (results.length || histList.length);
 
   return (
     <form
       ref={formRef}
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSearch();
-      }}
       className={`${styles.searchForm} ${className}`}
+      onSubmit={handleSubmit}
     >
       <div className={styles.searchContainer}>
         <div className={styles.inputWrapper}>
           <FiSearch className={styles.searchIcon} />
           <input
             ref={inputRef}
-            type="text"
-            placeholder={
-              contentType === "search"
-                ? "Поиск по названию, тегам..."
-                : getContentTypeLabel(contentType)
-            }
             value={query}
-            onChange={(e) => {
-              const v = e.target.value;
-              setQuery(v);
-
-              if (v.length > 0) {
-                setShowHistory(false);
-              } else if (
-                inputRef.current === document.activeElement &&
-                searchHistory.length > 0
-              ) {
-                setShowHistory(true);
-              }
-            }}
-            onFocus={() => {
-              if (
-                query === "" &&
-                searchHistory.length > 0 &&
-                contentType === "search"
-              ) {
-                setShowHistory(true);
-              }
+            disabled={type !== "search"}
+            placeholder={
+              type === "search" ? "Search by title or ID…" : label(type)
+            }
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => {
+              setFocused(false);
+              setTimeout(clearDropdown, 100);
             }}
             className={styles.searchInput}
-            disabled={contentType !== "search"}
           />
         </div>
 
         <div className={styles.controlsContainer}>
           <div
             className={styles.contentTypeSelect}
-            ref={selectRef}
-            onClick={() => setShowContentTypes(!showContentTypes)}
+            onClick={() => setShowTypes(!showTypes)}
           >
             <div className={styles.selectedContentType}>
-              {getContentTypeIcon(contentType)}
-              <span>{getContentTypeLabel(contentType)}</span>
+              {icon(type)}
+              <span className={styles.badgeContainer}>
+                {label(type)}
+                {type === "recommendations" && (
+                  <span className={styles.betaBadge}>BETA</span>
+                )}
+              </span>
               <FiChevronDown
                 className={`${styles.chevron} ${
-                  showContentTypes ? styles.rotated : ""
+                  showTypes ? styles.rotated : ""
                 }`}
               />
             </div>
 
             <AnimatePresence>
-              {showContentTypes && (
+              {showTypes && (
                 <motion.div
                   className={styles.contentTypeDropdown}
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.15 }}
                 >
                   {(
                     [
                       "recommendations",
                       "search",
+                      "random",
                       "new",
                       "popular",
                       "favorites",
                     ] as ContentType[]
-                  ).map((type) => (
+                  ).map((t) => (
                     <div
-                      key={type}
+                      key={t}
                       className={`${styles.contentTypeOption} ${
-                        contentType === type ? styles.active : ""
+                        type === t ? styles.active : ""
                       }`}
-                      onClick={() => switchContentType(type)}
+                      onClick={() => {
+                        if (t === "random") {
+                          openRandom();
+                          return;
+                        }
+                        setType(t);
+                        clearDropdown();
+                        setQuery("");
+                        navigate(`/search?type=${t}`);
+                        onSearch("", t);
+                      }}
                     >
-                      {getContentTypeIcon(type)}
-                      <span>{getContentTypeLabel(type)}</span>
+                      {icon(t)}
+                      <span className={styles.badgeContainer}>
+                        {label(t)}
+                        {t === "recommendations" && (
+                          <span className={styles.badgeInline}>BETA</span>
+                        )}
+                      </span>
                     </div>
                   ))}
                 </motion.div>
@@ -246,99 +298,107 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
             </AnimatePresence>
           </div>
 
-          {contentType === "search" && (
+          {type === "search" && (
             <motion.button
               type="submit"
               className={styles.searchButton}
-              onClick={handleSearch}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Поиск
+              Search
             </motion.button>
           )}
 
           <motion.button
             type="button"
             className={styles.tagsButton}
-            onClick={() => setIsModalOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setTagsOpen(true)}
           >
-            <FiTag size={18} />
-            {selectedTags.length > 0 && <span>{selectedTags.length}</span>}
+            <FiTag />
+            <span>{selectedTags.length}</span>
           </motion.button>
         </div>
 
-        <TagFilter isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        <TagFilter isOpen={tagsOpen} onClose={() => setTagsOpen(false)} />
 
         <AnimatePresence>
-          {showHistory &&
-            searchHistory.length > 0 &&
-            contentType === "search" && (
-              <motion.div
-                className={styles.historyDropdown}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className={styles.historyHeader}>
-                  <FiClock className={styles.historyIcon} />
-                  <span>Недавние запросы</span>
-                  <button
-                    className={styles.clearHistoryButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSearchHistory([]);
-                      localStorage.removeItem("searchHistory");
-                    }}
-                  >
-                    Очистить
-                  </button>
-                </div>
-
-                <ul className={styles.historyList}>
-                  {searchHistory.map((item, index) => (
-                    <motion.li
-                      key={index}
-                      className={styles.historyItem}
-                      onClick={() => {
-                        setQuery(item);
-                        onSearch(item, "search");
-                        setShowHistory(false);
-                        inputRef.current?.blur();
-                        navigate(
-                          `/search?q=${encodeURIComponent(item)}&type=search`
-                        );
+          {showDropdown && (
+            <motion.div
+              className={styles.unifiedDropdown}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.15 }}
+            >
+              {histList.length > 0 && (
+                <>
+                  <div className={styles.sectionHeaderRow}>
+                    <span>History</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setHistory([]);
+                        localStorage.removeItem("searchHistory");
                       }}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
                     >
-                      <span className={styles.historyText}>{item}</span>
+                      clear
+                    </button>
+                  </div>
+                  {histList.map((h) => (
+                    <div
+                      key={h}
+                      className={styles.historyRow}
+                      onClick={() => executeSearch(h)}
+                    >
+                      <FiClock size={14} />
+                      <span>{h}</span>
                       <button
-                        className={styles.removeHistoryButton}
+                        className={styles.removeBtn}
                         onClick={(e) => {
                           e.stopPropagation();
-                          const updated = searchHistory.filter(
-                            (i) => i !== item
-                          );
-                          setSearchHistory(updated);
+                          setHistory((prev) => prev.filter((x) => x !== h));
                           localStorage.setItem(
                             "searchHistory",
-                            JSON.stringify(updated)
+                            JSON.stringify(histList.filter((x) => x !== h))
                           );
                         }}
-                        aria-label="Удалить из истории"
                       >
-                        <FiX size={14} />
+                        <FiX size={12} />
                       </button>
-                    </motion.li>
+                    </div>
                   ))}
-                </ul>
-              </motion.div>
-            )}
+                </>
+              )}
+
+              {results.length > 0 && (
+                <>
+                  <div className={styles.sectionHeader}>Results</div>
+                  {results.map((r) => (
+                    <div
+                      key={r.id}
+                      className={styles.resultRow}
+                      onClick={() => {
+                        executeSearch(r.title);
+                        navigate(`/book/${r.id}`);
+                      }}
+                    >
+                      <img
+                        src={r.thumbnail}
+                        alt={r.title}
+                        className={styles.thumb}
+                      />
+                      <div className={styles.resultMeta}>
+                        <span>{r.title}</span>
+                        <span className={styles.light}>{r.pages} pages</span>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </form>

@@ -1,4 +1,3 @@
-// header.module.scss
 .nav {
   display: flex;
   justify-content: space-between;
@@ -98,7 +97,6 @@
   }
 }
 
-// updater
 
 .updateButton {
   -webkit-app-region: no-drag;
@@ -142,18 +140,15 @@
   transition: all 0.3s ease;
 }
 
-/* Анимация загрузки */
 .updateButton.loading::before {
   animation: spin 1s linear infinite;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' /%3E%3C/svg%3E");
 }
 
-/* Для статуса "установить" меняем иконку */
 .updateButton.install::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
 }
 
-/* Прогресс-бар */
 .updateButton .progressBar {
   position: absolute;
   bottom: 0;

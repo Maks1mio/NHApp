@@ -91,13 +91,11 @@ async function retryParseSection(
     } catch (err: any) {
       attempt++;
       console.error(
-        `Ошибка при парсинге ${section.key} (попытка ${attempt}/${maxRetries}):`,
+        `Error parsing ${section.key} (attempt ${attempt}/${maxRetries}):`,
         err?.message || err
       );
       if (attempt >= maxRetries) {
-        console.error(
-          `  Достигнут лимит попыток для ${section.key}. Пропускаю.`
-        );
+        console.error(`  Reached attempt limit for ${section.key}. Skipping.`);
         return [];
       }
       await new Promise((res) => setTimeout(res, retryDelay));
@@ -110,14 +108,11 @@ async function runNhentaiTagsParser() {
   const output: Record<string, TagEntry[]> = {};
   for (const section of BASE_URLS) {
     try {
-      console.log(`Парсим ${section.key}...`);
+      console.log(`Parsing ${section.key}...`);
       output[section.key] = await retryParseSection(section);
-      console.log(`  Найдено: ${output[section.key].length}`);
+      console.log(`  Found: ${output[section.key].length}`);
     } catch (err: any) {
-      console.error(
-        `Фатальная ошибка при парсинге ${section.key}:`,
-        err?.message || err
-      );
+      console.error(`Fatal error parsing ${section.key}:`, err?.message || err);
       output[section.key] = [];
     }
   }
@@ -130,10 +125,10 @@ async function runNhentaiTagsParser() {
     JSON.stringify(result, null, 2),
     "utf8"
   );
-  console.log(`Готово! Файл: nhentai-tags.json, дата: ${result.updated}`);
+  console.log(`Done! File: nhentai-tags.json, date: ${result.updated}`);
 }
 
-// ==== РАСКОММЕНТИРУЙ ЧТОБЫ ОБНОВИТЬ ====
+// ==== UNCOMMENT TO RUN ====
 // runNhentaiTagsParser()
 //   .then(() => process.exit(0))
 //   .catch((err) => {

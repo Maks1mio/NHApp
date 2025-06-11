@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { FiInfo } from "react-icons/fi";
 import * as styles from "./SearchResults.module.scss";
 import BookCard, { Book } from "../BookCard";
@@ -159,8 +159,8 @@ const SearchResultsRecommendations: React.FC = () => {
         onMouseEnter={() => setTipOpen(true)}
         onMouseLeave={() => setTipOpen(false)}
       >
-        <h4>Алгоритм рекомендаций</h4>
-        <b>Веса тегов</b>
+        <h4>Recommendation Algorithm</h4>
+        <b>Tag Weights</b>
         <ul>
           {Object.entries(stats.weights).map(([k, v]) => (
             <li key={k}>
@@ -168,7 +168,7 @@ const SearchResultsRecommendations: React.FC = () => {
             </li>
           ))}
         </ul>
-        <b>Топ персонажи</b>
+        <b>Top Characters</b>
         <ul>
           {stats.topCharacters.map((t) => (
             <li key={t.name}>
@@ -178,7 +178,7 @@ const SearchResultsRecommendations: React.FC = () => {
         </ul>
         {!!stats.extraCharacters.length && (
           <>
-            <b>Ещё персонажи</b>
+            <b>More Characters</b>
             <ul>
               {stats.extraCharacters.map((t) => (
                 <li key={t.name}>
@@ -188,7 +188,7 @@ const SearchResultsRecommendations: React.FC = () => {
             </ul>
           </>
         )}
-        <b>Топ художники</b>
+        <b>Top Artists</b>
         <ul>
           {stats.topArtists.map((t) => (
             <li key={t.name}>
@@ -198,7 +198,7 @@ const SearchResultsRecommendations: React.FC = () => {
         </ul>
         {!!stats.extraArtists.length && (
           <>
-            <b>Ещё художники</b>
+            <b>More Artists</b>
             <ul>
               {stats.extraArtists.map((t) => (
                 <li key={t.name}>
@@ -208,7 +208,7 @@ const SearchResultsRecommendations: React.FC = () => {
             </ul>
           </>
         )}
-        <b>Топ теги</b>
+        <b>Top Tags</b>
         <ul>
           {stats.topTags.map((t) => (
             <li key={t.name}>
@@ -283,7 +283,7 @@ const Loader: React.FC<{
   </div>
 );
 
-const NoFavs = () => <p className={styles.emptyState}>Нет избранных книг.</p>;
-const NoRecs = () => <p className={styles.emptyState}>Рекомендаций нет.</p>;
+const NoFavs = () => <p className={styles.emptyState}>No favorite books.</p>;
+const NoRecs = () => <p className={styles.emptyState}>No recommendations.</p>;
 
 export default SearchResultsRecommendations;

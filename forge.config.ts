@@ -67,14 +67,6 @@ const forgeConfig: ForgeConfig = {
         ],
       },
     }),
-    // Пример для FusesPlugin, если нужно:
-    // new FusesPlugin({
-    //   version: FuseVersion.V1,
-    //   [FuseV1Options.RunAsNode]: true,
-    //   [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-    //   [FuseV1Options.EnableCookieEncryption]: true,
-    //   [FuseV1Options.OnlyLoadAppFromAsar]: true,
-    // }),
   ],
   hooks: {
     packageAfterPrune: async (_forgeConfig, buildPath) => {

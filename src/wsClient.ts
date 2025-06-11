@@ -1,4 +1,5 @@
-type WSMessage = { type: string; [key: string]: any };
+/* src/wsClient.ts */
+type WSMessage  = { type: string; [key: string]: any };
 type WSListener = (msg: WSMessage) => void;
 
 class WSClient {
@@ -12,35 +13,41 @@ class WSClient {
 
     this.ws.onopen = () => {
       this.isOpen = true;
-      this.queue.forEach((msg) => this.ws.send(msg));
+      this.queue.forEach((m) => this.ws.send(m));
       this.queue = [];
     };
 
     this.ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+      const data: WSMessage = JSON.parse(event.data);
+      /* call all active listeners */
       this.listeners.forEach((cb) => cb(data));
     };
 
-    this.ws.onclose = () => {
-      this.isOpen = false;
-      // Можно реализовать авто-реконнект при необходимости
-    };
+    this.ws.onclose = () => { this.isOpen = false; };
   }
 
+  /** send JSON‐serialisable data */
   send(msg: WSMessage) {
     const str = JSON.stringify(msg);
-    if (this.isOpen) {
-      this.ws.send(str);
-    } else {
-      this.queue.push(str);
-    }
+    if (this.isOpen) this.ws.send(str);
+    else             this.queue.push(str);
   }
 
+  /** subscribe – returns an unsubscribe function */
   subscribe(cb: WSListener) {
     this.listeners.push(cb);
-    return () => {
-      this.listeners = this.listeners.filter((l) => l !== cb);
-    };
+    return () => { this.listeners = this.listeners.filter((l) => l !== cb); };
+  }
+
+  /** subscribe once, then auto-unsubscribe after first matching event */
+  once(eventType: string, cb: WSListener) {
+    const unsubscribe = this.subscribe((msg) => {
+      if (msg.type === eventType) {
+        unsubscribe();   // remove listener
+        cb(msg);         // call user callback
+      }
+    });
+    return unsubscribe;  // in case caller wants to cancel beforehand
   }
 }
 

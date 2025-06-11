@@ -141,7 +141,7 @@ const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
       <div className={styles.errorIcon}>⚠️</div>
       <div className={styles.errorText}>{msg}</div>
       <button className={styles.retryButton} onClick={retry}>
-        Повторить
+        Retry
       </button>
     </div>
   </div>
@@ -150,8 +150,8 @@ const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
 const EmptyBlock = () => (
   <div className={styles.emptyState}>
     <div className={styles.emptyIllustration}>📂</div>
-    <h3>Пока пусто</h3>
-    <p>Загрузок ещё не было — загляните позже</p>
+    <h3>Empty for now</h3>
+    <p>No uploads yet — check back later</p>
   </div>
 );
 

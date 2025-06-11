@@ -15,19 +15,13 @@ const CATEGORIES = [
 
 const TAGS_PER_ROW = 3;
 
-
 interface TagFilterProps {
   isOpen: boolean;
   onClose: () => void;
   children?: React.ReactNode;
 }
 
-
-const TagFilter: React.FC<TagFilterProps> = ({
-  isOpen,
-  onClose,
-  children,
-}) => {
+const TagFilter: React.FC<TagFilterProps> = ({ isOpen, onClose, children }) => {
   const tagsByCategory = useTags();
   const { selectedTags, setSelectedTags } = useTagFilter();
   const [search, setSearch] = useState("");
@@ -43,7 +37,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
     return [...filtered].sort((a, b) => (b.count || 0) - (a.count || 0));
   }, [tagsByCategory, activeTab, search]);
 
-  // Разбиваем теги по 3 в ряд
+  // Split tags into rows of 3
   const rows = useMemo(() => {
     const result = [];
     for (let i = 0; i < sortedFilteredTags.length; i += TAGS_PER_ROW) {
@@ -54,9 +48,13 @@ const TagFilter: React.FC<TagFilterProps> = ({
 
   const handleTagClick = useCallback(
     (tag: Tag) => {
-      const isSelected = selectedTags.some((t) => t.id === tag.id && t.type === tag.type);
+      const isSelected = selectedTags.some(
+        (t) => t.id === tag.id && t.type === tag.type
+      );
       if (isSelected) {
-        setSelectedTags(selectedTags.filter((t) => !(t.id === tag.id && t.type === tag.type)));
+        setSelectedTags(
+          selectedTags.filter((t) => !(t.id === tag.id && t.type === tag.type))
+        );
       } else {
         setSelectedTags([...selectedTags, tag]);
       }
@@ -64,7 +62,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
     [selectedTags, setSelectedTags]
   );
 
-  // Элемент-строка из 3 тегов
+  // Row component with 3 tags
   const Row = ({
     index,
     style: rowStyle,
@@ -93,7 +91,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
             </motion.div>
           );
         })}
-        {/* Если строка не полная, добавим пустые div для выравнивания */}
+        {/* If the row is not full, add empty divs for alignment */}
         {Array.from({ length: TAGS_PER_ROW - tagsInRow.length }).map((_, i) => (
           <div
             key={i}
@@ -194,7 +192,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
               <input
                 className={style.tagSearchInput}
                 type="text"
-                placeholder="Поиск тегов..."
+                placeholder="Search tags..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -221,7 +219,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
                 <List
                   height={300}
                   itemCount={rows.length}
-                  itemSize={48} // чуть выше, чтобы между рядами был отступ
+                  itemSize={48} // slightly taller to allow spacing between rows
                   width="100%"
                 >
                   {Row}
@@ -248,12 +246,12 @@ const TagFilter: React.FC<TagFilterProps> = ({
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <p>Ничего не найдено</p>
+                  <p>Nothing found</p>
                   <button
                     className={style.resetSearchButton}
                     onClick={() => setSearch("")}
                   >
-                    Сбросить поиск
+                    Reset search
                   </button>
                 </motion.div>
               )}

@@ -38,9 +38,7 @@ export const useTags = (): TagsByCategory => {
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "tags-reply" && message.tags) {
-        // Если приходит в плоском виде (одним массивом с type)
         if (Array.isArray(message.tags) && message.tags.length > 0 && message.tags[0].type) {
-          // Разбиваем по type
           const grouped: TagsByCategory = {
             tags: [],
             artists: [],
@@ -56,7 +54,6 @@ export const useTags = (): TagsByCategory => {
           });
           setAllTags(grouped);
         } else {
-          // Если уже отсортировано по категориям
           setAllTags(message.tags);
         }
       }

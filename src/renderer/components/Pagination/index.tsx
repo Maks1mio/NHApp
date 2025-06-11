@@ -1,4 +1,3 @@
-// Pagination.tsx
 import React from "react";
 import * as styles from "./Pagination.module.scss";
 

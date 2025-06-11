@@ -179,7 +179,7 @@ const BookPage: React.FC = () => {
       } else if (response.type === "related-books-reply") {
         setRelatedBooks(response.books || []);
       } else if (response.type === "error") {
-        setError(response.message || "Не удалось загрузить книгу");
+        setError(response.message || "Couldn't load the workbook");
         setLoading(false);
       }
     });
@@ -511,16 +511,16 @@ const BookPage: React.FC = () => {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>
-        <p>Загрузка книги...</p>
+        <p>Loading book...</p>
       </div>
     );
 
   if (error || !book)
     return (
       <div className={styles.errorContainer}>
-        <div className={styles.error}>{error || "Книга не найдена"}</div>
+        <div className={styles.error}>{error || "Book not found"}</div>
         <button onClick={() => navigate(-1)} className={styles.backButton}>
-          Вернуться назад
+          Go back
         </button>
       </div>
     );
@@ -532,12 +532,12 @@ const BookPage: React.FC = () => {
     <div className={styles.container}>
       <section className={styles.bookCard}>
         <button onClick={() => navigate(-1)} className={styles.backButton}>
-          <FiChevronLeft /> Назад
+          <FiChevronLeft /> Back
         </button>
         <div className={styles.cardContent}>
           <SmartImage
             src={book.cover || book.thumbnail}
-            alt="Обложка"
+            alt="Cover"
             className={styles.cover}
           />
           <div className={styles.cardDetails}>
@@ -545,10 +545,10 @@ const BookPage: React.FC = () => {
             <div className={styles.metaRow}>
               <div className={styles.metaItem}>
                 <FiCalendar />{" "}
-                {new Date(book.uploaded).toLocaleDateString("ru-RU")}
+                {new Date(book.uploaded).toLocaleDateString("en-EN")}
               </div>
               <div className={styles.metaItem}>
-                <FiBookOpen /> {book.pagesCount} стр.
+                <FiBookOpen /> {book.pagesCount} page.
               </div>
               <div className={styles.metaItem}>
                 <FiHeart /> {book.favorites.toLocaleString()}
@@ -558,7 +558,7 @@ const BookPage: React.FC = () => {
                   ID: {book.id} <FiCopy />
                 </span>
                 {isCopied && (
-                  <span className={styles.copiedTooltip}>Скопировано!</span>
+                  <span className={styles.copiedTooltip}>Copied!</span>
                 )}
               </div>
             </div>
@@ -628,7 +628,7 @@ const BookPage: React.FC = () => {
             >
               <SmartImage
                 src={page.urlThumb || page.url}
-                alt={`Страница ${idx + 1}`}
+                alt={`Page ${idx + 1}`}
                 className={styles.thumbnail}
                 loading="lazy"
               />
@@ -638,7 +638,9 @@ const BookPage: React.FC = () => {
         </div>
       </section>
       <section className={styles.relatedBooks}>
-        <h2 className={styles.relatedBooksTitle}>Похожие книги</h2>
+        <h2 className={styles.relatedBooksTitle}>
+          Related<span className={styles.betaBadge}>BETA</span>
+        </h2>
         <div className={styles.relatedBooksGrid}>
           {relatedBooks.map((relatedBook) => (
             <BookCard
@@ -683,7 +685,7 @@ const BookPage: React.FC = () => {
                   <FiRotateCw />
                 </button>
                 <button onClick={() => handleShowDoublePage(!showDoublePage)}>
-                  <FiImage /> {showDoublePage ? "1 стр." : "2 стр."}
+                  <FiImage /> {showDoublePage ? "1 page." : "2 page."}
                 </button>
                 <div
                   className={styles.magnifierButtonWrapper}
@@ -700,8 +702,8 @@ const BookPage: React.FC = () => {
                   </button>
                   {showControlHints && (
                     <div className={styles.controlHints}>
-                      <span>Shift + Scroll: Изменить размер лупы</span>
-                      <span>Scroll: Изменить масштаб лупы</span>
+                      <span>Shift + Scroll: Change the magnifier size</span>
+                      <span>Scroll: Change the magnifier zoom</span>
                     </div>
                   )}
                 </div>
@@ -732,7 +734,7 @@ const BookPage: React.FC = () => {
                 <div className={styles.imageWrapper}>
                   <SmartImage
                     src={book.pages[selectedImage].url}
-                    alt={`Страница ${selectedImage + 1}`}
+                    alt={`Page ${selectedImage + 1}`}
                     className={styles.modalImage}
                     key={selectedImage}
                     style={{
@@ -746,7 +748,7 @@ const BookPage: React.FC = () => {
                   {showDoublePage && selectedImage + 1 < book.pages.length && (
                     <SmartImage
                       src={book.pages[selectedImage + 1].url}
-                      alt={`Страница ${selectedImage + 2}`}
+                      alt={`Page ${selectedImage + 2}`}
                       className={styles.modalImage}
                       key={selectedImage + 1}
                       style={{
@@ -795,10 +797,10 @@ const BookPage: React.FC = () => {
                 {showMagnifierHint && (
                   <div className={styles.magnifierHint}>
                     {window.innerWidth <= 768
-                      ? "Долгое касание для активации лупы"
-                      : `Лупа ${
-                          isMagnifierActive ? "включена" : "выключена"
-                        } (хоткей: M)`}
+                      ? "Long touch to activate the magnifier"
+                      : `Magnifier ${
+                          isMagnifierActive ? "enabled" : "disabled"
+                        } (hotkey: M)`}
                   </div>
                 )}
               </div>
@@ -816,7 +818,7 @@ const BookPage: React.FC = () => {
 
             <div className={`${styles.modalFooter} ${styles.noDrag}`}>
               <span>
-                Страница {selectedImage + 1}
+                Page {selectedImage + 1}
                 {showDoublePage && selectedImage + 1 < book.pages.length
                   ? `-${selectedImage + 2}`
                   : ""}{" "}

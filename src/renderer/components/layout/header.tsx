@@ -13,7 +13,6 @@ import { useFavorites } from "../../../context/FavoritesContext";
 import { wsClient } from "../../../wsClient";
 import { useTagFilter } from "../../../context/TagFilterContext";
 
-// Define ContentType if not imported from elsewhere
 type ContentType = "favorites" | "new" | "search" | "popular";
 
 const Header: React.FC = () => {
@@ -23,15 +22,12 @@ const Header: React.FC = () => {
   const PER_PAGE = 25;
 
   const handleSearch = (query: string, contentType: ContentType) => {
-    /* ── определяем sort, если нужен ───────────────────────────────────── */
     let sortParam = "";
 
-    // страница «Новые»
     if (contentType === "new") {
       sortParam = "date";
     }
 
-    // страница «Популярные»
     if (contentType === "popular") {
       const urlSort = new URLSearchParams(window.location.search).get("sort");
       const savedSort = localStorage.getItem("popularBooksSortType");
@@ -40,10 +36,9 @@ const Header: React.FC = () => {
           ? urlSort
           : savedSort && savedSort !== ""
           ? (savedSort as string)
-          : "popular"; // fallback
+          : "popular";
     }
 
-    // страница результатов поиска
     if (contentType === "search") {
       const urlSort = new URLSearchParams(window.location.search).get("sort");
       const savedSort = localStorage.getItem("searchResultsSortType");
@@ -52,10 +47,9 @@ const Header: React.FC = () => {
           ? urlSort
           : savedSort && savedSort !== ""
           ? (savedSort as string)
-          : "popular"; // fallback
+          : "popular";
     }
 
-    /* ── отправляем запрос ─────────────────────────────────────────────── */
     wsClient.send({
       type: "search-books",
       query: contentType === "search" ? query : "",
@@ -64,11 +58,9 @@ const Header: React.FC = () => {
       perPage: PER_PAGE,
       filterTags: contentType !== "favorites" ? selectedTags : "",
       ids: contentType === "favorites" ? favorites : "",
-      sort: sortParam, // << ключевая строка
+      sort: sortParam,
     });
   };
-
-  // updater
 
   const [updateStatus, setUpdateStatus] = useState({
     status: "idle",
