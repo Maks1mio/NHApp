@@ -1,5 +1,4 @@
 ![image](https://github.com/user-attachments/assets/4e44b0ad-5aee-4d65-b965-00507798acef)
-"I apologize, the select language will be added later"
 
 # NHApp (Beta)
 
