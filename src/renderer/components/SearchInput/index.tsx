@@ -302,7 +302,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
             <motion.button
               type="submit"
               className={styles.searchButton}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1 }}
               whileTap={{ scale: 0.95 }}
             >
               Search
@@ -312,7 +312,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
           <motion.button
             type="button"
             className={styles.tagsButton}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setTagsOpen(true)}
           >
@@ -347,13 +347,15 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
                     </button>
                   </div>
                   {histList.map((h) => (
-                    <div
-                      key={h}
-                      className={styles.historyRow}
-                      onClick={() => executeSearch(h)}
-                    >
-                      <FiClock size={14} />
-                      <span>{h}</span>
+                    <div key={h} className={styles.historyRow}>
+                      <button
+                        className={styles.historyRowButton}
+                        onClick={() => executeSearch(h)}
+                      >
+                        <FiClock size={14} />
+                        <span>{h}</span>
+                      </button>
+
                       <button
                         className={styles.removeBtn}
                         onClick={(e) => {

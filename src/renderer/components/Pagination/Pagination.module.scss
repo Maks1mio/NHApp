@@ -1,40 +1,50 @@
-// Pagination.module.scss
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
-  margin: 20px 0;
+  margin: 24px 0;
   flex-wrap: wrap;
 }
 
-.page, .arrow {
-  min-width: 36px;
-  height: 36px;
+.page,
+.arrow {
+  min-width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  background: #2a2a3a;
-  color: #ffffff;
-  border: none;
+  border-radius: 10px;
+  background: hsla(var(--base-hue), 40%, 20%, 0.7);
+  color: var(--colour-l1);
+  border: 1px solid hsla(var(--base-hue), 20%, 90%, 0.08);
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
   padding: 0 12px;
+  transition: background 0.2s, box-shadow 0.2s;
 
   &:hover:not(:disabled) {
-    background: #3a3a4a;
+    background: hsla(var(--base-hue), 40%, 40%, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
+    background: hsla(var(--base-hue), 20%, 15%, 0.4);
   }
 }
 
 .active {
-  background: #6e45e2;
-  color: white;
+  background: hsl(var(--base-hue), 60%, 55%);
+  color: var(--colour-l1);
+  font-weight: 600;
+  box-shadow: 0 0 12px hsl(var(--base-hue), 90%, 55%);
+
+  &:hover {
+    background: hsl(var(--base-hue), 60%, 50%);
+  }
 }
 
 .ellipsis {
@@ -43,5 +53,27 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  color: #b0b0c0;
+  color: var(--colour-l3);
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.arrow svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    gap: 4px;
+  }
+
+  .page,
+  .arrow,
+  .ellipsis {
+    min-width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
 }

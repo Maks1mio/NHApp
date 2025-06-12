@@ -60,7 +60,7 @@ const TAG_COLORS: Record<string, string> = {
   parody: "#BCEA83",
   group: "#86F0C6",
   category: "#92EFFF",
-  tag: "#A1A1C3",
+  tag: "background-color: hsl(var(--base-hue), 32%, 36%) !important",
 };
 
 const BookCard: React.FC<BookCardProps> = ({

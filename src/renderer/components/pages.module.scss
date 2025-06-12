@@ -3,77 +3,80 @@
 }
 
 .header {
-  background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
-  color: white;
-  padding: 2rem 1.5rem;
-  border-radius: 0 0 12px 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--colour-d1), var(--colour-l4));
+  color: var(--colour-f1);
+  padding: var(--spacing-xl) var(--spacing-lg);
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
 }
 
 .mainTitle {
   display: flex;
   align-items: center;
-  font-size: 1.8rem;
-  margin: 0 0 1.5rem 0;
+  font-size: var(--font-size-h1);
+  margin: 0 0 var(--spacing-lg) 0;
   font-weight: 600;
+  color: var(--colour-h1);
 }
 
 .fireIcon {
-  margin-right: 12px;
+  margin-right: var(--spacing-sm);
   font-size: 1.5em;
 }
 
 .sortSelector {
   display: flex;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8px;
-  border-radius: 8px;
+  gap: var(--spacing-sm);
+  background: var(--colour-b4);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-md);
   backdrop-filter: blur(5px);
 }
 
 .sortOption {
-  padding: 8px 16px;
+  padding: var(--spacing-sm) var(--spacing-md);
   border: none;
   background: transparent;
-  color: white;
+  color: var(--colour-l2);
   font-weight: 500;
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: var(--border-radius-sm);
+  transition: var(--tr);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--colour-b3);
+    color: var(--colour-l1);
   }
 
   &.active {
-    background: white;
-    color: #6e45e2;
+    background: var(--colour-p);
+    color: var(--colour-b1);
     font-weight: 600;
   }
 }
 
 .content {
-  padding: 0 1.5rem;
-  padding-bottom: 20px;
+  padding: 0 var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
 }
 
 .reloadBtn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-sm);
   margin-left: auto;
-  padding: 8px 16px;
-  background: #f5f5f5;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--colour-l3);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--tr);
   font-weight: 500;
+  color: var(--colour-d1);
 
   &:hover {
-    background: #e0e0e0;
+    background: var(--colour-l2);
   }
 
   &:disabled {
@@ -83,13 +86,13 @@
 }
 
 .reloadIcon {
-  font-size: 1rem;
+  font-size: var(--font-size-md);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: var(--spacing-lg);
 }
 
 .loadingContainer {
@@ -98,15 +101,15 @@
   align-items: center;
   justify-content: center;
   min-height: 300px;
-  gap: 16px;
-  color: #888;
+  gap: var(--spacing-md);
+  color: var(--colour-l3);
 }
 
 .loadingSpinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
-  border-top-color: #6e45e2;
+  border: 3px solid var(--colour-b3);
+  border-top-color: var(--colour-p);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -123,37 +126,37 @@
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  gap: 12px;
-  color: #888;
+  gap: var(--spacing-sm);
+  color: var(--colour-l3);
   text-align: center;
 }
 
 .emptyIcon {
-  font-size: 2.5rem;
+  font-size: var(--font-size-h2);
 }
 
 .error {
-  color: #ff4444;
-  padding: 16px;
-  background: rgba(255, 68, 68, 0.05);
-  border-radius: 8px;
+  color: var(--colour-red-1);
+  padding: var(--spacing-md);
+  background: var(--colour-b4);
+  border-radius: var(--border-radius-md);
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-sm);
 }
 
 .retryBtn {
-  padding: 8px 16px;
-  background: #ff4444;
-  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--colour-red-1);
+  color: var(--colour-f1);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: var(--tr);
 
   &:hover {
-    background: #e03e3e;
+    background: var(--colour-red-2);
   }
 }
 

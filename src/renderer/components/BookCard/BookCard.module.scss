@@ -1,6 +1,6 @@
 .card {
   cursor: pointer;
-  background: #2a2a3a;
+  background: var(--colour-d3);
   border-radius: 12px;
   overflow: visible;
   transition: all 0.3s ease;
@@ -8,7 +8,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  outline: solid 1px #b0b0c000;
+  outline: solid 1px transparent;
   z-index: 1;
 
   &:hover {
@@ -57,7 +57,7 @@
 
 .favoriteButton {
   align-self: flex-end;
-  background: none;
+  background: rgba(0, 0, 0, 0.74);
   border: none;
   cursor: pointer;
   padding: 8px;
@@ -66,19 +66,17 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  background: #000000bd;
 
   &:hover {
-    background: rgb(255, 51, 51);
-
+    background: var(--colour-p);
     & > .favoriteIconActive {
-      color: #ffffff;
+      color: var(--colour-l1);
     }
   }
 }
 
 .favoriteIcon {
-  color: white;
+  color: var(--colour-l1);
   font-size: 1.2rem;
   stroke-width: 2px;
 }
@@ -92,7 +90,7 @@
 .stats {
   display: flex;
   gap: 16px;
-  color: white;
+  color: var(--colour-l1);
   font-size: 0.9rem;
   align-items: center;
 }
@@ -113,7 +111,7 @@
 .titleText {
   font-size: 1.1rem;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--colour-l1);
   margin: 0 0 8px 0;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -128,7 +126,7 @@
   justify-content: space-between;
   margin-top: auto;
   font-size: 0.85rem;
-  color: #b0b0c0;
+  color: var(--colour-l3);
 }
 
 .date,
@@ -146,8 +144,8 @@
 }
 
 .tag {
-  background: #3a3a4a;
-  color: white;
+  background: var(--colour-d4);
+  color: var(--colour-l1);
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -156,13 +154,13 @@
 
   &.tagSelected {
     background: transparent;
-    border-color: white;
-    color: white;
+    border-color: var(--colour-l1);
+    color: var(--colour-l1);
   }
 }
 
 .moreTags {
-  color: #b0b0c0;
+  color: var(--colour-l3);
   font-size: 0.7rem;
   align-self: center;
 }
@@ -172,7 +170,7 @@
   top: -20px;
   left: -20px;
   right: -20px;
-  background: #2a2a3a;
+  background: var(--colour-d3);
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -199,8 +197,8 @@
   overflow-x: overlay;
   scrollbar-width: none;
   cursor: grab;
-  left: 0px;
-  right: 0px;
+  left: 0;
+  right: 0;
   padding: 0 20px;
   width: -webkit-fill-available;
   position: absolute;
@@ -221,9 +219,8 @@
   outline: 2px rgba(0, 0, 0, 0.2);
 
   &.active {
-    outline: 2px rgba(110, 69, 226, 0.3);
+    outline: 2px var(--colour-p-soft);
     position: relative;
-
     &::after {
       content: "";
       position: absolute;
@@ -231,7 +228,7 @@
       left: 0;
       right: 0;
       height: 4px;
-      outline: 2px rgba(110, 69, 226, 0.3);
+      outline: 2px var(--colour-p-soft);
     }
   }
 }
@@ -252,7 +249,7 @@
 
 .previewTitle {
   margin: 0;
-  color: white;
+  color: var(--colour-l1);
   font-size: 1.3rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -264,7 +261,7 @@
 .previewMeta {
   display: flex;
   gap: 15px;
-  color: #b0b0c0;
+  color: var(--colour-l3);
   font-size: 0.9rem;
   flex-wrap: wrap;
 
@@ -283,23 +280,23 @@
 }
 
 .previewTag {
-  background: #3a3a4a;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  background: var(--colour-d4);
+  color: var(--colour-l1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
   transition: all 0.2s ease;
   border: 1px solid transparent;
 
   &.tagSelected {
     background: transparent;
-    border-color: white;
-    color: white;
+    border-color: var(--colour-l1);
+    color: var(--colour-l1);
   }
 }
 
 .scanlator {
-  color: #6e45e2;
+  color: var(--colour-p);
   font-size: 0.9rem;
   margin-top: 5px;
   white-space: nowrap;
@@ -316,37 +313,9 @@
   pointer-events: none;
 }
 
-.tag-language {
-  background-color: #4caf50 !important;
-}
-
-.tag-artist {
-  background-color: #2196f3 !important;
-}
-
-.tag-character {
-  background-color: #9c27b0 !important;
-}
-
-.tag-parody {
-  background-color: #ff9800 !important;
-}
-
-.tag-group {
-  background-color: #607d8b !important;
-}
-
-.tag-category {
-  background-color: #e91e63 !important;
-}
-
-.tag-tag {
-  background-color: #795548 !important;
-}
-
 .tagSelected {
-  outline: 1px solid white !important;
-  color: white !important;
+  outline: 1px solid var(--colour-l1) !important;
+  color: var(--colour-l1) !important;
 }
 
 .newBadge {
@@ -354,7 +323,7 @@
   bottom: -8px;
   left: 16px;
   background: #ff4757;
-  color: #fff;
+  color: var(--colour-l1);
   font-weight: 600;
   font-size: 11px;
   padding: 2px 6px;

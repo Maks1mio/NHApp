@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #1e1e2f;
+  background: var(--colour-d5);
 }
 
 .containerFix {
@@ -14,37 +14,37 @@
 .grid {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--spacing-lg);
   height: -webkit-fill-available;
   width: -webkit-fill-available;
 }
 
 .tabs {
   display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid #393b46;
-  padding-bottom: 8px;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--colour-d2);
+  padding-bottom: var(--spacing-sm);
 }
 
 .tab {
-  padding: 8px 16px;
+  padding: var(--spacing-sm) var(--spacing-md);
   background: none;
   border: none;
-  color: #b0b0c0;
-  font-size: 1rem;
+  color: var(--colour-l3);
+  font-size: var(--font-size-md);
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  border-radius: var(--border-radius-sm);
+  transition: var(--tr);
 
   &:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.1);
+    color: var(--colour-l1);
+    background: var(--colour-b4);
   }
 
   &.active {
-    color: #6e45e2;
+    color: var(--colour-p);
     font-weight: 600;
-    background: rgba(110, 69, 226, 0.1);
+    background: var(--colour-b3);
   }
 }

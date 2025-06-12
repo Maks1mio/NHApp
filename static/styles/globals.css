@@ -1,21 +1,107 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
 
 * {
-  /* user-select: none; */
-  transition: var(--tr);
-  font-family: "Nunito Sans";
+  font-family: "Nunito Sans", sans-serif;
   font-style: normal;
   max-width: -webkit-fill-available;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
+  --base-hue: 233;
+
   --tr: cubic-bezier(0.45, 0.65, 0.395, 1) all 0.2s;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.14);
+  --font-size-sm: 12px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-h2: 24px;
+  --font-size-h1: 32px;
+
+  --hsl-p: var(--base-hue), 100%, 50%;
+  --hsl-h1: var(--base-hue), 100%, 70%;
+  --hsl-h2: var(--base-hue), 50%, 45%;
+  --hsl-c1: var(--base-hue), 40%, 100%;
+  --hsl-c2: var(--base-hue), 40%, 90%;
+  --hsl-l1: var(--base-hue), 40%, 80%;
+  --hsl-l2: var(--base-hue), 40%, 75%;
+  --hsl-l3: var(--base-hue), 40%, 70%;
+  --hsl-l4: var(--base-hue), 40%, 50%;
+  --hsl-d1: var(--base-hue), 20%, 35%;
+  --hsl-d2: var(--base-hue), 20%, 30%;
+  --hsl-d3: var(--base-hue), 20%, 25%;
+  --hsl-d4: var(--base-hue), 20%, 20%;
+  --hsl-d5: var(--base-hue), 20%, 15%;
+  --hsl-d6: var(--base-hue), 20%, 10%;
+  --hsl-f1: var(--base-hue), 10%, 60%;
+  --hsl-b1: var(--base-hue), 10%, 40%;
+  --hsl-b2: var(--base-hue), 10%, 30%;
+  --hsl-b3: var(--base-hue), 10%, 25%;
+  --hsl-b4: var(--base-hue), 10%, 20%;
+  --hsl-b5: var(--base-hue), 10%, 15%;
+  --hsl-b6: var(--base-hue), 10%, 10%;
+
+  --hsl-overlay: var(--base-hue), 10%, 10%, 0.7;
+  --colour-overlay: hsla(var(--hsl-overlay));
+
+  --colour-p: hsl(var(--hsl-p));
+  --colour-h1: hsl(var(--hsl-h1));
+  --colour-h2: hsl(var(--hsl-h2));
+  --colour-c1: hsl(var(--hsl-c1));
+  --colour-c2: hsl(var(--hsl-c2));
+  --colour-l1: hsl(var(--hsl-l1));
+  --colour-l2: hsl(var(--hsl-l2));
+  --colour-l3: hsl(var(--hsl-l3));
+  --colour-l4: hsl(var(--hsl-l4));
+  --colour-d1: hsl(var(--hsl-d1));
+  --colour-d2: hsl(var(--hsl-d2));
+  --colour-d3: hsl(var(--hsl-d3));
+  --colour-d4: hsl(var(--hsl-d4));
+  --colour-d5: hsl(var(--hsl-d5));
+  --colour-d6: hsl(var(--hsl-d6));
+  --colour-f1: hsl(var(--hsl-f1));
+  --colour-b1: hsl(var(--hsl-b1));
+  --colour-b2: hsl(var(--hsl-b2));
+  --colour-b3: hsl(var(--hsl-b3));
+  --colour-b4: hsl(var(--hsl-b4));
+  --colour-b5: hsl(var(--hsl-b5));
+  --colour-b6: hsl(var(--hsl-b6));
+
+  --colour-pink-hue: 333;
+  --colour-purple-hue: 255;
+  --colour-blue-hue: 200;
+  --colour-green-hue: 125;
+  --colour-lime-hue: 90;
+  --colour-orange-hue: 45;
+  --colour-red-hue: 360;
+  --colour-darkorange-hue: 20;
+
+  --c-saturation-1: 100%;
+  --c-saturation-2: 80%;
+  --c-saturation-3: 60%;
+  --c-saturation-4: 40%;
+  --c-lightness-1: 70%;
+  --c-lightness-2: 60%;
+  --c-lightness-3: 50%;
+  --c-lightness-4: 30%;
 }
 
 body {
   display: flex;
-  background: #202229;
-  color: white;
+  background: var(--colour-b6);
+  color: var(--colour-f1);
   padding: 0;
   margin: 0;
   flex-direction: column;
@@ -28,24 +114,26 @@ body {
 
 .nh-tooltip {
   position: fixed;
-  z-index: 10000;                     /* поверх всего */
+  z-index: 10000;
   max-width: 280px;
   max-height: 280px;
   overflow-y: auto;
-  background: #2c2f33;
-  outline: #202229 solid 1px;
-  border-radius: 8px;
-  padding: 10px 14px;
-  box-shadow: 0 4px 14px rgba(0,0,0,.14);
-  font-size: 13px;
+  background: var(--colour-b2);
+  outline: var(--colour-b4) solid 1px;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-sm);
+  color: var(--colour-l1);
 }
 
 .tooltipInner section {
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-sm);
 }
+
 .tooltipInner ul {
-  margin: 4px 0 0;
-  padding-left: 18px;
+  margin: var(--spacing-xs) 0 0;
+  padding-left: var(--spacing-md);
 }
 
 ::-webkit-scrollbar {

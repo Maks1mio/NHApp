@@ -28,6 +28,8 @@ import SmartImage from "../SmartImage";
 import { useTagFilter } from "../../../context/TagFilterContext";
 import ReactCountryFlag from "react-country-flag";
 import BookCard from "../BookCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { useIsMobile } from "../../../hooks/useIsMobile";
 
 interface Tag {
   id: number;
@@ -72,7 +74,7 @@ const TAG_COLORS: Record<string, string> = {
   parody: "#BCEA83",
   group: "#86F0C6",
   category: "#92EFFF",
-  tag: "#A1A1C3",
+  tag: "#98a2af",
 };
 
 const languageCountryCodes: Record<string, string> = {
@@ -86,6 +88,7 @@ const SUPPORTED_LANGUAGES = Object.keys(languageCountryCodes);
 const PRELOAD_COUNT = 5;
 
 const BookPage: React.FC = () => {
+  const isMobile = useIsMobile(900);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { selectedTags, setSelectedTags } = useTagFilter();
@@ -133,20 +136,38 @@ const BookPage: React.FC = () => {
   const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const sortedTags = useMemo(() => {
-    const categories = [
-      {
-        type: "language",
-        filter: (t: Tag) => SUPPORTED_LANGUAGES.includes(t.name.toLowerCase()),
-      },
-      { type: "artist", filter: (t: Tag) => t.type === "artist" },
-      { type: "character", filter: (t: Tag) => t.type === "character" },
-      { type: "parody", filter: (t: Tag) => t.type === "parody" },
-      { type: "group", filter: (t: Tag) => t.type === "group" },
-      { type: "category", filter: (t: Tag) => t.type === "category" },
-      { type: "tag", filter: () => true },
-    ];
+  // Категории тегов
+  const categories = [
+    {
+      type: "language",
+      label: "Языки",
+      filter: (t: Tag) => SUPPORTED_LANGUAGES.includes(t.name.toLowerCase()),
+    },
+    {
+      type: "artist",
+      label: "Артисты",
+      filter: (t: Tag) => t.type === "artist",
+    },
+    {
+      type: "character",
+      label: "Персонажи",
+      filter: (t: Tag) => t.type === "character",
+    },
+    {
+      type: "parody",
+      label: "Пародии",
+      filter: (t: Tag) => t.type === "parody",
+    },
+    { type: "group", label: "Группы", filter: (t: Tag) => t.type === "group" },
+    {
+      type: "category",
+      label: "Категории",
+      filter: (t: Tag) => t.type === "category",
+    },
+    { type: "tag", label: "Теги", filter: () => true },
+  ];
 
+  const sortedTags = useMemo(() => {
     if (!book || !book.tags) return [];
     const uniqueTags = book.tags.filter(
       (tag, idx, arr) =>
@@ -154,17 +175,18 @@ const BookPage: React.FC = () => {
     );
 
     const usedIds = new Set<string>();
-    return categories.reduce((acc, { type, filter }) => {
-      const bucket = uniqueTags.filter((t) => {
-        const id = String(t.id);
-        return !usedIds.has(id) && filter(t);
-      });
-      if (bucket.length) {
-        bucket.forEach((t) => usedIds.add(String(t.id)));
-        acc.push({ type, tags: bucket });
-      }
-      return acc;
-    }, [] as { type: string; tags: Tag[] }[]);
+    return categories
+      .map(({ type, label, filter }) => ({
+        type,
+        label,
+        tags: uniqueTags.filter((t) => {
+          const id = String(t.id);
+          const pass = !usedIds.has(id) && filter(t);
+          if (pass) usedIds.add(id);
+          return pass;
+        }),
+      }))
+      .filter((cat) => cat.tags.length > 0);
   }, [book]);
 
   useEffect(() => {
@@ -275,7 +297,6 @@ const BookPage: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
     setBook(null);
     setLoading(true);
     setError(null);
@@ -511,17 +532,22 @@ const BookPage: React.FC = () => {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>
-        <p>Loading book...</p>
+        <p>Загрузка книги...</p>
       </div>
     );
 
   if (error || !book)
     return (
       <div className={styles.errorContainer}>
-        <div className={styles.error}>{error || "Book not found"}</div>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          Go back
-        </button>
+        <div className={styles.error}>{error || "Книга не найдена"}</div>
+        <motion.button
+          whileHover={{ scale: 1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate(-1)}
+          className={styles.backButton}
+        >
+          Назад
+        </motion.button>
       </div>
     );
 
@@ -530,304 +556,416 @@ const BookPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <section className={styles.bookCard}>
-        <button onClick={() => navigate(-1)} className={styles.backButton}>
-          <FiChevronLeft /> Back
-        </button>
-        <div className={styles.cardContent}>
+      <div className={styles.mainSplitLayout}>
+        <motion.aside
+          className={styles.infoPanel}
+          transition={{ duration: 0.3 }}
+        >
           <SmartImage
             src={book.cover || book.thumbnail}
-            alt="Cover"
-            className={styles.cover}
+            alt="Обложка"
+            className={styles.coverLarge}
           />
-          <div className={styles.cardDetails}>
-            <h1 className={styles.title}>{title}</h1>
-            <div className={styles.metaRow}>
-              <div className={styles.metaItem}>
-                <FiCalendar />{" "}
-                {new Date(book.uploaded).toLocaleDateString("en-EN")}
-              </div>
-              <div className={styles.metaItem}>
-                <FiBookOpen /> {book.pagesCount} page.
-              </div>
-              <div className={styles.metaItem}>
-                <FiHeart /> {book.favorites.toLocaleString()}
-              </div>
-              <div className={styles.metaItem}>
-                <span className={styles.bookId} onClick={copyBookId}>
-                  ID: {book.id} <FiCopy />
-                </span>
-                {isCopied && (
-                  <span className={styles.copiedTooltip}>Copied!</span>
-                )}
-              </div>
+          {/* backgroundOverlayGray */}
+          <div className={styles.backgroundOverlayGray}></div>
+          <div className={styles.cardActions}>
+            <motion.button
+              whileHover={{ scale: 1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleFavorite}
+              className={isFavorite ? styles.favorite : ""}
+              title={
+                isFavorite ? "Убрать из избранного" : "Добавить в избранное"
+              }
+            >
+              {isFavorite ? <FaHeart /> : <FiHeart />}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() =>
+                window.open(`https://nhentai.net/g/${book.id}`, "_blank")
+              }
+              title="Открыть на сайте"
+            >
+              <FiExternalLink />
+            </motion.button>
+          </div>
+          <h1 className={styles.title}>{title}</h1>
+          <div className={styles.metaGrid}>
+            <div className={styles.metaItem}>
+              <FiCalendar className={styles.metaIcon} />
+              <span>{new Date(book.uploaded).toLocaleDateString("ru-RU")}</span>
             </div>
-            <div className={styles.tags}>
-              {sortedTags.map(({ type, tags }) =>
-                tags.map((tag) => (
-                  <span
-                    key={tag.id}
-                    className={`${styles.tag} ${
-                      selectedTags.some(
-                        (t) =>
-                          Number(t.id) === Number(tag.id) &&
-                          t.name.trim() === tag.name.trim()
-                      )
-                        ? styles.tagSelected
-                        : ""
-                    }`}
-                    style={{
-                      backgroundColor: TAG_COLORS[type] || TAG_COLORS.tag,
-                    }}
-                    onClick={() => handleTagClick(tag)}
-                  >
-                    {tag.name}
-                    {type === "language" && (
-                      <ReactCountryFlag
-                        countryCode={
-                          languageCountryCodes[tag.name.toLowerCase()]
-                        }
-                        svg
-                        className={styles.languageFlag}
-                        title={tag.name}
-                      />
-                    )}
-                  </span>
-                ))
-              )}
+            <div className={styles.metaItem}>
+              <FiBookOpen className={styles.metaIcon} />
+              <span>{book.pagesCount} стр.</span>
             </div>
-            <div className={styles.actions}>
-              <button
-                onClick={toggleFavorite}
-                className={`${styles.actionButton} ${
-                  isFavorite ? styles.favorite : ""
-                }`}
-              >
-                {isFavorite ? <FaHeart /> : <FiHeart />}
-              </button>
-              <button
-                onClick={() =>
-                  window.open(`https://nhentai.net/g/${book.id}`, "_blank")
-                }
-                className={styles.actionButton}
-              >
-                <FiExternalLink />
-              </button>
+            <div className={styles.metaItem}>
+              <FiHeart className={styles.metaIcon} />
+              <span>{book.favorites.toLocaleString()}</span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.bookId} onClick={copyBookId} title="ID">
+                ID: {book.id} <FiCopy />
+                <AnimatePresence>
+                  {isCopied && (
+                    <motion.span
+                      className={styles.copiedTooltip}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      Скопировано!
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className={styles.gallery}>
-        <div className={styles.grid}>
-          {book.pages.map((page, idx) => (
-            <div
-              key={idx}
-              className={styles.gridItem}
-              onClick={() => openImageModal(idx)}
-            >
-              <SmartImage
-                src={page.urlThumb || page.url}
-                alt={`Page ${idx + 1}`}
-                className={styles.thumbnail}
-                loading="lazy"
-              />
-              <div className={styles.pageNumber}>{idx + 1}</div>
+          {book.scanlator && (
+            <div className={styles.scanlatorBlock}>
+              <span>Перевод: {book.scanlator}</span>
             </div>
-          ))}
-        </div>
-      </section>
-      <section className={styles.relatedBooks}>
-        <h2 className={styles.relatedBooksTitle}>
-          Related<span className={styles.betaBadge}>BETA</span>
-        </h2>
-        <div className={styles.relatedBooksGrid}>
-          {relatedBooks.map((relatedBook) => (
-            <BookCard
-              key={relatedBook.id}
-              book={relatedBook}
-              isFavorite={favorites.includes(relatedBook.id)}
-              onToggleFavorite={(bookId, newState) => {
-                const newFavorites = newState
-                  ? [...favorites, bookId]
-                  : favorites.filter((id) => id !== bookId);
-                setFavorites(newFavorites);
-                localStorage.setItem(
-                  "bookFavorites",
-                  JSON.stringify(newFavorites)
-                );
-              }}
-              className={styles.relatedBookCard}
-            />
-          ))}
-        </div>
-      </section>
-
-      {showModal && selectedImage !== null && (
-        <div className={styles.modalOverlay} onClick={closeImageModal}>
-          <div
-            className={styles.modalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={`${styles.modalHeader} ${styles.noDrag}`}>
-              <div className={styles.controls}>
-                <button
-                  onClick={() => handleZoom(Math.max(zoomLevel - 0.1, 0.5))}
+          )}
+          <div className={styles.tagsBlock}>
+            {sortedTags.map(({ type, label, tags }) => (
+              <div key={type} className={styles.tagsCategoryRow}>
+                <span
+                  className={styles.tagsCategoryTitle}
+                  style={{ color: TAG_COLORS[type] || "#aaa" }}
                 >
-                  <FiZoomOut />
-                </button>
-                <button
-                  onClick={() => handleZoom(Math.min(zoomLevel + 0.1, 3))}
-                >
-                  <FiZoomIn />
-                </button>
-                <button onClick={() => handleRotation((rotation + 90) % 360)}>
-                  <FiRotateCw />
-                </button>
-                <button onClick={() => handleShowDoublePage(!showDoublePage)}>
-                  <FiImage /> {showDoublePage ? "1 page." : "2 page."}
-                </button>
-                <div
-                  className={styles.magnifierButtonWrapper}
-                  onMouseEnter={() => setShowControlHints(true)}
-                  onMouseLeave={() =>
-                    !isMagnifierActive && setShowControlHints(false)
-                  }
-                >
-                  <button
-                    onClick={toggleMagnifier}
-                    className={isMagnifierActive ? styles.activeMagnifier : ""}
-                  >
-                    <FiSearch />
-                  </button>
-                  {showControlHints && (
-                    <div className={styles.controlHints}>
-                      <span>Shift + Scroll: Change the magnifier size</span>
-                      <span>Scroll: Change the magnifier zoom</span>
-                    </div>
-                  )}
+                  {label}:
+                </span>
+                <div className={styles.tagsCategoryList}>
+                  {tags.map((tag) => {
+                    const selected = selectedTags.some(
+                      (t) =>
+                        Number(t.id) === Number(tag.id) &&
+                        t.name.trim() === tag.name.trim()
+                    );
+                    return (
+                      <motion.span
+                        key={tag.id}
+                        className={`${styles.tag} ${
+                          selected ? styles.tagSelected : ""
+                        }`}
+                        style={{
+                          color: TAG_COLORS[type] || "#ccc",
+                          borderColor: TAG_COLORS[type] || "#ccc",
+                        }}
+                        onClick={() => handleTagClick(tag)}
+                        title={tag.count ? `Используется: ${tag.count}` : ""}
+                        whileHover={{
+                          y: -2,
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                        }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {tag.name}
+                        {type === "language" && (
+                          <ReactCountryFlag
+                            countryCode={
+                              languageCountryCodes[tag.name.toLowerCase()]
+                            }
+                            svg
+                            title={tag.name}
+                            style={{ marginLeft: "4px" }}
+                          />
+                        )}
+                      </motion.span>
+                    );
+                  })}
                 </div>
               </div>
-              <button onClick={closeImageModal} className={styles.closeButton}>
-                <FiX />
-              </button>
-            </div>
-
-            <div className={styles.imageViewer}>
-              <button
-                className={styles.navButton}
-                onClick={() => navigateImage("prev")}
-                disabled={selectedImage === 0}
-              >
-                <FiChevronLeft />
-              </button>
-
-              <div
-                className={styles.imageContainer}
-                onMouseMove={handleMouseMove}
-                onTouchStart={handleTouchStartMagnifier}
-                onTouchMove={handleTouchMoveMagnifier}
-                onTouchEnd={handleTouchEndMagnifier}
-                onWheel={handleWheel}
-                ref={imageRef}
-              >
-                <div className={styles.imageWrapper}>
+            ))}
+          </div>
+        </motion.aside>
+        <main className={styles.galleryPanel}>
+          <section className={styles.gallerySection}>
+            <h2>Страницы</h2>
+            <div className={styles.grid}>
+              {book.pages.map((page, idx) => (
+                <motion.div
+                  key={idx}
+                  className={styles.gridItem}
+                  onClick={() => openImageModal(idx)}
+                  whileHover={{ scale: 1 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.03 }}
+                >
                   <SmartImage
-                    src={book.pages[selectedImage].url}
-                    alt={`Page ${selectedImage + 1}`}
-                    className={styles.modalImage}
-                    key={selectedImage}
-                    style={{
-                      transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
-                      transformOrigin: "center center",
-                    }}
-                    innerRef={(el) => {
-                      imageRefs.current[0] = el;
-                    }}
+                    src={
+                      isMobile
+                        ? page.url
+                        : page.urlThumb || page.url
+                    }
+                    alt={`Страница ${idx + 1}`}
+                    className={styles.thumbnail}
+                    loading="lazy"
                   />
-                  {showDoublePage && selectedImage + 1 < book.pages.length && (
+                  <div className={styles.pageNumber}>{idx + 1}</div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
+      {relatedBooks.length > 0 && (
+        <section className={styles.relatedBooksSection}>
+          <h2>
+            Похожие книги{" "}
+            <span
+              style={{
+                fontWeight: 400,
+                fontSize: "0.98em",
+                color: "var(--colour-l3)",
+              }}
+            >
+              [Бета]
+            </span>
+          </h2>
+          <div className={styles.relatedBooksGrid}>
+            {relatedBooks.map((relatedBook) => (
+              <BookCard
+                key={relatedBook.id}
+                book={relatedBook}
+                isFavorite={favorites.includes(relatedBook.id)}
+                onToggleFavorite={(bookId, newState) => {
+                  const newFavorites = newState
+                    ? [...favorites, bookId]
+                    : favorites.filter((id) => id !== bookId);
+                  setFavorites(newFavorites);
+                  localStorage.setItem(
+                    "bookFavorites",
+                    JSON.stringify(newFavorites)
+                  );
+                }}
+                className={styles.relatedBookCard}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+      <AnimatePresence>
+        {showModal && selectedImage !== null && (
+          <motion.div
+            className={styles.modalOverlay}
+            onClick={closeImageModal}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className={styles.modalContent}
+              onClick={(e) => e.stopPropagation()}
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+            >
+              <div className={`${styles.modalHeader} ${styles.noDrag}`}>
+                <motion.button
+                  whileHover={{ rotate: 90 }}
+                  onClick={closeImageModal}
+                  className={styles.closeButton}
+                  title="Закрыть"
+                >
+                  <FiX />
+                </motion.button>
+                <div className={styles.controls}>
+                  <motion.button
+                    whileHover={{ scale: 1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleZoom(Math.max(zoomLevel - 0.1, 0.5))}
+                    title="Масштаб -"
+                  >
+                    <FiZoomOut />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleZoom(Math.min(zoomLevel + 0.1, 3))}
+                    title="Масштаб +"
+                  >
+                    <FiZoomIn />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleRotation((rotation + 90) % 360)}
+                    title="Повернуть"
+                  >
+                    <FiRotateCw />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleShowDoublePage(!showDoublePage)}
+                    title={showDoublePage ? "Одна страница" : "Две страницы"}
+                  >
+                    <FiImage /> {showDoublePage ? "1" : "2"}
+                  </motion.button>
+                  <div
+                    className={styles.magnifierButtonWrapper}
+                    onMouseEnter={() => setShowControlHints(true)}
+                    onMouseLeave={() =>
+                      !isMagnifierActive && setShowControlHints(false)
+                    }
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={toggleMagnifier}
+                      className={
+                        isMagnifierActive ? styles.activeMagnifier : ""
+                      }
+                      title="Лупа (M)"
+                    >
+                      <FiSearch />
+                    </motion.button>
+                    <AnimatePresence>
+                      {showControlHints && (
+                        <motion.div
+                          className={styles.controlHints}
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                        >
+                          <span>Shift + Scroll: Размер лупы</span>
+                          <span>Scroll: Зум лупы</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.imageViewer}>
+                <motion.button
+                  className={styles.navButton}
+                  onClick={() => navigateImage("prev")}
+                  disabled={selectedImage === 0}
+                  title="Назад"
+                  whileHover={{ scale: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FiChevronLeft />
+                </motion.button>
+                <div
+                  className={styles.imageContainer}
+                  onMouseMove={handleMouseMove}
+                  onTouchStart={handleTouchStartMagnifier}
+                  onTouchMove={handleTouchMoveMagnifier}
+                  onTouchEnd={handleTouchEndMagnifier}
+                  onWheel={handleWheel}
+                  ref={imageRef}
+                >
+                  <div className={styles.imageWrapper}>
                     <SmartImage
-                      src={book.pages[selectedImage + 1].url}
-                      alt={`Page ${selectedImage + 2}`}
+                      src={book.pages[selectedImage].url}
+                      alt={`Страница ${selectedImage + 1}`}
                       className={styles.modalImage}
-                      key={selectedImage + 1}
+                      key={selectedImage}
                       style={{
                         transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
                         transformOrigin: "center center",
                       }}
                       innerRef={(el) => {
-                        imageRefs.current[1] = el;
+                        imageRefs.current[0] = el;
+                      }}
+                    />
+                    {showDoublePage &&
+                      selectedImage + 1 < book.pages.length && (
+                        <SmartImage
+                          src={book.pages[selectedImage + 1].url}
+                          alt={`Страница ${selectedImage + 2}`}
+                          className={styles.modalImage}
+                          key={selectedImage + 1}
+                          style={{
+                            transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                            transformOrigin: "center center",
+                          }}
+                          innerRef={(el) => {
+                            imageRefs.current[1] = el;
+                          }}
+                        />
+                      )}
+                  </div>
+                  {isMagnifierActive && (
+                    <div
+                      className={styles.magnifier}
+                      style={{
+                        width: magnifierSize,
+                        minWidth: magnifierSize,
+                        height: magnifierSize,
+                        minHeight: magnifierSize,
+                        top: magnifierData.cy,
+                        left: magnifierData.cx,
+                        transform: "translate(-50%, -50%)",
+                        backgroundImage: `url(${
+                          book.pages[selectedImage + magnifierData.pageIdx].url
+                        })`,
+                        backgroundSize: `${
+                          (imageRefs.current[magnifierData.pageIdx]
+                            ?.naturalWidth || 0) * magnifierZoomLevel
+                        }px ${
+                          (imageRefs.current[magnifierData.pageIdx]
+                            ?.naturalHeight || 0) * magnifierZoomLevel
+                        }px`,
+                        backgroundPosition: `${-(
+                          magnifierData.nx * magnifierZoomLevel -
+                          magnifierSize / 2
+                        )}px ${-(
+                          magnifierData.ny * magnifierZoomLevel -
+                          magnifierSize / 2
+                        )}px`,
                       }}
                     />
                   )}
+                  <AnimatePresence>
+                    {showMagnifierHint && (
+                      <motion.div
+                        className={styles.magnifierHint}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        {window.innerWidth <= 768
+                          ? "Долгий тап для активации лупы"
+                          : `Лупа ${
+                              isMagnifierActive ? "включена" : "выключена"
+                            } (M)`}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-
-                {isMagnifierActive && (
-                  <div
-                    className={styles.magnifier}
-                    style={{
-                      width: magnifierSize,
-                      minWidth: magnifierSize,
-                      height: magnifierSize,
-                      minHeight: magnifierSize,
-                      top: magnifierData.cy,
-                      left: magnifierData.cx,
-                      transform: "translate(-50%, -50%)",
-                      backgroundImage: `url(${
-                        book.pages[selectedImage + magnifierData.pageIdx].url
-                      })`,
-                      backgroundSize: `${
-                        (imageRefs.current[magnifierData.pageIdx]
-                          ?.naturalWidth || 0) * magnifierZoomLevel
-                      }px ${
-                        (imageRefs.current[magnifierData.pageIdx]
-                          ?.naturalHeight || 0) * magnifierZoomLevel
-                      }px`,
-                      backgroundPosition: `${-(
-                        magnifierData.nx * magnifierZoomLevel -
-                        magnifierSize / 2
-                      )}px ${-(
-                        magnifierData.ny * magnifierZoomLevel -
-                        magnifierSize / 2
-                      )}px`,
-                    }}
-                  />
-                )}
-
-                {showMagnifierHint && (
-                  <div className={styles.magnifierHint}>
-                    {window.innerWidth <= 768
-                      ? "Long touch to activate the magnifier"
-                      : `Magnifier ${
-                          isMagnifierActive ? "enabled" : "disabled"
-                        } (hotkey: M)`}
-                  </div>
-                )}
+                <motion.button
+                  className={styles.navButton}
+                  onClick={() => navigateImage("next")}
+                  disabled={
+                    selectedImage >=
+                    book.pages.length - (showDoublePage ? 2 : 1)
+                  }
+                  title="Вперёд"
+                  whileHover={{ scale: 1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <FiChevronRight />
+                </motion.button>
               </div>
-
-              <button
-                className={styles.navButton}
-                onClick={() => navigateImage("next")}
-                disabled={
-                  selectedImage >= book.pages.length - (showDoublePage ? 2 : 1)
-                }
-              >
-                <FiChevronRight />
-              </button>
-            </div>
-
-            <div className={`${styles.modalFooter} ${styles.noDrag}`}>
-              <span>
-                Page {selectedImage + 1}
-                {showDoublePage && selectedImage + 1 < book.pages.length
-                  ? `-${selectedImage + 2}`
-                  : ""}{" "}
-                из {book.pages.length}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+              <div className={`${styles.modalFooter} ${styles.noDrag}`}>
+                <span>
+                  Стр. {selectedImage + 1}
+                  {showDoublePage && selectedImage + 1 < book.pages.length
+                    ? `-${selectedImage + 2}`
+                    : ""}{" "}
+                  из {book.pages.length}
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

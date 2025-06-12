@@ -4,9 +4,9 @@
   align-items: center;
   padding: 0 0 0 16px;
   height: 60px;
-  background-color: #2d2d3a;
-  color: white;
-  border-bottom: 1px solid #40404d;
+  background-color: var(--colour-d4);
+  color: var(--colour-l1);
+  border-bottom: 1px solid hsla(var(--base-hue), 20%, 90%, 0.1);
   -webkit-app-region: drag;
 }
 
@@ -16,10 +16,11 @@
   background-size: contain;
 }
 
-.leftSide {
+.leftSide,
+.rightSide {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   height: -webkit-fill-available;
   padding: 5px;
 }
@@ -27,40 +28,33 @@
 .favButtons {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   height: -webkit-fill-available;
 }
 
 .info {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 500;
   cursor: pointer;
+  color: var(--colour-l1);
   transition: color 0.2s;
   -webkit-app-region: no-drag;
 
   &:hover {
-    color: #6e45e2;
+    color: hsl(var(--base-hue), 65%, 65%);
   }
-}
-
-.rightSide {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  height: -webkit-fill-available;
-  padding: 5px;
 }
 
 .favButton {
   background: none;
   border: none;
   display: flex;
-  color: white;
+  color: var(--colour-l1);
   height: 100%;
   font-size: 1.2rem;
   cursor: pointer;
   padding: 14px;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s;
   -webkit-app-region: no-drag;
   justify-content: center;
@@ -68,35 +62,34 @@
 
   &:hover {
     color: #ff5e78;
-    background: rgba(255, 94, 120, 0.1);
+    background: rgba(255, 94, 120, 0.08);
   }
 }
 
 .buttonsContainer {
   display: flex;
-  gap: 2px;
+  gap: 4px;
   height: 100%;
 }
 
 .buttons {
   cursor: pointer;
-  transition: background-color 0.2s;
   padding: 14px;
+  border-radius: 6px;
   display: flex;
-  border-radius: 4px;
   align-items: center;
   justify-content: center;
+  transition: background 0.2s ease;
   -webkit-app-region: no-drag;
 
   &:hover {
-    background-color: #40404d;
+    background: hsla(var(--base-hue), 10%, 70%, 0.1);
   }
 
   &:last-child:hover {
-    background-color: #ff4444;
+    background: hsla(0, 70%, 55%, 0.3);
   }
 }
-
 
 .updateButton {
   -webkit-app-region: no-drag;
@@ -104,8 +97,8 @@
   padding: 8px 16px 8px 40px;
   border-radius: 6px;
   border: none;
-  background-color: #4a6bff;
-  color: white;
+  background-color: hsl(var(--base-hue), 60%, 55%);
+  color: var(--colour-c1);
   font-weight: 500;
   font-size: 14px;
   cursor: pointer;
@@ -116,46 +109,46 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
 
-.updateButton:hover:not(:disabled) {
-  background-color: #3a5bef;
-  box-shadow: 0 2px 8px rgba(58, 91, 239, 0.3);
-}
+  &:hover:not(:disabled) {
+    background-color: hsl(var(--base-hue), 60%, 50%);
+    box-shadow: 0 2px 8px hsla(var(--base-hue), 60%, 50%, 0.3);
+  }
 
-.updateButton:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 
-.updateButton::before {
-  content: "";
-  position: absolute;
-  left: 16px;
-  width: 18px;
-  height: 18px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  transition: all 0.3s ease;
-}
+  &::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    width: 18px;
+    height: 18px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: all 0.3s ease;
+  }
 
-.updateButton.loading::before {
-  animation: spin 1s linear infinite;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' /%3E%3C/svg%3E");
-}
+  &.loading::before {
+    animation: spin 1s linear infinite;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' /%3E%3C/svg%3E");
+  }
 
-.updateButton.install::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
-}
+  &.install::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
+  }
 
-.updateButton .progressBar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background-color: rgba(255, 255, 255, 0.5);
-  transition: width 0.3s ease;
+  .progressBar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: width 0.3s ease;
+  }
 }
 
 @keyframes spin {

@@ -1,25 +1,24 @@
-
-.scrollWrapper {
+:local(.scrollWrapper) {
   position: relative;
   overflow: hidden;
 }
 
-.scrollContent {
+:local(.scrollContent) {
   overflow-y: overlay;
 }
 
-.scrollbarTrack {
+:local(.scrollbarTrack) {
   position: absolute;
-  top: 5px;
-  bottom: 5px;
+  top: var(--spacing-xs);
+  bottom: var(--spacing-xs);
   right: 0;
-  width: 0px;
-  padding: 0 5px;
-  margin: 0 5px;
+  width: 0;
+  padding: 0 var(--spacing-xs);
+  margin: 0 var(--spacing-xs);
   display: flex;
   height: -webkit-fill-available;
-  background-color: #00000000;
-  transition: var(--transition);
+  background-color: transparent;
+  transition: var(--tr);
   z-index: 9999;
 
   &:hover {
@@ -27,30 +26,30 @@
   }
 }
 
-.scrollbarTrackHover {
+:local(.scrollbarTrackHover) {
   width: 5px;
 
   & > .scrollbarThumb {
-    background-color: #98b1ff96;
+    background-color: var(--colour-l3);
   }
 }
 
-.scrollbarThumb {
+:local(.scrollbarThumb) {
   z-index: 9999;
   cursor: pointer;
   position: absolute;
   width: 100%;
-  background-color: #a5b5e752;
-  border-radius: 3px;
-  transition: var(--transition);
+  background-color: var(--colour-l4);
+  border-radius: var(--border-radius-sm);
+  transition: var(--tr);
   transform: translateY(0);
 }
 
-.scrollbarTrack.visible {
+:local(.scrollbarTrack.visible) {
   z-index: 9999;
-  background-color: #a5b5e752;
+  background-color: var(--colour-b4);
 }
 
-.scrollbarThumb:hover {
-  background-color: #98b1ff96;
+:local(.scrollbarThumb:hover) {
+  background-color: var(--colour-l3);
 }
