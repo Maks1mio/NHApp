@@ -12,21 +12,18 @@ import AppIcon from "./../../../../static/assets/icons/appicon.png";
 import { useFavorites } from "../../../context/FavoritesContext";
 import { wsClient } from "../../../wsClient";
 import { useTagFilter } from "../../../context/TagFilterContext";
+import { useIsMobile } from "../../../hooks/useIsMobile";
 
-type ContentType = "favorites" | "new" | "search" | "popular";
+type ContentType = "favorites" | "search" | "popular";
 
 const Header: React.FC = () => {
-  const navigate = useNavigate();
   const { favorites } = useFavorites();
   const { selectedTags } = useTagFilter();
   const PER_PAGE = 25;
+  const isMobile = useIsMobile(900);
 
   const handleSearch = (query: string, contentType: ContentType) => {
     let sortParam = "";
-
-    if (contentType === "new") {
-      sortParam = "date";
-    }
 
     if (contentType === "popular") {
       const urlSort = new URLSearchParams(window.location.search).get("sort");
@@ -127,7 +124,6 @@ const Header: React.FC = () => {
   return (
     <header className={styles.nav}>
       <div className={styles.leftSide}>
-        <img src={AppIcon} alt="NHentaiApp" className={styles.appIcon} />
         {(updateStatus.status === "available" ||
           updateStatus.status === "downloaded" ||
           updateStatus.status === "downloading" ||
@@ -152,26 +148,28 @@ const Header: React.FC = () => {
       </div>
       <div className={styles.rightSide}>
         <SearchInput onSearch={handleSearch} />
-        <div className={styles.buttonsContainer}>
-          <div
-            className={styles.buttons}
-            onClick={() => window.electron?.window?.minimize?.()}
-          >
-            <MinusIcon />
+        {!isMobile && (
+          <div className={styles.buttonsContainer}>
+            <div
+              className={styles.buttons}
+              onClick={() => window.electron?.window?.minimize?.()}
+            >
+              <MinusIcon />
+            </div>
+            <div
+              className={styles.buttons}
+              onClick={() => window.electron?.window?.maximize?.()}
+            >
+              <MinimizeIcon />
+            </div>
+            <div
+              className={styles.buttons}
+              onClick={() => window.electron?.window?.close?.()}
+            >
+              <CloseIcon />
+            </div>
           </div>
-          <div
-            className={styles.buttons}
-            onClick={() => window.electron?.window?.maximize?.()}
-          >
-            <MinimizeIcon />
-          </div>
-          <div
-            className={styles.buttons}
-            onClick={() => window.electron?.window?.close?.()}
-          >
-            <CloseIcon />
-          </div>
-        </div>
+        )}
       </div>
     </header>
   );

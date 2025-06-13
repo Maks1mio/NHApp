@@ -25,7 +25,8 @@ const SearchResultsPopular: React.FC = () => {
   const { search } = useLocation();
   const navigate = useNavigate();
   const qp = new URLSearchParams(search);
-  const sortURL = qp.get("sort") as SortType | null;
+  const sortFromURL = qp.get("sort") as SortType | null;
+  const pageFromURL = parseInt(qp.get("page") || "1", 10);
 
   const { selectedTags } = useTagFilter();
 
@@ -49,9 +50,9 @@ const SearchResultsPopular: React.FC = () => {
     });
   };
 
-  const initialSort: SortType =
-    sortURL && SORT_OPTS.some((o) => o.value === sortURL)
-      ? sortURL
+  const initialSort =
+    sortFromURL && SORT_OPTS.some((o) => o.value === sortFromURL)
+      ? sortFromURL
       : (localStorage.getItem(POPULAR_SORT_STORAGE_KEY) as SortType) ||
         "popular";
 
@@ -59,13 +60,14 @@ const SearchResultsPopular: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoad] = useState(false);
   const [error, setErr] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotal] = useState(1);
+  const [currentPage, setCurrentPage] = useState(pageFromURL);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchData = useCallback(
-    (p = 1, s: SortType = sortState) => {
+    (page = 1, s: SortType = sortState) => {
       setLoad(true);
       setErr(null);
+      setCurrentPage(page);
 
       const unsub = wsClient.subscribe((res) => {
         if (res.type === "error") {
@@ -75,8 +77,8 @@ const SearchResultsPopular: React.FC = () => {
         }
         if (res.type === "popular-books-reply") {
           setBooks(res.books || []);
-          setTotal(res.totalPages ?? 1);
-          setPage(res.currentPage ?? 1);
+          setTotalPages(res.totalPages ?? 1);
+          setCurrentPage(res.currentPage ?? page);
           setLoad(false);
           unsub();
         }
@@ -86,7 +88,7 @@ const SearchResultsPopular: React.FC = () => {
         type: "search-books",
         query: "",
         sort: s,
-        page: p,
+        page,
         perPage: PER_PAGE,
         filterTags: selectedTags,
         contentType: "popular",
@@ -95,19 +97,38 @@ const SearchResultsPopular: React.FC = () => {
     [selectedTags, sortState]
   );
 
+  // Initial fetch on mount
   useEffect(() => {
-    fetchData(1, initialSort);
-  }, []);
+    fetchData(pageFromURL, initialSort);
+  }, [pageFromURL, initialSort, fetchData]);
+
+  // Handle URL changes
   useEffect(() => {
-    fetchData(1, sortState);
-  }, [selectedTags]);
+    const newPage = parseInt(qp.get("page") || "1", 10);
+    const newSort = qp.get("sort") as SortType | null;
+    if (newPage !== currentPage || (newSort && newSort !== sortState)) {
+      const effectiveSort = newSort || sortState;
+      setCurrentPage(newPage);
+      if (newSort && newSort !== sortState) {
+        setSort(newSort);
+        localStorage.setItem(POPULAR_SORT_STORAGE_KEY, newSort);
+      }
+      fetchData(newPage, effectiveSort);
+    }
+  }, [location.search]);
 
   const onSort = (s: SortType) => {
     if (s === sortState) return;
     localStorage.setItem(POPULAR_SORT_STORAGE_KEY, s);
-    navigate(`/search?type=popular&sort=${s}`);
     setSort(s);
+    navigate(`/search?type=popular&sort=${s}&page=1`);
     fetchData(1, s);
+  };
+
+  const onPageChange = (p: number) => {
+    if (p < 1 || p > totalPages) return;
+    navigate(`/search?type=popular&sort=${sortState}&page=${p}`);
+    fetchData(p, sortState);
   };
 
   return (
@@ -129,7 +150,7 @@ const SearchResultsPopular: React.FC = () => {
           <button
             className={styles.refreshButton}
             disabled={loading}
-            onClick={() => fetchData(page, sortState)}
+            onClick={() => fetchData(currentPage, sortState)}
           >
             <FaRedo
               className={`${styles.refreshIcon} ${loading ? styles.spin : ""}`}
@@ -140,7 +161,7 @@ const SearchResultsPopular: React.FC = () => {
 
       <div className={styles.mainContent}>
         {error && (
-          <ErrorBlock msg={error} retry={() => fetchData(page, sortState)} />
+          <ErrorBlock msg={error} retry={() => fetchData(currentPage, sortState)} />
         )}
         {loading && <LoadingBlock />}
         {!loading && books.length === 0 && <EmptyBlock />}
@@ -160,9 +181,8 @@ const SearchResultsPopular: React.FC = () => {
             {totalPages > 1 && (
               <div className={styles.paginationContainer}>
                 <Pagination
-                  currentPage={page}
                   totalPages={totalPages}
-                  onPageChange={(p) => fetchData(p, sortState)}
+                  onPageChange={onPageChange}
                 />
               </div>
             )}

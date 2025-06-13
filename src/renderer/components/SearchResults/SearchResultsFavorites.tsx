@@ -6,7 +6,7 @@ import { FaRedo } from "react-icons/fa";
 import * as styles from "./SearchResults.module.scss";
 import { wsClient } from "../../../wsClient";
 
-const PER_PAGE = 250;
+const PER_PAGE = 25; // Adjusted to match other components
 const FAVORITES_SORT_KEY = "favoritesSortType";
 const LS_FAVORITES_KEY = "bookFavorites";
 
@@ -25,7 +25,7 @@ const SearchResultsFavorites: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const initialSort =
@@ -39,8 +39,8 @@ const SearchResultsFavorites: React.FC = () => {
         setFavIds(next);
       }
     };
-    addEventListener("storage", h);
-    return () => removeEventListener("storage", h);
+    window.addEventListener("storage", h);
+    return () => window.removeEventListener("storage", h);
   }, []);
 
   const fetchData = useCallback(
@@ -48,11 +48,12 @@ const SearchResultsFavorites: React.FC = () => {
       if (favIds.length === 0) {
         setBooks([]);
         setTotalPages(1);
-        setPage(1);
+        setCurrentPage(1);
         return;
       }
       setLoading(true);
       setError(null);
+      setCurrentPage(p);
 
       const unsub = wsClient.subscribe((res) => {
         if (res.type === "error") {
@@ -63,7 +64,7 @@ const SearchResultsFavorites: React.FC = () => {
         if (res.type === "favorites-reply") {
           setBooks(res.books || []);
           setTotalPages(res.totalPages ?? 1);
-          setPage(res.currentPage ?? 1);
+          setCurrentPage(res.currentPage ?? p);
           setLoading(false);
           unsub();
         }
@@ -80,17 +81,27 @@ const SearchResultsFavorites: React.FC = () => {
     [favIds, sortState]
   );
 
+  // Initial fetch on mount
   useEffect(() => {
-    fetchData(1, sortState);
-  }, []);
+    fetchData(1, initialSort);
+  }, [initialSort, fetchData]);
+
+  // Handle sort changes
   useEffect(() => {
-    fetchData(1, sortState);
+    fetchData(currentPage, sortState);
   }, [sortState]);
 
   const onSort = (s: SortType) => {
     if (s === sortState) return;
     localStorage.setItem(FAVORITES_SORT_KEY, s);
     setSortState(s);
+    fetchData(currentPage, s);
+  };
+
+  const onPageChange = (p: number) => {
+    if (p < 1 || p > totalPages) return;
+    setCurrentPage(p);
+    fetchData(p, sortState);
   };
 
   const toggleFavorite = (id: number, add: boolean) => {
@@ -122,7 +133,7 @@ const SearchResultsFavorites: React.FC = () => {
           <button
             className={styles.refreshButton}
             disabled={loading || favIds.length === 0}
-            onClick={() => fetchData(page, sortState)}
+            onClick={() => fetchData(currentPage, sortState)}
           >
             <FaRedo
               className={`${styles.refreshIcon} ${loading ? styles.spin : ""}`}
@@ -132,9 +143,7 @@ const SearchResultsFavorites: React.FC = () => {
       </div>
 
       <div className={styles.mainContent}>
-        {error && (
-          <Error msg={error} retry={() => fetchData(page, sortState)} />
-        )}
+        {error && <Error msg={error} retry={() => fetchData(currentPage, sortState)} />}
         {loading && <Loading />}
         {!loading && favIds.length === 0 && <EmptyFav />}
         {!loading && favIds.length > 0 && books.length === 0 && <EmptyRes />}
@@ -154,9 +163,8 @@ const SearchResultsFavorites: React.FC = () => {
             {totalPages > 1 && (
               <div className={styles.paginationContainer}>
                 <Pagination
-                  currentPage={page}
                   totalPages={totalPages}
-                  onPageChange={(p) => fetchData(p, sortState)}
+                  onPageChange={onPageChange}
                 />
               </div>
             )}

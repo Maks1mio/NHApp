@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BookCard, { Book } from "../BookCard";
 import Pagination from "../Pagination";
@@ -24,18 +24,21 @@ const SORT_OPTIONS: {
 ];
 
 const SearchResultsSearch: React.FC = () => {
-  const { search: locSearch } = useLocation();
+  const location = useLocation();
   const navigate = useNavigate();
-  const qp = new URLSearchParams(locSearch);
+  const qp = new URLSearchParams(location.search);
 
   const searchQuery = qp.get("q") || "";
   const sortFromURL = qp.get("sort") as SortType | null;
+  const pageFromURL = parseInt(qp.get("page") || "1", 10);
+  const typeFromURL = qp.get("type") || "search";
 
   const { selectedTags } = useTagFilter();
 
   const [favIds, setFavIds] = useState<number[]>(() =>
     JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) ?? "[]")
   );
+
   useEffect(() => {
     const h = (e: StorageEvent) => {
       if (e.key === LS_FAVORITES_KEY) setFavIds(JSON.parse(e.newValue ?? "[]"));
@@ -54,15 +57,22 @@ const SearchResultsSearch: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(pageFromURL);
   const [totalPages, setTotalPages] = useState(1);
+  const lastRequestId = useRef<number>(0);
 
   const fetchData = useCallback(
     (page = 1, sort: SortType = sortState) => {
       setLoading(true);
       setError(null);
+      setCurrentPage(page);
+
+      const requestId = Date.now();
+      lastRequestId.current = requestId;
 
       const unsub = wsClient.subscribe((res) => {
+        if (lastRequestId.current !== requestId) return;
+
         if (res.type === "error") {
           setError(res.message || "Unknown error");
           setLoading(false);
@@ -70,8 +80,8 @@ const SearchResultsSearch: React.FC = () => {
         }
         if (res.type === "search-results-reply") {
           setBooks(res.books || []);
-          setTotalPages(res.totalPages ?? 1);
-          setCurrentPage(res.currentPage ?? 1);
+          setTotalPages(res.totalPages || 1);
+          setCurrentPage(res.page || page);
           setLoading(false);
           unsub();
         }
@@ -84,27 +94,59 @@ const SearchResultsSearch: React.FC = () => {
         page,
         perPage: PER_PAGE,
         filterTags: selectedTags,
-        contentType: "search",
+        contentType: typeFromURL as any,
       });
     },
-    [searchQuery, selectedTags, sortState]
+    [searchQuery, selectedTags, sortState, typeFromURL]
   );
 
+  // Initial fetch on mount
   useEffect(() => {
-    fetchData(1, initialSort);
-  }, []);
+    fetchData(pageFromURL, initialSort);
+  }, [pageFromURL, initialSort, fetchData]);
+
+  // Обработка изменений URL
   useEffect(() => {
-    fetchData(1, sortState);
-  }, [searchQuery, selectedTags, fetchData]);
+    const newPage = parseInt(qp.get("page") || "1", 10);
+    const newSort = qp.get("sort") as SortType | null;
+    const newType = qp.get("type") || "search";
+
+    // Если изменилась страница, сортировка или тип - делаем новый запрос
+    if (
+      newPage !== currentPage ||
+      (newSort && newSort !== sortState) ||
+      newType !== typeFromURL
+    ) {
+      const effectiveSort = newSort || sortState;
+      setCurrentPage(newPage);
+      if (newSort && newSort !== sortState) {
+        setSortState(newSort);
+        localStorage.setItem(SEARCH_SORT_STORAGE_KEY, newSort);
+      }
+      fetchData(newPage, effectiveSort);
+    }
+  }, [location.search]);
 
   const onSortChange = (s: SortType) => {
     if (s === sortState) return;
     localStorage.setItem(SEARCH_SORT_STORAGE_KEY, s);
-    navigate(
-      `/search?type=search&q=${encodeURIComponent(searchQuery)}&sort=${s}`
-    );
     setSortState(s);
-    fetchData(1, s);
+    navigate(
+      `/search?type=search&q=${encodeURIComponent(
+        searchQuery
+      )}&sort=${s}&page=1`
+    );
+    fetchData(1, s); // Explicitly fetch data with the new sort
+  };
+
+  const onPageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    navigate(
+      `/search?type=search&q=${encodeURIComponent(
+        searchQuery
+      )}&sort=${sortState}&page=${page}`
+    );
+    fetchData(page, sortState);
   };
 
   const toggleFavorite = (id: number, add: boolean) => {
@@ -168,9 +210,8 @@ const SearchResultsSearch: React.FC = () => {
             {totalPages > 1 && (
               <div className={styles.paginationContainer}>
                 <Pagination
-                  currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={(p) => fetchData(p, sortState)}
+                  onPageChange={onPageChange}
                 />
               </div>
             )}

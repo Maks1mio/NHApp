@@ -42,8 +42,8 @@ const SearchResultsRecommendations: React.FC = () => {
         setFavIds(JSON.parse(e.newValue ?? "[]"));
       }
     };
-    addEventListener("storage", h);
-    return () => removeEventListener("storage", h);
+    window.addEventListener("storage", h);
+    return () => window.removeEventListener("storage", h);
   }, []);
 
   const toggleFavorite = (id: number, add: boolean) => {
@@ -68,7 +68,7 @@ const SearchResultsRecommendations: React.FC = () => {
 
   const [books, setBooks] = useState<BookWithTags[]>([]);
   const [stats, setStats] = useState<RecStats | null>(null);
-  const [page, setPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotal] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +100,7 @@ const SearchResultsRecommendations: React.FC = () => {
           setProgress(null);
           setStats(res.stats || null);
           setTotal(res.totalPages ?? 1);
-          setPage(res.currentPage ?? 1);
+          setCurrentPage(res.currentPage ?? p);
 
           const inc: BookWithTags[] = res.books || [];
           const today = inc.filter((b) => isToday(b.uploaded));
@@ -129,25 +129,26 @@ const SearchResultsRecommendations: React.FC = () => {
     [favIds, books, preferences, selectedTags]
   );
 
+  // Initial fetch on mount
   useEffect(() => {
     setBooks([]);
-    setPage(1);
+    setCurrentPage(1);
     if (favIds.length) fetchPage(1);
-  }, [preferences, selectedTags]);
+  }, [favIds, preferences, selectedTags]);
 
   const sentinel = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!sentinel.current) return;
     const io = new IntersectionObserver(
       ([el]) => {
-        if (el.isIntersecting && !loading && page < totalPages)
-          fetchPage(page + 1);
+        if (el.isIntersecting && !loading && currentPage < totalPages)
+          fetchPage(currentPage + 1);
       },
       { rootMargin: "200px" }
     );
     io.observe(sentinel.current);
     return () => io.disconnect();
-  }, [loading, page, totalPages, fetchPage]);
+  }, [loading, currentPage, totalPages, fetchPage]);
 
   const infoRef = useRef<HTMLDivElement>(null);
   const [tipOpen, setTipOpen] = useState(false);

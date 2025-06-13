@@ -144,7 +144,7 @@ interface Book {
   raw?: any;
 }
 
-const imageHosts = ["i1", "i2", "i3"];
+const imageHosts = ["i1", "i2", "i4"];
 
 function pickHost(media: number, page: number): string {
   const idx = (media + page) % imageHosts.length;
@@ -297,26 +297,44 @@ wss.on("connection", (ws) => {
               ? "popular"
               : sort;
 
-          const { data } = await api.get("/api/galleries/search", {
-            params: { query: nhQuery, page, per_page: perPage, sort: realSort },
-          });
+          try {
+            const { data } = await api.get("/api/galleries/search", {
+              params: {
+                query: nhQuery,
+                page: Number(page) || 1,
+                per_page: Number(perPage) || 25,
+                sort: realSort,
+              },
+            });
 
-          const books = data.result.map(parseBookData);
-          const wsType =
-            contentType === "new"
-              ? "new-uploads-reply"
-              : contentType === "popular"
-              ? "popular-books-reply"
-              : "search-results-reply";
+            const books = data.result.map(parseBookData);
+            const wsType =
+              contentType === "new"
+                ? "new-uploads-reply"
+                : contentType === "popular"
+                ? "popular-books-reply"
+                : "search-results-reply";
 
-          ws.send(
-            JSON.stringify({
-              type: wsType,
-              books,
-              totalPages: data.num_pages || 1,
-              currentPage: page,
-            })
-          );
+            ws.send(
+              JSON.stringify({
+                type: wsType,
+                books,
+                totalPages: data.num_pages || 1,
+                currentPage: Number(page) || 1,
+                perPage: Number(perPage) || 25,
+                totalItems: data.total || books.length,
+              })
+            );
+          } catch (error) {
+            console.error("Search error:", error);
+            ws.send(
+              JSON.stringify({
+                type: "error",
+                message: "Failed to fetch search results",
+                code: "SEARCH_ERROR",
+              })
+            );
+          }
           break;
         }
 

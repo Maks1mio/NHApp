@@ -1,9 +1,10 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useTagFilter } from "../../../context/TagFilterContext";
 import { FixedSizeList as List } from "react-window";
-import { motion, AnimatePresence } from "framer-motion";
+import { FiX, FiSearch, FiArrowLeft } from "react-icons/fi";
 import * as s from "./TagFilter.module.scss";
 import { useTags, Tag, TagsByCategory } from "./useTags";
+import { useIsMobile } from "../../../hooks/useIsMobile";
 
 const CATEGORIES = [
   { key: "tags", label: "Tags" },
@@ -13,7 +14,8 @@ const CATEGORIES = [
   { key: "groups", label: "Groups" },
 ] as const;
 
-const TAGS_PER_ROW = 3;
+const TAGS_PER_ROW = 4;
+const MOBILE_TAGS_PER_ROW = 2;
 
 interface TagFilterProps {
   isOpen: boolean;
@@ -21,10 +23,19 @@ interface TagFilterProps {
 }
 
 const TagFilter: React.FC<TagFilterProps> = ({ isOpen, onClose }) => {
+  const isMobile = useIsMobile(900);
   const { selectedTags, setSelectedTags } = useTagFilter();
   const tagsByCategory = useTags();
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<keyof TagsByCategory>("tags");
+  // Локальное состояние для временного хранения выбранных тегов
+  const [tempSelectedTags, setTempSelectedTags] = useState<Tag[]>(selectedTags);
+
+  // Синхронизация локальных тегов с глобальным контекстом при закрытии
+  const handleClose = useCallback(() => {
+    setSelectedTags(tempSelectedTags); // Применяем теги в контекст
+    onClose(); // Закрываем модалку
+  }, [tempSelectedTags, setSelectedTags, onClose]);
 
   const sortedFilteredTags = useMemo(() => {
     const tags = tagsByCategory[activeTab] || [];
@@ -37,27 +48,28 @@ const TagFilter: React.FC<TagFilterProps> = ({ isOpen, onClose }) => {
   }, [tagsByCategory, activeTab, search]);
 
   const rows = useMemo(() => {
+    const tagsPerRow = isMobile ? MOBILE_TAGS_PER_ROW : TAGS_PER_ROW;
     const result = [];
-    for (let i = 0; i < sortedFilteredTags.length; i += TAGS_PER_ROW) {
-      result.push(sortedFilteredTags.slice(i, i + TAGS_PER_ROW));
+    for (let i = 0; i < sortedFilteredTags.length; i += tagsPerRow) {
+      result.push(sortedFilteredTags.slice(i, i + tagsPerRow));
     }
     return result;
-  }, [sortedFilteredTags]);
+  }, [sortedFilteredTags, isMobile]);
 
   const handleTagClick = useCallback(
     (tag: Tag) => {
-      const isSelected = selectedTags.some(
+      const isSelected = tempSelectedTags.some(
         (t) => t.id === tag.id && t.type === tag.type
       );
       if (isSelected) {
-        setSelectedTags(
-          selectedTags.filter((t) => !(t.id === tag.id && t.type === tag.type))
+        setTempSelectedTags(
+          tempSelectedTags.filter((t) => !(t.id === tag.id && t.type === tag.type))
         );
       } else {
-        setSelectedTags([...selectedTags, tag]);
+        setTempSelectedTags([...tempSelectedTags, tag]);
       }
     },
-    [selectedTags, setSelectedTags]
+    [tempSelectedTags]
   );
 
   const Row = ({
@@ -68,31 +80,33 @@ const TagFilter: React.FC<TagFilterProps> = ({ isOpen, onClose }) => {
     style: React.CSSProperties;
   }) => {
     const tagsInRow = rows[index];
+    const tagsPerRow = isMobile ? MOBILE_TAGS_PER_ROW : TAGS_PER_ROW;
     return (
       <div style={rowStyle} className={s.tagsRow}>
         {tagsInRow.map((tag) => {
-          const isSelected = selectedTags.some(
+          const isSelected = tempSelectedTags.some(
             (t) => t.id === tag.id && t.type === tag.type
           );
           return (
-            <motion.div
+            <button
               key={`${tag.id}:${tag.type}`}
-              className={`${s.tag} ${isSelected ? s.sel : ""}`}
+              className={`${s.tag} ${isSelected ? s.selected : ""}`}
               onClick={() => handleTagClick(tag)}
-              whileHover={{ scale: 1 }}
-              whileTap={{ scale: 0.98 }}
-              style={{ flex: "1 1 calc(33.33% - 8px)" }}
+              style={{ flex: `1 1 calc(${100 / tagsPerRow}% - 12px)` }}
             >
-              <span className={s.name}>{tag.name}</span>
-              <span className={s.count}>{tag.count}</span>
-            </motion.div>
+              <span className={s.tagName}>{tag.name}</span>
+              <span className={s.tagCount}>{tag.count}</span>
+            </button>
           );
         })}
-        {Array.from({ length: TAGS_PER_ROW - tagsInRow.length }).map((_, i) => (
+        {Array.from({ length: tagsPerRow - tagsInRow.length }).map((_, i) => (
           <div
             key={i}
             className={s.tag}
-            style={{ visibility: "hidden", flex: "1 1 calc(33.33% - 8px)" }}
+            style={{
+              visibility: "hidden",
+              flex: `1 1 calc(${100 / tagsPerRow}% - 12px)`,
+            }}
           />
         ))}
       </div>
@@ -102,102 +116,112 @@ const TagFilter: React.FC<TagFilterProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className={s.overlay}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      >
-        <motion.div
-          className={s.modal}
-          onClick={(e) => e.stopPropagation()}
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 40, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        >
+    <div className={s.overlay} onClick={handleClose}>
+      <div className={s.modal} onClick={(e) => e.stopPropagation()}>
+        {isMobile && (
           <header className={s.header}>
-            <nav className={s.tabs}>
-              {CATEGORIES.map((c) => (
+            <button type="button" className={s.closeButton} onClick={handleClose}>
+              <FiArrowLeft />
+            </button>
+            <h2 className={s.title}>Tag Filters</h2>
+          </header>
+        )}
+
+        <nav className={s.tabs}>
+          {CATEGORIES.map((c) => (
+            <button
+              key={c.key}
+              className={`${s.tab} ${activeTab === c.key ? s.active : ""}`}
+              onClick={() => setActiveTab(c.key as keyof TagsByCategory)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+
+        {tempSelectedTags.length > 0 && (
+          <section className={s.selectedTagsSection}>
+            <div className={s.selectedTagsHeader}>
+              <span>Selected ({tempSelectedTags.length})</span>
+              <button
+                className={s.clearAllButton}
+                onClick={() => setTempSelectedTags([])}
+              >
+                Clear all
+              </button>
+            </div>
+            <div className={s.selectedTagsList}>
+              {tempSelectedTags.map((tag) => (
                 <button
-                  key={c.key}
-                  className={`${s.tab} ${activeTab === c.key ? s.active : ""}`}
-                  onClick={() => setActiveTab(c.key as keyof TagsByCategory)}
+                  key={`${tag.id}:${tag.type}`}
+                  className={s.selectedTag}
+                  onClick={() => handleTagClick(tag)}
                 >
-                  {c.label}
+                  {tag.name}
+                  <span className={s.removeTag}>×</span>
                 </button>
               ))}
-            </nav>
-            <div className={s.searchWrapper}>
-              <input
-                type="text"
-                className={s.search}
-                placeholder="Search…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+            </div>
+          </section>
+        )}
+
+        <div className={s.searchContainer}>
+          <div className={s.searchWrapper}>
+            <FiSearch className={s.searchIcon} />
+            <input
+              type="text"
+              className={s.searchInput}
+              placeholder="Search tags..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                className={s.clearSearch}
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className={s.tagsContainer}>
+          {rows.length > 0 ? (
+            <List
+              height={1400}
+              style={{
+                height: "100%",
+                width: "-webkit-fill-available",
+                overflow: "auto",
+                willChange: "transform",
+                position: "absolute",
+                left: "25px",
+                right: "25px",
+              }}
+              itemCount={rows.length}
+              itemSize={isMobile ? 60 : 52}
+              width="100%"
+            >
+              {Row}
+            </List>
+          ) : (
+            <div className={s.noResults}>
+              No tags found
               {search && (
-                <button className={s.clearSearch} onClick={() => setSearch("")}>
-                  ×
+                <button
+                  className={s.resetSearchButton}
+                  onClick={() => setSearch("")}
+                >
+                  Reset search
                 </button>
               )}
             </div>
-            <button className={s.close} onClick={onClose}>
-              ✕
-            </button>
-          </header>
-
-          {!!selectedTags.length && (
-            <section 
-              className={s.selected}
-            >
-              <div className={s.selectedChips}>
-                {selectedTags.map((tag) => (
-                  <motion.button
-                    key={`${tag.id}:${tag.type}`}
-                    className={s.chip}
-                    onClick={() => handleTagClick(tag)}
-                    whileHover={{ scale: 1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {tag.name} <span className={s.chipX}>×</span>
-                  </motion.button>
-                ))}
-              </div>
-              <button className={s.clearAll} onClick={() => setSelectedTags([])}>
-                Clear all
-              </button>
-            </section>
           )}
-
-          <div className={s.availableTagsContainer}>
-            {rows.length > 0 ? (
-              <List
-                height={400}
-                itemCount={rows.length}
-                itemSize={52}
-                width="100%"
-              >
-                {Row}
-              </List>
-            ) : (
-              <motion.div 
-                className={s.noResults}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                Nothing found
-                <button className={s.resetSearch} onClick={() => setSearch("")}>
-                  Reset search
-                </button>
-              </motion.div>
-            )}
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
+    </div>
   );
 };
 
