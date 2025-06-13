@@ -5,8 +5,10 @@ import { FiStar, FiTrendingUp } from "react-icons/fi";
 import { FaRedo } from "react-icons/fa";
 import * as styles from "./SearchResults.module.scss";
 import { wsClient } from "../../../wsClient";
+import MinimalHeader from "./MinimalHeader";
+import { Loading, StateBlock } from "./SearchResultStates";
 
-const PER_PAGE = 25; // Adjusted to match other components
+const PER_PAGE = 25;
 const FAVORITES_SORT_KEY = "favoritesSortType";
 const LS_FAVORITES_KEY = "bookFavorites";
 
@@ -21,27 +23,14 @@ const SearchResultsFavorites: React.FC = () => {
   const [favIds, setFavIds] = useState<number[]>(() =>
     JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) ?? "[]")
   );
-
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   const initialSort =
     (localStorage.getItem(FAVORITES_SORT_KEY) as SortType) || "relevance";
   const [sortState, setSortState] = useState<SortType>(initialSort);
-
-  useEffect(() => {
-    const h = (e: StorageEvent) => {
-      if (e.key === LS_FAVORITES_KEY) {
-        const next = JSON.parse(e.newValue ?? "[]");
-        setFavIds(next);
-      }
-    };
-    window.addEventListener("storage", h);
-    return () => window.removeEventListener("storage", h);
-  }, []);
 
   const fetchData = useCallback(
     (p = 1, s: SortType = sortState) => {
@@ -81,21 +70,18 @@ const SearchResultsFavorites: React.FC = () => {
     [favIds, sortState]
   );
 
-  // Initial fetch on mount
   useEffect(() => {
     fetchData(1, initialSort);
   }, [initialSort, fetchData]);
 
-  // Handle sort changes
   useEffect(() => {
     fetchData(currentPage, sortState);
   }, [sortState]);
 
-  const onSort = (s: SortType) => {
-    if (s === sortState) return;
-    localStorage.setItem(FAVORITES_SORT_KEY, s);
-    setSortState(s);
-    fetchData(currentPage, s);
+  const onSortChange = (sort: string) => {
+    localStorage.setItem(FAVORITES_SORT_KEY, sort);
+    setSortState(sort as SortType);
+    fetchData(currentPage, sort as SortType);
   };
 
   const onPageChange = (p: number) => {
@@ -115,39 +101,30 @@ const SearchResultsFavorites: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.minimalHeader}>
-        <div className={styles.sortControls}>
-          {SORT_OPTS.map((o) => (
-            <button
-              key={o.value}
-              className={`${styles.sortButton} ${
-                sortState === o.value ? styles.active : ""
-              }`}
-              disabled={favIds.length === 0}
-              onClick={() => onSort(o.value)}
-            >
-              {o.icon}
-              <span>{o.label}</span>
-            </button>
-          ))}
-          <button
-            className={styles.refreshButton}
-            disabled={loading || favIds.length === 0}
-            onClick={() => fetchData(currentPage, sortState)}
-          >
-            <FaRedo
-              className={`${styles.refreshIcon} ${loading ? styles.spin : ""}`}
-            />
-          </button>
-        </div>
-      </div>
-
       <div className={styles.mainContent}>
-        {error && <Error msg={error} retry={() => fetchData(currentPage, sortState)} />}
+        {(error ||
+          (!loading &&
+            (favIds.length === 0 ||
+              (favIds.length > 0 && books.length === 0)))) && (
+          <StateBlock
+            icon={error ? "⚠️" : favIds.length === 0 ? "📚" : "🔍"}
+            title={
+              error
+                ? "Error"
+                : favIds.length === 0
+                ? "Your favorites are empty"
+                : "Nothing found"
+            }
+            description={
+              error ||
+              (favIds.length === 0
+                ? "Save the works you like, and they will appear here"
+                : "Try changing the sort or filters")
+            }
+            retry={error ? () => fetchData(currentPage, sortState) : undefined}
+          />
+        )}
         {loading && <Loading />}
-        {!loading && favIds.length === 0 && <EmptyFav />}
-        {!loading && favIds.length > 0 && books.length === 0 && <EmptyRes />}
-
         {!loading && books.length > 0 && (
           <>
             <div className={styles.booksGrid}>
@@ -171,45 +148,16 @@ const SearchResultsFavorites: React.FC = () => {
           </>
         )}
       </div>
+      <MinimalHeader
+        sortOptions={SORT_OPTS}
+        defaultSort="relevance"
+        onSortChange={onSortChange}
+        onRefresh={() => fetchData(currentPage, sortState)}
+        loading={loading}
+        disabled={favIds.length === 0}
+      />
     </div>
   );
 };
-
-const Loading = () => (
-  <div className={styles.loadingState}>
-    <div className={styles.loadingSpinner} />
-  </div>
-);
-
-const Error: React.FC<{ msg: string; retry: () => void }> = ({
-  msg,
-  retry,
-}) => (
-  <div className={styles.errorState}>
-    <div className={styles.errorContent}>
-      <div className={styles.errorIcon}>⚠️</div>
-      <div className={styles.errorText}>{msg}</div>
-      <button className={styles.retryButton} onClick={retry}>
-        Retry
-      </button>
-    </div>
-  </div>
-);
-
-const EmptyFav = () => (
-  <div className={styles.emptyState}>
-    <div className={styles.emptyIllustration}>📚</div>
-    <h3>Your favorites are empty</h3>
-    <p>Save the works you like, and they will appear here</p>
-  </div>
-);
-
-const EmptyRes = () => (
-  <div className={styles.emptyState}>
-    <div className={styles.emptyIllustration}>🔍</div>
-    <h3>Nothing found</h3>
-    <p>Try changing the sort or filters</p>
-  </div>
-);
 
 export default SearchResultsFavorites;

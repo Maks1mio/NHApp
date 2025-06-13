@@ -14,13 +14,11 @@ const Pagination: React.FC<PaginationProps> = ({
 }) => {
   if (totalPages <= 1) return null;
 
-  // Derive currentPage from window.location.href
   const [currentPage, setCurrentPage] = useState(() => {
     const params = new URLSearchParams(window.location.href.split("?")[1]);
     return parseInt(params.get("page") || "1", 10);
   });
 
-  // Update currentPage when the URL changes
   useEffect(() => {
     const handleUrlChange = () => {
       const params = new URLSearchParams(window.location.href.split("?")[1]);
@@ -30,7 +28,6 @@ const Pagination: React.FC<PaginationProps> = ({
       }
     };
 
-    // Listen for popstate (back/forward navigation) and hash changes
     window.addEventListener("popstate", handleUrlChange);
     window.addEventListener("hashchange", handleUrlChange);
 
@@ -77,18 +74,12 @@ const Pagination: React.FC<PaginationProps> = ({
   const handlePageChangeInternal = (page: number) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
       setCurrentPage(page);
-      onPageChange(page); // Notify parent to update URL
+      onPageChange(page);
     }
   };
 
   return (
     <div className={`${styles.pagination} ${className}`}>
-      <button
-        onClick={() => handlePageChangeInternal(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={styles.arrow}
-      ></button>
-
       {getPageNumbers().map((page, index) =>
         page === "..." ? (
           <span key={`ellipsis-${index}`} className={styles.ellipsis}>
@@ -106,12 +97,6 @@ const Pagination: React.FC<PaginationProps> = ({
           </button>
         )
       )}
-
-      <button
-        onClick={() => handlePageChangeInternal(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={styles.arrow}
-      ></button>
     </div>
   );
 };

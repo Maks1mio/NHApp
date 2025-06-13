@@ -2,24 +2,25 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import BookCard, { Book } from "../BookCard";
 import Pagination from "../Pagination";
-import { FiSearch, FiTrendingUp } from "react-icons/fi";
-import { FaRedo } from "react-icons/fa";
+import { FiCompass, FiTrendingUp } from "react-icons/fi";
 import * as styles from "./SearchResults.module.scss";
 import { wsClient } from "../../../wsClient";
 import { useTagFilter } from "../../../context/TagFilterContext";
+import MinimalHeader from "./MinimalHeader";
+import { Loading, StateBlock } from "./SearchResultStates";
 
 const PER_PAGE = 25;
 const SEARCH_SORT_STORAGE_KEY = "searchResultsSortType";
 const LS_FAVORITES_KEY = "bookFavorites";
 
-type SortType = "relevance" | "popular";
+type SortType = "newest" | "popular";
 
 const SORT_OPTIONS: {
   value: SortType;
   label: string;
   icon: React.ReactNode;
 }[] = [
-  { value: "relevance", label: "By relevance", icon: <FiSearch /> },
+  { value: "newest", label: "Newest First", icon: <FiCompass /> },
   { value: "popular", label: "Popular", icon: <FiTrendingUp /> },
 ];
 
@@ -31,6 +32,7 @@ const SearchResultsSearch: React.FC = () => {
   const searchQuery = qp.get("q") || "";
   const sortFromURL = qp.get("sort") as SortType | null;
   const pageFromURL = parseInt(qp.get("page") || "1", 10);
+  const yearFromURL = qp.get("year") ? parseInt(qp.get("year"), 10) : null;
   const typeFromURL = qp.get("type") || "search";
 
   const { selectedTags } = useTagFilter();
@@ -38,22 +40,6 @@ const SearchResultsSearch: React.FC = () => {
   const [favIds, setFavIds] = useState<number[]>(() =>
     JSON.parse(localStorage.getItem(LS_FAVORITES_KEY) ?? "[]")
   );
-
-  useEffect(() => {
-    const h = (e: StorageEvent) => {
-      if (e.key === LS_FAVORITES_KEY) setFavIds(JSON.parse(e.newValue ?? "[]"));
-    };
-    window.addEventListener("storage", h);
-    return () => window.removeEventListener("storage", h);
-  }, []);
-
-  const initialSort =
-    sortFromURL && SORT_OPTIONS.some((o) => o.value === sortFromURL)
-      ? sortFromURL
-      : (localStorage.getItem(SEARCH_SORT_STORAGE_KEY) as SortType) ||
-        "relevance";
-
-  const [sortState, setSortState] = useState<SortType>(initialSort);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +48,11 @@ const SearchResultsSearch: React.FC = () => {
   const lastRequestId = useRef<number>(0);
 
   const fetchData = useCallback(
-    (page = 1, sort: SortType = sortState) => {
+    (
+      page = 1,
+      sort: SortType = (sortFromURL as SortType) || "newest",
+      year: number | null = yearFromURL
+    ) => {
       setLoading(true);
       setError(null);
       setCurrentPage(page);
@@ -90,63 +80,57 @@ const SearchResultsSearch: React.FC = () => {
       wsClient.send({
         type: "search-books",
         query: searchQuery,
-        sort: sort === "relevance" ? "" : sort,
+        sort: sort === "popular" ? "popular" : "date-desc",
         page,
         perPage: PER_PAGE,
         filterTags: selectedTags,
         contentType: typeFromURL as any,
+        year: year,
       });
     },
-    [searchQuery, selectedTags, sortState, typeFromURL]
+    [searchQuery, selectedTags, sortFromURL, yearFromURL, typeFromURL]
   );
 
-  // Initial fetch on mount
   useEffect(() => {
-    fetchData(pageFromURL, initialSort);
-  }, [pageFromURL, initialSort, fetchData]);
+    fetchData(pageFromURL, (sortFromURL as SortType) || "newest", yearFromURL);
+  }, [pageFromURL, sortFromURL, yearFromURL, fetchData]);
 
-  // Обработка изменений URL
   useEffect(() => {
     const newPage = parseInt(qp.get("page") || "1", 10);
     const newSort = qp.get("sort") as SortType | null;
-    const newType = qp.get("type") || "search";
-
-    // Если изменилась страница, сортировка или тип - делаем новый запрос
+    const newYear = qp.get("year") ? parseInt(qp.get("year"), 10) : null;
     if (
       newPage !== currentPage ||
-      (newSort && newSort !== sortState) ||
-      newType !== typeFromURL
+      (newSort && newSort !== sortFromURL) ||
+      newYear !== yearFromURL
     ) {
-      const effectiveSort = newSort || sortState;
+      const effectiveSort = newSort || (sortFromURL as SortType) || "newest";
       setCurrentPage(newPage);
-      if (newSort && newSort !== sortState) {
-        setSortState(newSort);
+      if (newSort && newSort !== sortFromURL) {
         localStorage.setItem(SEARCH_SORT_STORAGE_KEY, newSort);
       }
-      fetchData(newPage, effectiveSort);
+      fetchData(newPage, effectiveSort, newYear);
     }
-  }, [location.search]);
+  }, [qp]);
 
-  const onSortChange = (s: SortType) => {
-    if (s === sortState) return;
-    localStorage.setItem(SEARCH_SORT_STORAGE_KEY, s);
-    setSortState(s);
+  const onSortChange = (sort: string) => {
+    localStorage.setItem(SEARCH_SORT_STORAGE_KEY, sort);
     navigate(
       `/search?type=search&q=${encodeURIComponent(
         searchQuery
-      )}&sort=${s}&page=1`
+      )}&sort=${sort}&page=1`
     );
-    fetchData(1, s); // Explicitly fetch data with the new sort
+    fetchData(1, sort as SortType, yearFromURL);
   };
 
   const onPageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
     navigate(
-      `/search?type=search&q=${encodeURIComponent(
-        searchQuery
-      )}&sort=${sortState}&page=${page}`
+      `/search?type=search&q=${encodeURIComponent(searchQuery)}&sort=${
+        sortFromURL || "newest"
+      }${yearFromURL ? `&year=${yearFromURL}` : ""}&page=${page}`
     );
-    fetchData(page, sortState);
+    fetchData(page, (sortFromURL as SortType) || "newest", yearFromURL);
   };
 
   const toggleFavorite = (id: number, add: boolean) => {
@@ -159,42 +143,16 @@ const SearchResultsSearch: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.minimalHeader}>
-        <div className={styles.sortControls}>
-          {SORT_OPTIONS.map((o) => (
-            <button
-              key={o.value}
-              className={`${styles.sortButton} ${
-                sortState === o.value ? styles.active : ""
-              }`}
-              onClick={() => onSortChange(o.value)}
-            >
-              {o.icon}
-              <span>{o.label}</span>
-            </button>
-          ))}
-          <button
-            className={styles.refreshButton}
-            disabled={loading}
-            onClick={() => fetchData(currentPage, sortState)}
-          >
-            <FaRedo
-              className={`${styles.refreshIcon} ${loading ? styles.spin : ""}`}
-            />
-          </button>
-        </div>
-      </div>
-
       <div className={styles.mainContent}>
-        {error && (
-          <ErrorBlock
-            msg={error}
-            retry={() => fetchData(currentPage, sortState)}
+        {(error || (!loading && books.length === 0)) && (
+          <StateBlock
+            icon={error ? "⚠️" : "🔍"}
+            title={error ? "Error" : "Nothing found"}
+            description={error || "Try changing your search parameters or filters"}
+            retry={error ? () => fetchData(currentPage, (sortFromURL as SortType) || "newest", yearFromURL) : undefined}
           />
         )}
-        {loading && <LoadingBlock />}
-        {!loading && books.length === 0 && <EmptySearch />}
-
+        {loading && <Loading />}
         {!loading && books.length > 0 && (
           <>
             <div className={styles.booksGrid}>
@@ -218,37 +176,21 @@ const SearchResultsSearch: React.FC = () => {
           </>
         )}
       </div>
+      <MinimalHeader
+        sortOptions={SORT_OPTIONS}
+        defaultSort="newest"
+        onSortChange={onSortChange}
+        onRefresh={() =>
+          fetchData(
+            currentPage,
+            (sortFromURL as SortType) || "newest",
+            yearFromURL
+          )
+        }
+        loading={loading}
+      />
     </div>
   );
 };
-
-const LoadingBlock = () => (
-  <div className={styles.loadingState}>
-    <div className={styles.loadingSpinner} />
-  </div>
-);
-
-const ErrorBlock: React.FC<{ msg: string; retry: () => void }> = ({
-  msg,
-  retry,
-}) => (
-  <div className={styles.errorState}>
-    <div className={styles.errorContent}>
-      <div className={styles.errorIcon}>⚠️</div>
-      <div className={styles.errorText}>{msg}</div>
-      <button className={styles.retryButton} onClick={retry}>
-        Retry
-      </button>
-    </div>
-  </div>
-);
-
-const EmptySearch = () => (
-  <div className={styles.emptyState}>
-    <div className={styles.emptyIllustration}>🔍</div>
-    <h3>Nothing found</h3>
-    <p>Try changing your search parameters or filters</p>
-  </div>
-);
 
 export default SearchResultsSearch;

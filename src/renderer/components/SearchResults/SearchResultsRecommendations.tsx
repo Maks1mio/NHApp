@@ -5,6 +5,13 @@ import BookCard, { Book } from "../BookCard";
 import { wsClient } from "../../../wsClient";
 import Tooltip from "../ui/Tooltip";
 import { useTagFilter } from "../../../context/TagFilterContext";
+import MinimalHeader from "./MinimalHeader";
+import {
+  Loading,
+  NoFavorites,
+  NoRecommendations,
+  StateBlock,
+} from "./SearchResultStates";
 
 const LS_FAVORITES_KEY = "bookFavorites";
 const LS_PREFERENCES_KEY = "recommendationPreferences";
@@ -12,7 +19,6 @@ const PER_PAGE = 100;
 const TODAY_ISO = new Date().toISOString().slice(0, 10);
 const isToday = (iso: string) => iso.startsWith(TODAY_ISO);
 
-type TagStat = { name: string; count: number };
 interface RecStats {
   weights: Record<string, number>;
   topCharacters: TagStat[];
@@ -21,6 +27,10 @@ interface RecStats {
   extraCharacters: TagStat[];
   extraArtists: TagStat[];
 }
+
+export { RecStats };
+
+type TagStat = { name: string; count: number };
 interface BookWithTags extends Book {
   sharedTags?: string[];
 }
@@ -92,11 +102,12 @@ const SearchResultsRecommendations: React.FC = () => {
           return;
         }
         if (res.type === "error") {
-          setError(res.message);
+          setError(res.message || "Failed to load recommendations");
           setLoading(false);
           return unsub();
         }
         if (res.type === "recommendations-reply") {
+          setStats((res.stats as RecStats) || null);
           setProgress(null);
           setStats(res.stats || null);
           setTotal(res.totalPages ?? 1);
@@ -129,7 +140,6 @@ const SearchResultsRecommendations: React.FC = () => {
     [favIds, books, preferences, selectedTags]
   );
 
-  // Initial fetch on mount
   useEffect(() => {
     setBooks([]);
     setCurrentPage(1);
@@ -220,71 +230,64 @@ const SearchResultsRecommendations: React.FC = () => {
       </div>
     );
 
+  const onSortChange = () => {};
+  const onRefresh = () => {
+    setBooks([]);
+    setCurrentPage(1);
+    if (favIds.length) fetchPage(1);
+  };
+
   return (
     <div className={styles.container}>
-      <header className={styles.minimalHeader}>
-        <div className={styles.sortControls}>
-          {stats && (
-            <>
-              <div
-                ref={infoRef}
-                className={styles.infoWrapper}
-                onMouseEnter={() => setTipOpen(true)}
-                onMouseLeave={() => setTipOpen(false)}
-              >
-                <FiInfo className={styles.infoIcon} />
-              </div>
-              <Tooltip anchorEl={infoRef.current} open={tipOpen}>
-                <TooltipBody />
-              </Tooltip>
-            </>
-          )}
-        </div>
-      </header>
-
       <main className={styles.mainContent}>
-        {!loading && !favIds.length && <NoFavs />}
-
-        <div className={styles.booksGrid}>
-          {books.map((b) => (
-            <BookCard
-              key={b.id}
-              book={b}
-              isNew={isToday(b.uploaded)}
-              isFavorite={favIds.includes(b.id)}
-              onToggleFavorite={toggleFavorite}
-            />
-          ))}
-        </div>
-
-        {loading && <Loader prog={progress} />}
-        <div ref={sentinel} style={{ height: 1 }} />
-        {!loading && books.length === 0 && favIds.length > 0 && <NoRecs />}
+        {error && (
+          <StateBlock
+            icon="⚠️"
+            title="Error"
+            description={error}
+            retry={() => {
+              setBooks([]);
+              setCurrentPage(1);
+              if (favIds.length) fetchPage(1);
+            }}
+          />
+        )}
+        {loading && <Loading progress={progress} />}
+        {!loading && !error && (
+          <>
+            <div className={styles.booksGrid}>
+              {books.map((b) => (
+                <BookCard
+                  key={b.id}
+                  book={b}
+                  isNew={isToday(b.uploaded)}
+                  isFavorite={favIds.includes(b.id)}
+                  onToggleFavorite={toggleFavorite}
+                />
+              ))}
+            </div>
+            {books.length === 0 && favIds.length > 0 && (
+              <StateBlock icon="📚" description="No recommendations." />
+            )}
+            {!favIds.length && (
+              <StateBlock icon="📚" description="No favorite books." />
+            )}
+            <div ref={sentinel} style={{ height: 1 }} />
+          </>
+        )}
       </main>
+      <MinimalHeader
+        sortOptions={[]}
+        defaultSort=""
+        onSortChange={onSortChange}
+        onRefresh={onRefresh}
+        loading={loading}
+        showInfo={true}
+        stats={stats}
+        disabled={!favIds.length}
+      />
     </div>
   );
 };
-
-const Loader: React.FC<{
-  prog: { message: string; percent: number } | null;
-}> = ({ prog }) => (
-  <div className={styles.loadingState}>
-    <div className={styles.loadingSpinner} />
-    {prog && (
-      <div className={styles.loadingInfo}>
-        <strong>{prog.message}</strong>
-        <div className={styles.progressBar}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${prog.percent}%` }}
-          />
-        </div>
-      </div>
-    )}
-  </div>
-);
-
-const NoFavs = () => <p className={styles.emptyState}>No favorite books.</p>;
-const NoRecs = () => <p className={styles.emptyState}>No recommendations.</p>;
 
 export default SearchResultsRecommendations;
