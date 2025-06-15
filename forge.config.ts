@@ -60,9 +60,13 @@ const forgeConfig: ForgeConfig = {
             name: "main_window",
             html: "./src/renderer/index.html",
             js: "./src/main/renderer.ts",
-            preload: {
-              js: "./src/main/preload.ts",
-            },
+            preload: { js: "./src/main/preload.ts" },
+          },
+          {
+            name: "viewer",
+            html: "./src/renderer/viewer.html",
+            js: "./src/main/viewerRenderer.ts",
+            preload: { js: "./src/main/preload.ts" },
           },
         ],
       },

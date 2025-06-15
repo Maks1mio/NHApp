@@ -99,17 +99,19 @@
 }
 
 body {
-  display: flex;
-  background: var(--colour-b6);
-  color: var(--colour-f1);
-  padding: 0;
-  margin: 0;
-  flex-direction: column;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+    display: flex
+;
+    background: hsla(var(--base-hue), 30%, 10%, 0.8);
+    color: var(--colour-f1);
+    backdrop-filter: blur(0px);
+    padding: 0;
+    margin: 0;
+    flex-direction: column;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
 }
 
 .nh-tooltip {

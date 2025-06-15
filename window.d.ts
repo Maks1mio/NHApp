@@ -48,6 +48,9 @@ declare global {
           contentType: string;
         } | null>;
       };
+      viewer: {
+        open(bookId: number, index: number, title?: string): Promise<void>;
+      };
     };
   }
 }
