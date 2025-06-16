@@ -23,6 +23,10 @@ export const plugins = [
         from: path.resolve(__dirname, "src/utils/nhentai-tags.json"),
         to: path.resolve(__dirname, ".webpack/main/utils/nhentai-tags.json"),
       },
+      {
+        from: path.resolve(__dirname, "src/oauth-credentials.json"),
+        to: path.resolve(__dirname, ".webpack/main/oauth-credentials.json"),
+      },
     ],
   }),
   new webpack.ProvidePlugin({

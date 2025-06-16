@@ -1,6 +1,6 @@
 {
   "name": "rectron",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "author": "Maks1mio <one.evt@gmail.com>",
   "description": "A modern nHentai client built with Electron",
   "main": ".webpack/main",
@@ -33,6 +33,7 @@
     "electron-updater": "^6.6.2",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
     "framer-motion": "^12.12.2",
+    "googleapis": "^150.0.1",
     "https-browserify": "^1.0.0",
     "jq": "^1.7.2",
     "nhentai-api": "^3.4.3",
